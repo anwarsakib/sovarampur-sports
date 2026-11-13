@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "541147051180",
+    "project_id": "shovarampur-sports",
+    "storage_bucket": "shovarampur-sports.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:541147051180:android:2cce9d694318fb16829b09",
+        "android_client_info": {
+          "package_name": "com.shovarampur.sportsfamily"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCy7i1Zw4ZE9yMj4PvZhvlTZbq3g7I4TuI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
