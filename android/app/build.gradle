@@ -1,0 +1,50 @@
+plugins {
+    id 'com.android.application'
+}
+
+// ফায়ারবেস ঐচ্ছিক: android/app/google-services.json থাকলেই যুক্ত হবে
+def gsFile = file('google-services.json')
+if (gsFile.exists()) {
+    apply plugin: 'com.google.gms.google-services'
+}
+
+def vName = (project.findProperty('appVersionName') ?: '3.0').toString()
+
+android {
+    namespace 'com.shobarampur.sportsfamily'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.shobarampur.sportsfamily'
+        minSdk 24
+        targetSdk 34
+        versionCode 3
+        versionName vName
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('../keystore/release.keystore')
+            storePassword 'sobarampur2026'
+            keyAlias 'sobarampur'
+            keyPassword 'sobarampur2026'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // ফায়ারবেস পুশ নোটিফিকেশনের জন্য — json না থাকলেও বিল্ড চলে
+    implementation 'com.google.firebase:firebase-messaging:23.4.1'
+}
