@@ -1,0 +1,63 @@
+name: অ্যাপ বিল্ড (APK)
+
+# Actions ট্যাব → "অ্যাপ বিল্ড (APK)" → "Run workflow" চাপলেই নতুন APK তৈরি হবে
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: "ভার্সন নাম (যেমন: 3.0)"
+        required: false
+        default: "3.0"
+
+jobs:
+  build-apk:
+    name: APK তৈরি করুন
+    runs-on: ubuntu-latest
+    steps:
+      - name: কোড ডাউনলোড
+        uses: actions/checkout@v4
+
+      - name: Java 17 সেটআপ
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Gradle সেটআপ
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: অ্যাপের ফাইল প্রস্তুত করুন
+        run: |
+          mkdir -p android/app/src/main/assets
+          cp index.html android/app/src/main/assets/index.html
+          echo "index.html কপি হয়েছে ($(du -h android/app/src/main/assets/index.html | cut -f1))"
+
+      - name: ফায়ারবেস যাচাই (ঐচ্ছিক)
+        run: |
+          if [ -f android/app/google-services.json ]; then
+            echo "✅ google-services.json পাওয়া গেছে — পুশ নোটিফিকেশন সহ বিল্ড হবে"
+          else
+            echo "ℹ️ google-services.json নেই — ফায়ারবেস ছাড়া বিল্ড হবে (অ্যাপের ভেতরের সব ফিচার ঠিকই চলবে)"
+          fi
+
+      - name: APK বিল্ড (Release, সাইনড)
+        run: |
+          gradle -p android assembleRelease --no-daemon \
+            -PappVersionName="${{ github.event.inputs.version_name || '3.0' }}"
+
+      - name: APK ফাইল নামকরণ
+        run: |
+          mkdir -p out
+          cp android/app/build/outputs/apk/release/app-release.apk \
+            "out/শোভারামপুর-স্পোর্টস-ফ্যামিলি-${{ github.event.inputs.version_name || '3.0' }}.apk"
+          ls -la out/
+
+      - name: APK আপলোড — নিচের Artifacts থেকে ডাউনলোড করুন
+        uses: actions/upload-artifact@v4
+        with:
+          name: Shobarampur-Sports-Family-APK
+          path: out/*.apk
+          if-no-files-found: error
+          retention-days: 90
