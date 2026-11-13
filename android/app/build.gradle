@@ -2,23 +2,54 @@ plugins {
     id 'com.android.application'
 }
 
-// ফায়ারবেস ঐচ্ছিক: android/app/google-services.json থাকলেই যুক্ত হবে
+// ---- ফায়ারবেস ঐচ্ছিক ----
+// android/app/google-services.json থাকলে এবং তার ভেতরের package_name অ্যাপের সাথে
+// মিললে তবেই ফায়ারবেস যুক্ত হবে — না মিললে বিল্ড আটকাবে না, শুধু স্পষ্ট বার্তা দেখাবে।
+def appId = 'com.shovarampur.sportsfamily'
 def gsFile = file('google-services.json')
+def gsOk = false
 if (gsFile.exists()) {
+    try {
+        def json = new groovy.json.JsonSlurper().parse(gsFile)
+        def pkgs = []
+        if (json.client != null) {
+            json.client.each { c ->
+                def p = c?.client_info?.android_client_info?.package_name
+                if (p) pkgs << p
+            }
+        }
+        gsOk = pkgs.contains(appId)
+        if (gsOk) {
+            println '✅ ফায়ারবেস যুক্ত হচ্ছে (google-services.json মিলে গেছে)'
+        } else {
+            println "=============================================================="
+            println "⚠️ google-services.json আছে, কিন্তু package_name মেলেনি!"
+            println "   ফাইলে আছে: ${pkgs}"
+            println "   অ্যাপের নাম: ${appId}"
+            println "   👉 Firebase Console-এ অ্যাপ রেজিস্টারের সময় package name হুবহু লিখুন:"
+            println "      ${appId}"
+            println "   📱 এই বিল্ডে পুশ-নোটিফিকেশন থাকবে না (অ্যাপের বাকি সব চলবে)"
+            println "=============================================================="
+        }
+    } catch (Exception e) {
+        println '⚠️ google-services.json পড়া গেল না — ফায়ারবেস ছাড়া বিল্ড হচ্ছে'
+    }
+}
+if (gsOk) {
     apply plugin: 'com.google.gms.google-services'
 }
 
-def vName = (project.findProperty('appVersionName') ?: '3.0').toString()
+def vName = (project.findProperty('appVersionName') ?: '3.1').toString()
 
 android {
     namespace 'com.shobarampur.sportsfamily'
     compileSdk 34
 
     defaultConfig {
-        applicationId 'com.shobarampur.sportsfamily'
+        applicationId appId
         minSdk 24
         targetSdk 34
-        versionCode 3
+        versionCode 4
         versionName vName
     }
 
@@ -45,6 +76,7 @@ android {
 }
 
 dependencies {
-    // ফায়ারবেস পুশ নোটিফিকেশনের জন্য — json না থাকলেও বিল্ড চলে
+    // ফায়ারবেস পুশ + ব্যবহারের হিসাব (কতজন অ্যাপ খুলছে) — json মিললেই সক্রিয় হবে
     implementation 'com.google.firebase:firebase-messaging:23.4.1'
+    implementation 'com.google.firebase:firebase-analytics:21.5.1'
 }

@@ -67,9 +67,16 @@ public class MainActivity extends Activity {
 
         web.loadUrl("file:///android_asset/index.html");
 
-        // ফায়ারবেস কনফিগার থাকলে Android 13+ এ নোটিফিকেশনের অনুমতি চাই
-        if (FirebaseApp.initializeApp(this) != null && Build.VERSION.SDK_INT >= 33) {
-            requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 1);
+        // ফায়ারবেস কনফিগার থাকলে: ব্যবহারের হিসাব (APP_OPEN) + Android 13+ নোটিফিকেশন অনুমতি
+        if (FirebaseApp.initializeApp(this) != null) {
+            try {
+                com.google.firebase.analytics.FirebaseAnalytics.getInstance(this)
+                        .logEvent(com.google.firebase.analytics.FirebaseAnalytics.Event.APP_OPEN, null);
+            } catch (Exception ignored) {
+            }
+            if (Build.VERSION.SDK_INT >= 33) {
+                requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 1);
+            }
         }
     }
 
