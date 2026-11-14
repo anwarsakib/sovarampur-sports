@@ -39,7 +39,7 @@ if (gsOk) {
     apply plugin: 'com.google.gms.google-services'
 }
 
-def vName = (project.findProperty('appVersionName') ?: '3.4').toString()
+def vName = (project.findProperty('appVersionName') ?: '3.5').toString()
 
 android {
     namespace 'com.shobarampur.sportsfamily'
@@ -49,7 +49,7 @@ android {
         applicationId appId
         minSdk 24
         targetSdk 34
-        versionCode 7
+        versionCode 8
         versionName vName
     }
 

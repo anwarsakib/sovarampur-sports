@@ -352,6 +352,7 @@ hero:'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAoHCAkIBgoJCAkMCwo
     <button data-v="home" onclick="go('home')"><span class="ic">🏠</span>হোম</button>
     <button data-v="members" onclick="go('members')"><span class="ic">👥</span>সদস্য</button>
     <button data-v="ledger" onclick="go('ledger')"><span class="ic">💰</span>হিসাব</button>
+    <button data-v="timer" onclick="go('timer')"><span class="ic">⏱️</span>টাইমার</button>
     <button data-v="tournaments" onclick="go('tournaments')"><span class="ic">🏆</span>টুর্নামেন্ট</button>
     <button data-v="notices" onclick="go('notices')"><span class="ic">📢</span>নোটিশ</button>
   </nav>
@@ -453,6 +454,7 @@ function canAdmin(sec){const s=curSession();if(!s)return false;
   const r=ADMIN_ROLES[s.role];return !!(r&&r.indexOf(sec)>-1);}
 function setSession(s){if(s)sessionStorage.setItem(SS_KEY,JSON.stringify(s));else sessionStorage.removeItem(SS_KEY);}
 function adminName(){const s=curSession();return s?s.name:'অজানা';}
+function curAdmin(){return curSession()||{name:'অজানা',role:''};}
 /* Firebase Auth (REST) — সহ এডমিনের যেকোনো-ফোন লগইনের জন্য; provider বন্ধ থাকলে লোকাল তালিকাই কাজ করে */
 const FB_API_KEY='AIzaSyCy7i1Zw4ZE9yMj4PvZhvlTZbq3g7I4TuI';
 const CO_DOMAIN='@shobarampur.app';
@@ -535,13 +537,14 @@ function pickLogo(inp){const f=inp.files&&inp.files[0];if(!f)return;
 function togChk(el){el.classList.toggle('on');const c=el.querySelector('input');if(c)c.checked=!c.checked;}
 
 /* ================= router ================= */
-function navActive(){if(view==='tournamentDetail')return 'tournaments';if(view==='home'||view==='members'||view==='ledger'||view==='tournaments'||view==='notices')return view;return '';}
+function navActive(){if(view==='tournamentDetail')return 'tournaments';if(view==='home'||view==='members'||view==='ledger'||view==='timer'||view==='tournaments'||view==='notices')return view;return '';}
 function render(){
   document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on',b.dataset.v===navActive()));
   const v=$('#view');let h='';
   if(view==='home')h=vHome();
   else if(view==='members')h=vMembers();
   else if(view==='ledger')h=vLedger();
+  else if(view==='timer')h=vTimer();
   else if(view==='tournaments')h=vTournaments();
   else if(view==='tournamentDetail')h=vTournamentDetail();
   else if(view==='notices')h=vNotices();
@@ -645,7 +648,7 @@ function countUp(){document.querySelectorAll('[data-cnt]').forEach(function(el){
     el.textContent=el.dataset.fmt==='bdt'?bdt(v):bnNum(v);
     if(p<1)requestAnimationFrame(step);}
   requestAnimationFrame(step);});}
-function postRender(){countUp();initBanner();}
+function postRender(){countUp();initBanner();if(view==='timer'&&typeof timerRender==='function')setTimeout(timerRender,0);}
 </script>
 <script>
 /* ================= হোম ================= */
@@ -822,6 +825,7 @@ function vLedger(){const t=totals();
     <div class="stat bal" style="padding:10px 8px"><div class="lb">ব্যালেন্স</div><div class="vl" style="font-size:.98rem">${bdt(t.bal)}</div></div>
   </div>
   ${canAdmin('ledger')?`<div style="display:flex;gap:8px;margin:10px 0 12px"><button class="btn pri blk" onclick="incomeForm()">+ আয় যোগ</button><button class="btn gold blk" onclick="expenseForm()">+ ব্যয় যোগ</button></div>`:''}
+  ${canAdmin('ledger')?'':`<div class="card" style="background:#eff6ff;border-color:#bfdbfe;margin:10px 0 12px"><div class="mtxt">🔒 আয়-ব্যয় <b>লেখার</b> অধিকার শুধু এডমিনদের — হিসাব দেখা সবাই করতে পারবেন। এন্ট্রি করতে লগইন করুন:</div><button class="btn pri blk" style="margin-top:8px" onclick="adminBtnClick()">🔐 এডমিন লগইন (আয়-ব্যয় লিখতে)</button></div>`}
   <div class="flabel">👇 কী দেখতে চান? নিচের বোতামে চাপ দিন</div>
   <div class="seg">
     <button class="${ledTab==='tx'?'on':''}" onclick="setLedTab('tx')">🧾 লেনদেন</button>
@@ -1133,7 +1137,7 @@ function timerAnnounce(msg,emoji,say){const ov=document.createElement('div');ov.
     if(n>=3){clearInterval(iv);setTimeout(()=>{if(ov.parentNode)ov.parentNode.removeChild(ov);},700);}},1700);}
 function timerPhaseLabel(){const T=timerCfg();return {idle:'প্রথমার্ধ শুরুর জন্য প্রস্তুত — প্রতি অর্ধ '+bnDigits(T.half)+' মিনিট',h1:'⚽ প্রথমার্ধ চলছে',h1p:'⏸ প্রথমার্ধ থামানো আছে',rest:'☕ বিরতি চলছে',restp:'⏸ বিরতি থামানো আছে',h2:'⚽ দ্বিতীয়ার্ধ চলছে',h2p:'⏸ দ্বিতীয়ার্ধ থামানো আছে',done:'✅ খেলা শেষ — ফলাফল লিখুন'}[TMR.phase]||'';}
 function timerEvChip(e){return `<span class="evchip">${e.team==='B'?'🔵':'🔴'} ⚽ ${esc(e.name)} ${bnNum(e.min)}&prime;</span>`;}
-function timerRender(){const f=document.getElementById('tface');if(!f)return;const T=timerCfg();
+function timerRender(){const f=document.getElementById('tface')||document.getElementById('tfacepage');if(!f)return;const T=timerCfg();
   const running=TMR.iv!==null;
   const leftSec=TMR.phase==='idle'?T.half*60:(TMR.phase==='done'?0:Math.ceil(timerLeftMs()/1000));
   const totalMs=((TMR.phase==='rest'||TMR.phase==='restp')?T.rest:T.half)*60000;
@@ -1204,6 +1208,17 @@ function timerNext(){const T=timerCfg();const over=Date.now()-TMR.endAt;const fr
   else return;
   if(timerRunning()){clearInterval(TMR.iv);TMR.iv=setInterval(timerTick,500);}
   timerSaveLive();timerRender();}
+function vTimer(){const ts=store.tournaments;
+  const live=store.timerLive&&(store.timerLive.phase==='h1'||store.timerLive.phase==='rest'||store.timerLive.phase==='h2');
+  return `<div class="card">
+    ${live?`<div class="mtxt" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:8px 10px">🕐 আগের ঘড়ি এখনো চলছে — ফিরে এসেছেন, তাই সময় ঠিক দেখাচ্ছে। নতুন খেলা চাইলে ⏹ রিসেট চাপুন।</div>`:''}
+    <div class="tsub">⏱️ লাইভ ম্যাচ ঘড়ি — যে কেউ চালাতে পারবেন। ঘড়ি দেওয়াল-ঘড়ি অনুযায়ী চলে, তাই স্ক্রিন অফ বা অ্যাপ বন্ধ হলেও সময় ঠিক থাকে।</div>
+    ${ts.length?`<div class="fgrp"><label>কোন টুর্নামেন্টের ম্যাচ? (গোল লেখার জন্য — ঐচ্ছিক)</label><select onchange="TMR.tourId=this.value;TMR.matchId='';timerSaveLive();timerRender()">
+      <option value="">— শুধু ঘড়ি (ম্যাচ ছাড়া) —</option>
+      ${ts.map(t=>`<option value="${t.id}" ${TMR.tourId===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}
+    </select></div>`:`<div class="mtxt">💡 টুর্নামেন্ট বানালে এখান থেকে ম্যাচ বাছাই করে ⚽ গোলের নাম লেখা যাবে — তবে ঘড়ি চালাতে টুর্নামেন্ট লাগবে না।</div>`}
+    <div id="tfacepage"></div>
+  </div>`;}
 function openTimer(tourId){if(tourId)TMR.tourId=tourId;else if(!TMR.tourId&&currentT)TMR.tourId=currentT;
   openModal(`<div class="mhandle"></div><h3 class="mttl">⏱️ লাইভ ম্যাচ টাইমার</h3><div id="tface"></div>`);
   timerRender();}
