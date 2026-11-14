@@ -10,7 +10,7 @@ on:
       version_name:
         description: "ভার্সন নাম (যেমন: 3.4)"
         required: false
-        default: "3.4"
+        default: "3.5"
 
 permissions:
   contents: write
@@ -51,35 +51,35 @@ jobs:
       - name: APK বিল্ড (Release, সাইনড)
         run: |
           gradle -p android assembleRelease --no-daemon \
-            -PappVersionName="${{ github.event.inputs.version_name || '3.4' }}"
+            -PappVersionName="${{ github.event.inputs.version_name || '3.5' }}"
 
       - name: APK ফাইল নামকরণ
         run: |
           mkdir -p out
           cp android/app/build/outputs/apk/release/app-release.apk \
-            "out/Shobarampur-Sports-Family-v${{ github.event.inputs.version_name || '3.4' }}.apk"
+            "out/Shobarampur-Sports-Family-v${{ github.event.inputs.version_name || '3.5' }}.apk"
           ls -la out/
 
       - name: GitHub Release তৈরি — লিংক দিলেই সবাই ডাউনলোড করতে পারবে
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "v${{ github.event.inputs.version_name || '3.4' }}"
-          name: "⚽ Shobarampur Sports Family — v${{ github.event.inputs.version_name || '3.4' }}"
+          tag_name: "v${{ github.event.inputs.version_name || '3.5' }}"
+          name: "⚽ Shobarampur Sports Family — v${{ github.event.inputs.version_name || '3.5' }}"
           make_latest: true
           overwrite_files: true
           files: out/*.apk
           body: |
             ## 📱 ডাউনলোড করার নিয়ম
-            ১. নিচের **Assets** অংশ থেকে `Shobarampur-Sports-Family-v${{ github.event.inputs.version_name || '3.4' }}.apk` ফাইলটি চাপুন — ডাউনলোড শুরু হবে (কোনো লগইন লাগে না)।
+            ১. নিচের **Assets** অংশ থেকে `Shobarampur-Sports-Family-v${{ github.event.inputs.version_name || '3.5' }}.apk` ফাইলটি চাপুন — ডাউনলোড শুরু হবে (কোনো লগইন লাগে না)।
             ২. ফোনে খুলে **ইনস্টল** চাপুন। "অজানা উৎস থেকে ইনস্টল করার অনুমতি" চাইলে অনুমতি দিন।
             ৩. আগের ভার্সন থাকলে উপরে নতুনটা ইনস্টল হয়ে যাবে — ডেটা মুছবে না।
 
-            ## ✨ v3.4-এ নতুন
-            - 👑 **মূল এডমিন জিমেইল দিয়ে লগইন** + 🤝 **সহ এডমিন সিস্টেম** (ইউজারনেম-পাসওয়ার্ড, পদবি অনুযায়ী অধিকার)
-            - 🔒 সাধারণ ইউজার সরাসরি হোম পেজ — লগইন স্ক্রিন নেই
-            - ⏱️ **ম্যাচ টাইমার সবার জন্য** + ⚽ **গোল লগ** (কে, কত মিনিটে গোল)
-            - 🕒 **স্ক্রিন অফ / অ্যাপ বন্ধ থাকলেও টাইমার চলে**
-            - 📡 **সবার ফোনে একসাথে লাইভ ঘড়ি** (Firebase Realtime Database চালু করলে)
+            ## ✨ v3.5-এ নতুন
+            - 🛠️ **গুরুত্বপূর্ণ বাগ ফিক্স:** আয় যোগ / ব্যয় যোগ / নোটিশ প্রকাশ করতে গেলে সেভ হচ্ছিল না (ক্র্যাশ) — এখন সব ঠিক
+            - ⏱️ **নতুন টাইমার ট্যাব** — নেভে হোম • সদস্য • হিসাব • **টাইমার** • টুর্নামেন্ট • নোটিশ: যে কেউ ঘড়ি চালাতে, ম্যাচ বেছে গোল লিখতে পারবে
+            - 💰 হিসাব পেজে সাধারণ ইউজারের জন্য পরিষ্কার লগইন গাইড (দেখা সবাই, লেখা এডমিন)
+            - 👑 মূল এডমিন জিমেইল লগইন + 🤝 সহ এডমিন (পদবি অনুযায়ী অধিকার)
+            - 🕒 স্ক্রিন অফ / অ্যাপ বন্ধ থাকলেও টাইমার চলে • 📡 সবার ফোনে একসাথে লাইভ ঘড়ি (Realtime Database চালু করলে)
 
             ## ⚙️ এডমিনদের জন্য (একবারই)
             - **সহ এডমিন যেকোনো ফোন থেকে লগইন** করাতে: Firebase Console → **Authentication → Sign-in method → Email/Password → Enable**
