@@ -322,6 +322,9 @@ details.fold .fgrp:first-of-type{margin-top:10px}
 .tann .te{font-size:4.2rem}
 .tann .tt{font-size:1.45rem;font-weight:800;line-height:1.4}
 @keyframes tflash{from{opacity:.5}to{opacity:1}}
+#sharebar{position:fixed;top:60px;left:0;right:0;z-index:60;background:linear-gradient(135deg,#7f1d1d,#dc2626);color:#fff;padding:8px 14px;font-size:.82rem;font-weight:700;display:flex;gap:8px;align-items:center;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.18)}
+#sharebar .sb2{margin-left:auto;font-size:.68rem;font-weight:600;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.evchip{font-size:.62rem;font-weight:700;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;border-radius:999px;padding:2px 8px}
 </style>
 </head>
 <script>/* এমবেড করা ছবি (লোগো + খেলার ছবি) — ইন্টারনেট ছাড়াই কাজ করে */
@@ -369,7 +372,7 @@ function incCats(){return (store.settings&&store.settings.incCats&&store.setting
 function expCats(){return (store.settings&&store.settings.expCats&&store.settings.expCats.length)?store.settings.expCats:DEFAULT_EXP_CATS;}
 const ROUNDS=['গ্রুপ পর্ব','প্রথম রাউন্ড','কোয়ার্টার ফাইনাল','সেমি-ফাইনাল','তৃতীয় স্থান নির্ধারণী','ফাইনাল'];
 const PRI_COL={'সাধারণ':'#0284c7','গুরুত্বপূর্ণ':'#f59e0b','জরুরি':'#dc2626'};
-let store=null, view='home', memFilter='all', ledTab='tx', adminId=null, currentT=null, currentTT='match';
+let store=null, view='home', memFilter='all', ledTab='tx', currentT=null, currentTT='match';
 window._photo=''; window._logo='';
 
 /* ================= helpers ================= */
@@ -399,7 +402,7 @@ function freshStore(){return{
   admins:[],players:[],income:[],expenses:[],tournaments:[],notices:[],notifications:[],log:[]};}
 function load(){try{const r=localStorage.getItem(LS_KEY);return r?JSON.parse(r):null;}catch(e){return null;}}
 function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(store));}catch(e){toast('ফোনের স্টোরেজ ভরে গেছে! ছবি ছোট করে আবার চেষ্টা করুন।','err');}}
-function logAct(txt){store.log.unshift({t:Date.now(),by:curAdmin()?curAdmin().name:'—',txt:txt});if(store.log.length>150)store.log.length=150;}
+function logAct(txt){store.log.unshift({t:Date.now(),by:adminName(),txt:txt});if(store.log.length>150)store.log.length=150;}
 
 /* ================= নোটিফিকেশন সেন্টার + সাউন্ড ================= */
 function unreadCount(){return store.notifications.filter(n=>!n.read).length;}
@@ -440,8 +443,63 @@ function bumpUsage(){try{const r=JSON.parse(localStorage.getItem(US_KEY)||'null'
   r.opens++;r.last=Date.now();const d=todayISO();r.days[d]=(r.days[d]||0)+1;
   localStorage.setItem(US_KEY,JSON.stringify(r));}catch(e){}}
 function getUsage(){try{return JSON.parse(localStorage.getItem(US_KEY)||'null');}catch(e){return null;}}
-function curAdmin(){return store.admins.find(a=>a.id===adminId)||null;}
-function isAdmin(){return !!curAdmin();}
+/* ===== সেশন/অথ: মূল এডমিন (জিমেইল) + সহ এডমিন (ইউজারনেম) ===== */
+function curSession(){try{return JSON.parse(sessionStorage.getItem(SS_KEY)||'null');}catch(e){return null;}}
+function isAdmin(){return !!curSession();}
+const ALL_SECS=['ledger','members','tournaments','notices','settings'];
+const ADMIN_ROLES={'সব অধিকার':ALL_SECS,'হিসাব':['ledger'],'টুর্নামেন্ট':['tournaments'],'সদস্য':['members'],'নোটিশ':['notices']};
+function canAdmin(sec){const s=curSession();if(!s)return false;
+  if(s.kind==='main'||s.role==='সব অধিকার')return true;
+  const r=ADMIN_ROLES[s.role];return !!(r&&r.indexOf(sec)>-1);}
+function setSession(s){if(s)sessionStorage.setItem(SS_KEY,JSON.stringify(s));else sessionStorage.removeItem(SS_KEY);}
+function adminName(){const s=curSession();return s?s.name:'অজানা';}
+/* Firebase Auth (REST) — সহ এডমিনের যেকোনো-ফোন লগইনের জন্য; provider বন্ধ থাকলে লোকাল তালিকাই কাজ করে */
+const FB_API_KEY='AIzaSyCy7i1Zw4ZE9yMj4PvZhvlTZbq3g7I4TuI';
+const CO_DOMAIN='@shobarampur.app';
+function coLocal(u){const s=String(u||'').trim().toLowerCase().replace(/[^a-z0-9._%+-]/g,'');
+  return s?s:'u'+hashPin(u).slice(1);}
+function fbReq(path,body){return fetch('https://identitytoolkit.googleapis.com/v1/'+path+'?key='+FB_API_KEY,
+  {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());}
+function fbSignUp(email,pwd){return fbReq('accounts:signUp',{email:email,password:pwd,returnSecureToken:true});}
+function fbSignIn(email,pwd){return fbReq('accounts:signInWithPassword',{email:email,password:pwd,returnSecureToken:true});}
+function fbProviderOff(m){return String(m||'').indexOf('CONFIGURATION_NOT_FOUND')>-1||String(m||'').indexOf('OPERATION_NOT_ALLOWED')>-1;}
+/* ===== শেয়ারড লাইভ টাইমার (Firebase Realtime Database — সবার ফোনে একই ঘড়ি) ===== */
+const RTDB_CANDIDATES=['https://shovarampur-sports-default-rtdb.firebaseio.com','https://shovarampur-sports-default-rtdb.asia-southeast1.firebasedatabase.app'];
+let RTDB_URL=localStorage.getItem('srf_rtdb_url')||'';
+let SHARE=null, SHARE_ANN={};
+async function liveGet(){if(RTDB_URL){try{const r=await fetch(RTDB_URL+'/liveTimer.json',{cache:'no-store'});const j=await r.json();
+    if(j&&typeof j==='object'&&!j.error)return j;
+    if(j&&j.error&&String(j.error).indexOf('404')>-1)return null;}catch(e){}}
+  for(const b of RTDB_CANDIDATES){try{const r=await fetch(b+'/liveTimer.json',{cache:'no-store'});const j=await r.json();
+    if(j&&typeof j==='object'&&!j.error){RTDB_URL=b;localStorage.setItem('srf_rtdb_url',b);return j;}
+    if(j&&j.error&&String(j.error).indexOf('404')>-1)return null;}catch(e){}}
+  return null;}
+async function livePut(st){if(!RTDB_URL){try{const r=await fetch(RTDB_CANDIDATES[0]+'/.json?shallow=true');const j=await r.json();
+    if(!j||!j.error){RTDB_URL=RTDB_CANDIDATES[0];localStorage.setItem('srf_rtdb_url',RTDB_URL);}}catch(e){}}
+  if(!RTDB_URL)return false;
+  try{const r=await fetch(RTDB_URL+'/liveTimer.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(st)});const j=await r.json();return !(j&&j.error);}catch(e){return false;}}
+async function liveSync(){const st=await liveGet();
+  SHARE=(st&&st.phase&&st.phase!=='idle')?st:null;renderShareBar();}
+function sharePhaseLabel(){return {h1:'প্রথমার্ধ',h1p:'প্রথমার্ধ (থামানো)',rest:'বিরতি',restp:'বিরতি (থামানো)',h2:'দ্বিতীয়ার্ধ',h2p:'দ্বিতীয়ার্ধ (থামানো)',done:'খেলা শেষ'}[SHARE.phase]||'';}
+function renderShareBar(){let bar=document.getElementById('sharebar');
+  if(!SHARE){if(bar)bar.remove();return;}
+  if(!bar){bar=document.createElement('div');bar.id='sharebar';bar.onclick=function(){openTimer(SHARE.tourId);};document.body.appendChild(bar);}
+  const left=Math.max(0,Math.ceil((SHARE.endAt-Date.now())/1000));
+  bar.innerHTML='📡 লাইভ খেলা চলছে — '+sharePhaseLabel()+' <b>'+bnTime(left)+'</b>'+(SHARE.matchName?' <span style="opacity:.85">('+esc(SHARE.matchName)+')</span>':'')+'<span class="sb2">'+esc(SHARE.by||'অ্যাডমিন')+' চালু করেছেন • চাপ দিলে ঘড়ি খুলবে</span>';}
+function shareTick(){if(!SHARE){return;}
+  renderShareBar();
+  if(Date.now()>=SHARE.endAt&&!String(SHARE.phase).endsWith('p')){const key=SHARE.phase+':'+SHARE.endAt;
+    if(!SHARE_ANN[key]){SHARE_ANN[key]=1;shareNext();}}}
+function shareNext(){const T={half:SHARE.half||20,rest:SHARE.rest||10};const over=Date.now()-SHARE.endAt;const fresh=over<90000;
+  if(SHARE.phase==='h1'){SHARE.phase='rest';SHARE.endAt=Date.now()+T.rest*60000;
+    if(fresh)timerAnnounce('বিরতির সময় হয়েছে — সবাই রেস্ট নিন!','☕',true);else toast('লাইভ খেলা: বিরতি চলছে ☕');renderShareBar();}
+  else if(SHARE.phase==='rest'){SHARE.phase='h2';SHARE.endAt=Date.now()+T.half*60000;
+    if(fresh)timerAnnounce('খেলা আরম্ভ করুন — মাঠে ফিরুন!','⚽',true);else toast('লাইভ খেলা: দ্বিতীয়ার্ধ চলছে ⚽');renderShareBar();}
+  else if(SHARE.phase==='h2'){SHARE.phase='done';
+    if(fresh)timerAnnounce('খেলা শেষ!','🏁',true);else toast('লাইভ খেলা শেষ 🏁');
+    SHARE=null;renderShareBar();}}
+setInterval(liveSync,10000);
+setInterval(shareTick,1000);
 function totals(){const inc=store.income.reduce((s,x)=>s+(+x.amount||0),0);const exp=store.expenses.reduce((s,x)=>s+(+x.amount||0),0);return{inc:inc,exp:exp,bal:inc-exp};}
 
 /* ================= toast / modal / confirm ================= */
@@ -481,8 +539,7 @@ function navActive(){if(view==='tournamentDetail')return 'tournaments';if(view==
 function render(){
   document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on',b.dataset.v===navActive()));
   const v=$('#view');let h='';
-  if(view==='setup')h=vSetup();
-  else if(view==='home')h=vHome();
+  if(view==='home')h=vHome();
   else if(view==='members')h=vMembers();
   else if(view==='ledger')h=vLedger();
   else if(view==='tournaments')h=vTournaments();
@@ -504,15 +561,26 @@ function renderHeader(){const s=store.settings;
 function boot(){store=load();if(!store)store=freshStore();
   if(!store.settings)store.settings=freshStore().settings;
   ['admins','players','income','expenses','tournaments','notices','log','notifications'].forEach(k=>{if(!Array.isArray(store[k]))store[k]=[];});
+  if(!Array.isArray(store.coAdmins))store.coAdmins=[];
   if(store.settings.soundOn===undefined)store.settings.soundOn=true;
   if(!Array.isArray(store.settings.incCats)||!store.settings.incCats.length)store.settings.incCats=DEFAULT_INC_CATS.slice();
   if(!Array.isArray(store.settings.expCats)||!store.settings.expCats.length)store.settings.expCats=DEFAULT_EXP_CATS.slice();
-  adminId=sessionStorage.getItem(SS_KEY)||null;
-  if(!store.admins.length&&!sessionStorage.getItem('setup_done')){view='setup';}
+  /* পুরোনো সিস্টেম (নাম+পিন) থেকে নতুন সিস্টেমে মাইগ্রেশন: প্রথম অ্যাডমিন = মূল এডমিন, বাকিরা = সহ এডমিন */
+  if(store.admins.length&&!store.mainAdmin){const a=store.admins[0];
+    store.mainAdmin={name:a.name,gmail:'',pwd:a.pin,legacy:true};
+    store.coAdmins=store.admins.slice(1).map(x=>({id:x.id||uid(),user:x.name,pwd:x.pin,role:'সব অধিকার',at:Date.now()}));
+    save();}
+  /* সাধারণ ইউজার সরাসরি হোম পেজে যাবে — কোনো প্রথম-চালু অ্যাডমিন স্ক্রিন নেই */
+  view='home';
+  /* টাইমার বন্ধ হলেও (স্ক্রিন অফ / অ্যাপ বন্ধ) ঘড়ি দেওয়াল-ঘড়ি অনুযায়ী চলতে থাকে — খুললেই ঠিক সময় দেখা যাবে */
+  const tl=store.timerLive;
+  if(tl&&(tl.phase==='h1'||tl.phase==='rest'||tl.phase==='h2')){
+    TMR={phase:tl.phase,endAt:tl.endAt,pausedLeft:tl.pausedLeft||0,matchId:tl.matchId||'',tourId:tl.tourId||'',iv:null};
+    TMR.iv=setInterval(timerTick,500);}
   bumpUsage();
   const sc=document.querySelector('#splash .core');
   if(sc&&typeof ASSETS!=='undefined'&&ASSETS.logo)sc.innerHTML='<img src="'+ASSETS.logo+'" style="width:86%;height:86%;object-fit:cover;border-radius:50%">';
-  renderHeader();render();
+  renderHeader();render();liveSync();
   setTimeout(function(){const s=document.getElementById('splash');if(s)s.remove();},2300);
   setInterval(cdTick,1000);}
 
@@ -580,36 +648,6 @@ function countUp(){document.querySelectorAll('[data-cnt]').forEach(function(el){
 function postRender(){countUp();initBanner();}
 </script>
 <script>
-/* ================= সেটআপ (প্রথমবার) ================= */
-function vSetup(){
-  return `<div class="setup">
-    <div class="big">⚽🏏🏸</div>
-    <h2>স্বাগতম!</h2>
-    <p class="mtxt">এটি <b>${esc(store.settings.clubName)}</b>-এর নিজস্ব অ্যাপ — মাঠের টাকার হিসাব, খেলোয়াড়, টুর্নামেন্ট ও নোটিশ এক জায়গায়।</p>
-    <div class="card" style="text-align:left;margin-top:16px">
-      <h3 class="mttl">🛡️ প্রথম অ্যাডমিন তৈরি করুন</h3>
-      <p class="mtxt" style="margin-bottom:10px">অ্যাডমিন হলেন যিনি আয়-ব্যয় লিখবেন, সদস্য যোগ করবেন, টুর্নামেন্ট ও নোটিশ দেবেন। পরে প্যানেল থেকে আরও ২–৩ জন অ্যাডমিন যোগ করতে পারবেন।</p>
-      <div class="fgrp"><label>আপনার নাম *</label><input id="su-name" placeholder="যেমন: মোঃ করিম মিয়া"></div>
-      <div class="fgrp"><label>পদবি</label><select id="su-role"><option>মুখ্য অ্যাডমিন</option><option>সহ-অ্যাডমিন</option><option>হিসাবরক্ষক</option></select></div>
-      <div class="frow">
-        <div class="fgrp"><label>পিন (৪–৬ সংখ্যা) *</label><input id="su-pin" type="password" inputmode="numeric" maxlength="6" placeholder="যেমন: 1234"></div>
-        <div class="fgrp"><label>পিন আবার লিখুন *</label><input id="su-pin2" type="password" inputmode="numeric" maxlength="6" placeholder="একই পিন"></div>
-      </div>
-      <button class="btn pri blk" onclick="setupSave()">✅ অ্যাডমিন তৈরি করুন</button>
-      <button class="lnk" style="width:100%;border:none;background:none;margin-top:12px;color:var(--mut);font-size:.8rem;text-decoration:underline" onclick="skipSetup()">এখন নয় — শুধু দেখব (পরে হেডারের 🔐 থেকে অ্যাডমিন তৈরি করবেন)</button>
-    </div>
-    <p class="mtxt" style="margin-top:10px;font-size:.78rem">💡 হেডারের ❓ বোতামে চাপ দিলে বাংলায় সম্পূর্ণ সহায়িকা পাবেন।</p>
-  </div>`;}
-function setupSave(){const name=$('#su-name').value.trim(),pin=$('#su-pin').value.trim(),pin2=$('#su-pin2').value.trim();
-  if(!name){toast('নাম লিখুন','err');return;}
-  if(!/^[0-9]{4,6}$/.test(pin)){toast('পিন হবে ৪ থেকে ৬ সংখ্যার','err');return;}
-  if(pin!==pin2){toast('দুটি পিন মিলছে না','err');return;}
-  store.admins.push({id:uid(),name:name,role:$('#su-role').value,pin:hashPin(pin)});
-  logAct('প্রথম অ্যাডমিন তৈরি: '+name);
-  save();adminId=store.admins[0].id;sessionStorage.setItem(SS_KEY,adminId);
-  toast('অ্যাডমিন তৈরি হয়েছে 🎉 স্বাগতম, '+name);go('home');}
-function skipSetup(){sessionStorage.setItem('setup_done','1');go('home');}
-
 /* ================= হোম ================= */
 function txRow(x){const isIn=x.kind==='in';
   return `<div class="row"><div class="ric ${isIn?'in':'out'}">${isIn?'📈':'📉'}</div>
@@ -617,7 +655,7 @@ function txRow(x){const isIn=x.kind==='in';
   <div class="s">${esc(x.cat)} • ${fdate(x.date)}${x.by?' • এন্ট্রি: '+esc(x.by):''}</div></div>
   <div style="text-align:right;flex:none">
     <div class="ramt ${isIn?'in':'out'}">${isIn?'+':'-'} ${bdt(x.amount)}</div>
-    ${isAdmin()?`<div style="margin-top:4px"><button class="ibtn" onclick="${isIn?`incomeForm('${x.id}')`:`expenseForm('${x.id}')`}">✏️</button>
+    ${canAdmin('ledger')?`<div style="margin-top:4px"><button class="ibtn" onclick="${isIn?`incomeForm('${x.id}')`:`expenseForm('${x.id}')`}">✏️</button>
     <button class="ibtn" onclick="${isIn?`incomeDel('${x.id}')`:`expenseDel('${x.id}')`}">🗑️</button></div>`:''}
   </div></div>`;}
 function priChip(p){return `<span class="pri-chip" style="background:${PRI_COL[p]||'#0284c7'}">${esc(p)}</span>`;}
@@ -625,7 +663,7 @@ function nCard(n){const cls=n.pri==='জরুরি'?'urg':n.pri==='গুর�
   return `<div class="ncard ${cls}"><div class="nttl">${priChip(n.pri)}<span>${esc(n.title)}</span>${daysAgo(n.date)?'<span class="new">নতুন</span>':''}</div>
   <div class="nbody">${esc(n.body).replace(/\n/g,'<br>')}</div>
   <div class="nmeta">🗓 ${fdate(n.date)} • প্রকাশ: ${esc(n.by)}
-  ${isAdmin()?`<span style="flex:1"></span><button class="ibtn" onclick="noticeForm('${n.id}')">✏️</button><button class="ibtn" onclick="noticeDel('${n.id}')">🗑️</button>`:''}</div></div>`;}
+  ${canAdmin('notices')?`<span style="flex:1"></span><button class="ibtn" onclick="noticeForm('${n.id}')">✏️</button><button class="ibtn" onclick="noticeDel('${n.id}')">🗑️</button>`:''}</div></div>`;}
 function sportImg(sp){return (typeof ASSETS!=='undefined'&&ASSETS[sp])?ASSETS[sp]:'';}
 function bannerSlides(){const s=[];const act=store.tournaments.filter(x=>x.status==='চলছে');
   if(act.length){const tn=act[0];const done=tn.matches.filter(m=>m.done).length;
@@ -711,7 +749,7 @@ function spChips(p){return (p.sports?['football','cricket','badminton'].filter(k
 function vMembers(){const f=memFilter;
   const list=store.players.filter(p=>f==='all'||(p.sports&&p.sports[f]));
   return `<div class="shead"><h3>👥 খেলোয়াড় ও সদস্য <span class="stchip">${bnNum(store.players.length)} জন</span></h3>
-    ${isAdmin()?`<button class="btn pri sm" onclick="playerForm()">+ নতুন</button>`:''}</div>
+    ${canAdmin('members')?`<button class="btn pri sm" onclick="playerForm()">+ নতুন</button>`:''}</div>
   <div class="flabel">👇 কোন খেলার সদস্য দেখতে চান? চাপ দিন</div>
   <div class="chips">${[['all','সবাই 👥'],['football','⚽ ফুটবল'],['cricket','🏏 ক্রিকেট'],['badminton','🏸 ব্যাডমিন্টন']].map(a=>`<button class="chip ${f===a[0]?'on':''}" onclick="setMemFilter('${a[0]}')">${a[1]}</button>`).join('')}</div>
   ${list.length?`<div class="mgrid">${list.map(p=>`
@@ -721,7 +759,7 @@ function vMembers(){const f=memFilter;
       ${p.phone?`<div style="font-size:.6rem;color:#64748b;direction:ltr">📞 ${esc(p.phone)}</div>`:''}
       <div class="sp">${(p.sports?['football','cricket','badminton'].filter(k=>p.sports[k]):[]).map(k=>`<span class="spbadge">${SPORTS[k].e}</span>`).join('')||'<span class="spbadge">—</span>'}</div>
     </div>`).join('')}</div>`
-  :`<div class="card empty"><span class="e">👕</span>${f==='all'?'এখনো কোনো সদস্য যোগ করা হয়নি':'এই খেলার কোনো সদস্য নেই'}${isAdmin()?'<br><button class="btn pri" style="margin-top:12px" onclick="playerForm()">প্রথম সদস্য যোগ করুন</button>':''}</div>`}`;}
+  :`<div class="card empty"><span class="e">👕</span>${f==='all'?'এখনো কোনো সদস্য যোগ করা হয়নি':'এই খেলার কোনো সদস্য নেই'}${canAdmin('members')?'<br><button class="btn pri" style="margin-top:12px" onclick="playerForm()">প্রথম সদস্য যোগ করুন</button>':''}</div>`}`;}
 function playerDetail(id){const p=store.players.find(x=>x.id===id);if(!p)return;
   openModal(`<div class="mhandle"></div>
   <div style="text-align:center">
@@ -733,7 +771,7 @@ function playerDetail(id){const p=store.players.find(x=>x.id===id);if(!p)return;
     ${p.note?`<p class="mtxt">${esc(p.note)}</p>`:''}
     <div class="tsub" style="margin-top:6px">যোগদান: ${fdate(p.joined)}</div>
   </div>
-  ${isAdmin()?`<div class="mbtns"><button class="btn ghost" onclick="playerForm('${p.id}')">✏️ সম্পাদনা</button><button class="btn red" onclick="playerDel('${p.id}')">🗑 মুছুন</button></div>`:''}`);}
+  ${canAdmin('members')?`<div class="mbtns"><button class="btn ghost" onclick="playerForm('${p.id}')">✏️ সম্পাদনা</button><button class="btn red" onclick="playerDel('${p.id}')">🗑 মুছুন</button></div>`:''}`);}
 function playerForm(id){const p=id?store.players.find(x=>x.id===id):null;
   window._photo=p&&p.photo?p.photo:'';
   openModal(`<div class="mhandle"></div><h3 class="mttl">${p?'সদস্য সম্পাদনা':'নতুন সদস্য যোগ করুন'}</h3>
@@ -783,7 +821,7 @@ function vLedger(){const t=totals();
     <div class="stat exp" style="padding:10px 8px"><div class="lb">ব্যয়</div><div class="vl" style="font-size:.98rem">${bdt(t.exp)}</div></div>
     <div class="stat bal" style="padding:10px 8px"><div class="lb">ব্যালেন্স</div><div class="vl" style="font-size:.98rem">${bdt(t.bal)}</div></div>
   </div>
-  ${isAdmin()?`<div style="display:flex;gap:8px;margin:10px 0 12px"><button class="btn pri blk" onclick="incomeForm()">+ আয় যোগ</button><button class="btn gold blk" onclick="expenseForm()">+ ব্যয় যোগ</button></div>`:''}
+  ${canAdmin('ledger')?`<div style="display:flex;gap:8px;margin:10px 0 12px"><button class="btn pri blk" onclick="incomeForm()">+ আয় যোগ</button><button class="btn gold blk" onclick="expenseForm()">+ ব্যয় যোগ</button></div>`:''}
   <div class="flabel">👇 কী দেখতে চান? নিচের বোতামে চাপ দিন</div>
   <div class="seg">
     <button class="${ledTab==='tx'?'on':''}" onclick="setLedTab('tx')">🧾 লেনদেন</button>
@@ -867,7 +905,7 @@ function expenseDel(id){const e=store.expenses.find(x=>x.id===id);if(!e)return;
 /* ================= টুর্নামেন্ট ================= */
 function tName(t,id){const tm=t.teams.find(x=>x.id===id);return tm?tm.name:'—';}
 function vTournaments(){const ts=[...store.tournaments].sort((a,b)=>(b.created||0)-(a.created||0));
-  return `<div class="shead"><h3>🏆 টুর্নামেন্ট</h3>${isAdmin()?`<button class="btn pri sm" onclick="tForm()">+ নতুন</button>`:''}</div>
+  return `<div class="shead"><h3>🏆 টুর্নামেন্ট</h3>${canAdmin('tournaments')?`<button class="btn pri sm" onclick="tForm()">+ নতুন</button>`:''}</div>
   ${ts.length?ts.map(function(t){const done=t.matches.filter(m=>m.done).length;
     return `<div class="tcard" onclick="go('tournamentDetail','${t.id}')" style="cursor:pointer">
       <div style="display:flex;align-items:center;gap:10px">
@@ -879,7 +917,7 @@ function vTournaments(){const ts=[...store.tournaments].sort((a,b)=>(b.created||
       <div class="bar" style="margin-top:10px"><i style="width:${t.matches.length?done/t.matches.length*100:0}%"></i></div>
       <div class="tsub" style="margin-top:4px">ম্যাচ সম্পন্ন: ${bnNum(done)}/${bnNum(t.matches.length)}</div>
     </div>`;}).join('')
-  :`<div class="card empty"><span class="e">🏆</span>কোনো টুর্নামেন্ট নেই।${isAdmin()?'<br><button class="btn pri" style="margin-top:12px" onclick="tForm()">প্রথম টুর্নামেন্ট তৈরি করুন</button>':'<br>অ্যাডমিনরা শীঘ্রই ঘোষণা করবেন।'}</div>`}
+  :`<div class="card empty"><span class="e">🏆</span>কোনো টুর্নামেন্ট নেই।${canAdmin('tournaments')?'<br><button class="btn pri" style="margin-top:12px" onclick="tForm()">প্রথম টুর্নামেন্ট তৈরি করুন</button>':'<br>অ্যাডমিনরা শীঘ্রই ঘোষণা করবেন।'}</div>`}
   <div class="card" style="background:#f0fdf4;border-color:#bbf7d0"><div class="mtxt">💡 <b>কীভাবে টুর্নামেন্ট চালাবেন?</b> মাত্র ৪ ধাপ: ১) "+ নতুন" থেকে খেলা ও ধরন বাছুন → ২) "+ দল যোগ"-এ প্রতি দলের একটা ছবি দিন (নাম না দিলেও চলবে) → ৩) "⚡ অটো ম্যাচ" চাপুন — সব ম্যাচ নিজে থেকেই সাজানো হবে → ৪) খেলা শেষে ম্যাচের পাশে <b>🎯 ফলাফল</b>-এ বিজয়ীতে চাপ দিন — পয়েন্ট, সেমি/ফাইনাল, চ্যাম্পিয়ন <b>সব অটো!</b> বিস্তারিত: হেডারের ❓ সহায়িকা।</div></div>`;}
 function setTT(k){currentTT=k;render();}
 function tForm(id){const t=id?store.tournaments.find(x=>x.id===id):null;
@@ -926,11 +964,10 @@ function vTournamentDetail(){const t=store.tournaments.find(x=>x.id===currentT);
     </div>
     ${t.champion?`<div class="champbox">🏆 চ্যাম্পিয়ন<br><b style="font-size:1.1rem">${esc(tName(t,t.champion))}</b><br>অভিনন্দন! 🎉</div>`:''}
     <div class="tsub" style="margin-top:9px;background:${t.type==='league'?'#f0f9ff':'#fff7ed'};border-radius:10px;padding:7px 10px">📏 <b>নিয়ম:</b> ${t.type==='league'?'জয়ে ৩ পয়েন্ট • ড্রয়ে ১ পয়েন্ট • হারে ০ — পয়েন্ট তালিকা নিজেই হিসাব করে। সব ম্যাচ শেষে পয়েন্টে সেরা দলই চ্যাম্পিয়ন।':'হারলেই বাদ — জয়ী দল নিজে থেকে পরের পর্বে ওঠে। ফাইনাল শেষ হলেই চ্যাম্পিয়ন ঘোষণা হয়ে যায়।'} স্কোর গোনা হয় ${SPORTS[t.sport]?SPORTS[t.sport].u:'স্কোর'} হিসেবে।</div>
-    ${isAdmin()?`<div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">
+    ${canAdmin('tournaments')?`<div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">
       <button class="btn ghost sm" onclick="teamForm('${t.id}')">+ দল যোগ</button>
       <button class="btn gold sm" onclick="autoFixtures('${t.id}')">⚡ অটো ম্যাচ</button>
       <button class="btn pri sm" onclick="matchForm('${t.id}')">+ ম্যাচ</button>
-      <button class="btn dark sm" onclick="openTimer()">⏱️ টাইমার</button>
       ${!t.champion&&t.type==='league'&&t.teams.length>=2?`<button class="btn gold sm" onclick="championForm('${t.id}')">🏆 চ্যাম্পিয়ন</button>`:''}
       <button class="btn ghost sm" onclick="tForm('${t.id}')">✏️</button>
       <button class="btn red sm" onclick="tDel('${t.id}')">🗑</button>
@@ -941,9 +978,11 @@ function vTournamentDetail(){const t=store.tournaments.find(x=>x.id===currentT);
     <button class="${currentTT==='match'?'on':''}" onclick="setTT('match')">⚽ ম্যাচ</button>
     ${t.type==='league'?`<button class="${currentTT==='point'?'on':''}" onclick="setTT('point')">📊 পয়েন্ট তালিকা</button>`:''}
     <button class="${currentTT==='team'?'on':''}" onclick="setTT('team')">👥 দল</button>
-  </div>${body}`;}
+  </div>
+  <div style="margin-top:10px"><button class="btn dark blk" onclick="openTimer('${t.id}')">⏱️ লাইভ ম্যাচ টাইমার${(store.timerLive&&(store.timerLive.phase==='h1'||store.timerLive.phase==='rest'||store.timerLive.phase==='h2'))?' (চলছে…)':''}</button>
+  <div class="tsub" style="margin-top:4px">সবাই চালাতে পারবেন • স্ক্রিন অফ হলেও ঘড়ি চলতে থাকে • গোল দিলে নাম+মিনিট লিখে রাখা যায়</div></div>${body}`;}
 function matchList(t){
-  if(!t.matches.length)return `<div class="card empty"><span class="e">📅</span>এখনো কোনো ম্যাচ নির্ধারণ হয়নি${isAdmin()?'<br><button class="btn pri" style="margin-top:12px" onclick="matchForm(\''+t.id+'\')">প্রথম ম্যাচ যোগ করুন</button>':''}</div>`;
+  if(!t.matches.length)return `<div class="card empty"><span class="e">📅</span>এখনো কোনো ম্যাচ নির্ধারণ হয়নি${canAdmin('tournaments')?'<br><button class="btn pri" style="margin-top:12px" onclick="matchForm(\''+t.id+'\')">প্রথম ম্যাচ যোগ করুন</button>':''}</div>`;
   const order={'গ্রুপ পর্ব':0,'প্রথম রাউন্ড':0,'কোয়ার্টার ফাইনাল':1,'সেমি-ফাইনাল':2,'তৃতীয় স্থান নির্ধারণী':3,'ফাইনাল':4};
   return [...t.matches].sort((a,b)=>(order[a.round]!==undefined?order[a.round]:9)-(order[b.round]!==undefined?order[b.round]:9)||(a.date||'').localeCompare(b.date||'')).map(function(m){
     return `<div class="row" style="align-items:flex-start">
@@ -955,8 +994,9 @@ function matchList(t){
           <span class="${m.done&&m.winner===m.teamB?'win':''}">${esc(tName(t,m.teamB))}</span>
         </div>
         ${m.done?`<div class="tsub" style="margin-top:5px">${m.winner?('✅ বিজয়ী: <b>'+esc(tName(t,m.winner))+'</b>'):'🤝 ড্র হয়েছে'}</div>`:`<div class="tsub" style="margin-top:5px">⏳ খেলা বাকি আছে</div>`}
+        ${(m.events&&m.events.length)?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">${m.events.slice(-5).map(timerEvChip).join('')}</div>`:''}
       </div>
-      ${isAdmin()?`<div style="display:flex;flex-direction:column;gap:5px;flex:none">
+      ${canAdmin('tournaments')?`<div style="display:flex;flex-direction:column;gap:5px;flex:none">
         <button class="ibtn" onclick="resultForm('${t.id}','${m.id}')">${m.done?'✏️':'🎯 ফলাফল'}</button>
         ${m.done?'':`<button class="ibtn" onclick="matchForm('${t.id}','${m.id}')">✏️</button>`}
         <button class="ibtn" onclick="matchDel('${t.id}','${m.id}')">🗑️</button></div>`:''}
@@ -1076,11 +1116,14 @@ function doAutoDraw(tId,mode){const t=store.tournaments.find(x=>x.id===tId);if(!
     save();closeModal();currentTT='match';render();toast(bnNum(added.length)+'টি ম্যাচ তৈরি হয়েছে ⚡');};
   if(t.matches.length){closeModal();confirmBox('আগে থেকে '+bnNum(t.matches.length)+'টি ম্যাচ আছে। নতুনগুলো তাদের সাথে যোগ হবে — চালিয়ে যাবেন?',goAuto);}
   else goAuto();}
-/* ================= ম্যাচ টাইমার (যেকোনো খেলায়) ================= */
-let TMR={iv:null,phase:'idle',left:0};
+/* ================= ম্যাচ টাইমার — সবার জন্য, দেওয়াল-ঘড়ি ভিত্তিক (স্ক্রিন অফ/ব্যাকগ্রাউন্ডেও সময় চলে) ================= */
+let TMR={phase:'idle',endAt:0,pausedLeft:0,matchId:'',tourId:'',iv:null};
 function timerCfg(){if(!store.settings.timer)store.settings.timer={half:20,rest:10};return store.settings.timer;}
 function bnDigits(s){return String(s).replace(/[0-9]/g,d=>BN[+d]);}
 function bnTime(sec){const m=Math.floor(sec/60),s=sec%60;return bnDigits(m)+':'+bnDigits(s<10?'0'+s:s);}
+function timerLeftMs(){return Math.max(0,TMR.endAt-Date.now());}
+function timerRunning(){return TMR.phase==='h1'||TMR.phase==='rest'||TMR.phase==='h2';}
+function timerSaveLive(){store.timerLive={phase:TMR.phase,endAt:TMR.endAt,pausedLeft:TMR.pausedLeft,matchId:TMR.matchId,tourId:TMR.tourId};save();}
 function timerBeep(){try{const ac=new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=880;g.gain.value=.55;o.connect(g);g.connect(ac.destination);o.start();setTimeout(()=>{try{o.stop();ac.close();}catch(e){}},450);}catch(e){}}
 function timerSay(txt){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang='bn-BD';u.rate=.95;speechSynthesis.speak(u);}catch(e){}}
 function timerAnnounce(msg,emoji,say){const ov=document.createElement('div');ov.className='tann';
@@ -1089,48 +1132,112 @@ function timerAnnounce(msg,emoji,say){const ov=document.createElement('div');ov.
   let n=1;const iv=setInterval(()=>{n++;timerBeep();if(say)timerSay(msg);
     if(n>=3){clearInterval(iv);setTimeout(()=>{if(ov.parentNode)ov.parentNode.removeChild(ov);},700);}},1700);}
 function timerPhaseLabel(){const T=timerCfg();return {idle:'প্রথমার্ধ শুরুর জন্য প্রস্তুত — প্রতি অর্ধ '+bnDigits(T.half)+' মিনিট',h1:'⚽ প্রথমার্ধ চলছে',h1p:'⏸ প্রথমার্ধ থামানো আছে',rest:'☕ বিরতি চলছে',restp:'⏸ বিরতি থামানো আছে',h2:'⚽ দ্বিতীয়ার্ধ চলছে',h2p:'⏸ দ্বিতীয়ার্ধ থামানো আছে',done:'✅ খেলা শেষ — ফলাফল লিখুন'}[TMR.phase]||'';}
+function timerEvChip(e){return `<span class="evchip">${e.team==='B'?'🔵':'🔴'} ⚽ ${esc(e.name)} ${bnNum(e.min)}&prime;</span>`;}
 function timerRender(){const f=document.getElementById('tface');if(!f)return;const T=timerCfg();
   const running=TMR.iv!==null;
-  const left=TMR.phase==='idle'?T.half*60:(TMR.phase==='done'?0:TMR.left);
-  const total=(TMR.phase==='rest'||TMR.phase==='restp')?T.rest*60:T.half*60;
-  const pct=Math.max(0,Math.min(100,total?Math.round((total-left)/total*100):0));
+  const leftSec=TMR.phase==='idle'?T.half*60:(TMR.phase==='done'?0:Math.ceil(timerLeftMs()/1000));
+  const totalMs=((TMR.phase==='rest'||TMR.phase==='restp')?T.rest:T.half)*60000;
+  const leftMs=TMR.phase==='idle'?totalMs:(TMR.phase==='done'?0:timerLeftMs());
+  const pct=Math.max(0,Math.min(100,totalMs?Math.round((totalMs-leftMs)/totalMs*100):0));
+  const t=TMR.tourId?store.tournaments.find(x=>x.id===TMR.tourId):null;
+  const m=TMR.matchId&&t?t.matches.find(x=>x.id===TMR.matchId):null;
+  const evs=(m&&m.events)?m.events:[];
+  const playMin=timerPlayMinute();
   f.innerHTML=`
+    ${t?`<div class="fgrp"><label>কোন ম্যাচ চলছে? (গোল লেখার জন্য — ঐচ্ছিক)</label>
+      <select id="tm-match" onchange="timerMatch(this.value)">
+        <option value="">— বাছাই করুন —</option>
+        ${t.matches.map(mm=>`<option value="${mm.id}" ${TMR.matchId===mm.id?'selected':''}>${esc(tName(t,mm.teamA))} vs ${esc(tName(t,mm.teamB))}${mm.round?' ('+esc(mm.round)+')':''}</option>`).join('')}
+      </select></div>`:''}
+    ${m&&evs.length?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 2px">${evs.slice(-6).map(timerEvChip).join('')}</div>`:''}
     <div class="tface">
       <div class="tphase">${timerPhaseLabel()}</div>
-      <div class="tbig ${TMR.phase==='done'?'done':''}">${TMR.phase==='done'?'🏁':bnTime(left)}</div>
+      <div class="tbig ${TMR.phase==='done'?'done':''}">${TMR.phase==='done'?'🏁':bnTime(leftSec)}</div>
       <div class="tbar"><i style="width:${pct}%"></i></div>
       <div class="tbtns">
         ${running?`<button class="btn gold sm" onclick="timerPause()">⏸ থামান</button>`
           :(TMR.phase==='done'?`<button class="btn pri sm" onclick="timerReset()">🔄 নতুন খেলা</button>`
           :`<button class="btn pri sm" onclick="timerGo()">▶ ${TMR.phase==='idle'?'শুরু করুন':'চালু করুন'}</button>`)}
         ${(TMR.phase!=='idle'&&TMR.phase!=='done')?`<button class="btn ghost sm" onclick="timerReset()">⏹ রিসেট</button>`:''}
+        ${m&&TMR.phase!=='done'?`<button class="btn red sm" onclick="goalForm()">⚽ গোল! (${bnDigits(playMin)}&prime;)</button>`:''}
+        ${m&&canAdmin('tournaments')?`<button class="btn ghost sm" onclick="eventForm()">➕ ইভেন্ট</button>`:''}
       </div>
     </div>
+    ${canAdmin('tournaments')?`<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+      ${(TMR.phase!=='idle')?`<button class="btn dark sm" onclick="liveShare()">📡 সবার ফোনে শেয়ার করুন</button>`:''}
+      ${(TMR.phase==='idle')&&SHARE?`<button class="btn red sm" onclick="liveStop()">⏹ শেয়ার বন্ধ করুন</button>`:''}
+    </div>${SHARE?`<div class="tsub" style="margin-top:4px">📡 এই মুহূর্তে সবার ফোনে লাইভ ঘড়ি দেখাচ্ছে — ${sharePhaseLabel()}</div>`:''}`:''}
     <div class="flabel">⚙️ প্রতি অর্ধ কত মিনিট? (বাড়াতে/কমাতে পারবেন)</div>
     <div class="tchips">${[10,15,20,25,30].map(v=>`<button class="tchip ${T.half===v?'on':''}" onclick="timerSet('half',${v})">${bnDigits(v)} মিনিট</button>`).join('')}<input type="number" min="1" max="120" value="${T.half}" style="width:76px;padding:6px 8px;border:1.5px solid var(--line);border-radius:10px" onchange="timerSet('half',this.value)" title="নিজের সময় লিখুন"></div>
     <div class="flabel">☕ বিরতি কত মিনিট?</div>
     <div class="tchips">${[5,10,15,20,30].map(v=>`<button class="tchip ${T.rest===v?'on':''}" onclick="timerSet('rest',${v})">${bnDigits(v)} মিনিট</button>`).join('')}<input type="number" min="1" max="120" value="${T.rest}" style="width:76px;padding:6px 8px;border:1.5px solid var(--line);border-radius:10px" onchange="timerSet('rest',this.value)" title="নিজের সময় লিখুন"></div>
-    <div class="mtxt" style="margin-top:10px">💡 অর্ধ শেষ হলে তিনবার ঘোষণা: <b>"বিরতির সময় হয়েছে"</b> → বিরতি শেষে তিনবার: <b>"খেলা আরম্ভ করুন"</b> → দ্বিতীয়ার্ধ শেষে: <b>"খেলা শেষ"</b>। শব্দ বাজবে, পুরো স্ক্রিনে বার্তা ভেসে উঠবে। যেকোনো খেলায় চলে। টাইমার চলাকালে ফোনের স্ক্রিন অন রাখুন।</div>`;}
+    <div class="mtxt" style="margin-top:10px">💡 অর্ধ শেষ হলে তিনবার ঘোষণা: <b>"বিরতির সময় হয়েছে"</b> → বিরতি শেষে তিনবার: <b>"খেলা আরম্ভ করুন"</b> → দ্বিতীয়ার্ধ শেষে: <b>"খেলা শেষ"</b>। ঘড়ি দেওয়াল-ঘড়ি অনুযায়ী চলে — <b>স্ক্রিন অফ বা অ্যাপ থেকে বের হলেও সময় ঠিক থাকে</b>, ফিরে এলেই সঠিক সময় দেখবেন। গোল দিলে ⚽ গোল! চেপে খেলোয়াড়ের নাম লিখুন — মিনিট নিজে থেকে যোগ হবে।</div>`;}
+function timerMatch(v){TMR.matchId=v||'';timerSaveLive();timerRender();}
 function timerSet(k,v){const T=timerCfg();T[k]=Math.max(1,Math.min(120,parseInt(v,10)||T[k]));save();timerRender();}
+function timerPlayMinute(){const T=timerCfg();const halfMs=T.half*60000;
+  if(TMR.phase==='h1'||TMR.phase==='h1p')return Math.max(1,Math.ceil((halfMs-timerLeftMs())/60000));
+  if(TMR.phase==='rest'||TMR.phase==='restp')return T.half;
+  if(TMR.phase==='h2'||TMR.phase==='h2p')return T.half+Math.max(1,Math.ceil((halfMs-timerLeftMs())/60000));
+  if(TMR.phase==='done')return T.half*2;
+  return 0;}
 function timerGo(){const T=timerCfg();
-  if(TMR.phase==='idle'){TMR.phase='h1';TMR.left=T.half*60;}
-  else if(TMR.phase==='h1p')TMR.phase='h1';
-  else if(TMR.phase==='restp')TMR.phase='rest';
-  else if(TMR.phase==='h2p')TMR.phase='h2';
+  if(TMR.phase==='idle'){TMR.phase='h1';TMR.endAt=Date.now()+T.half*60000;}
+  else if(TMR.phase==='h1p'||TMR.phase==='restp'||TMR.phase==='h2p'){TMR.phase=TMR.phase.slice(0,-1);TMR.endAt=Date.now()+(TMR.pausedLeft||60000);}
   else return;
-  clearInterval(TMR.iv);TMR.iv=setInterval(timerTick,1000);timerRender();}
-function timerPause(){clearInterval(TMR.iv);TMR.iv=null;
-  if(TMR.phase==='h1')TMR.phase='h1p';else if(TMR.phase==='rest')TMR.phase='restp';else if(TMR.phase==='h2')TMR.phase='h2p';timerRender();}
-function timerReset(){clearInterval(TMR.iv);TMR.iv=null;TMR.phase='idle';timerRender();}
-function timerTick(){TMR.left--;if(TMR.left<=0){clearInterval(TMR.iv);TMR.iv=null;timerNext();return;}timerRender();}
-function timerNext(){const T=timerCfg();
-  if(TMR.phase==='h1'){TMR.phase='rest';TMR.left=T.rest*60;timerAnnounce('বিরতির সময় হয়েছে — সবাই রেস্ট নিন!','☕',true);TMR.iv=setInterval(timerTick,1000);}
-  else if(TMR.phase==='rest'){TMR.phase='h2';TMR.left=T.half*60;timerAnnounce('খেলা আরম্ভ করুন — মাঠে ফিরুন!','⚽',true);TMR.iv=setInterval(timerTick,1000);}
-  else if(TMR.phase==='h2'){TMR.phase='done';TMR.left=0;timerAnnounce('খেলা শেষ! এখন ফলাফল লিখুন।','🏁',true);}
+  clearInterval(TMR.iv);TMR.iv=setInterval(timerTick,500);timerSaveLive();timerRender();}
+function timerPause(){clearInterval(TMR.iv);TMR.iv=null;TMR.pausedLeft=timerLeftMs();
+  if(TMR.phase==='h1')TMR.phase='h1p';else if(TMR.phase==='rest')TMR.phase='restp';else if(TMR.phase==='h2')TMR.phase='h2p';
+  timerSaveLive();timerRender();}
+function timerReset(){clearInterval(TMR.iv);TMR.iv=null;TMR.phase='idle';TMR.endAt=0;TMR.pausedLeft=0;timerSaveLive();timerRender();}
+function timerTick(){if(!timerRunning()){return;}
+  if(Date.now()>=TMR.endAt){clearInterval(TMR.iv);TMR.iv=null;timerNext();return;}timerRender();}
+function timerNext(){const T=timerCfg();const over=Date.now()-TMR.endAt;const fresh=over<90000;
+  if(TMR.phase==='h1'){TMR.phase='rest';TMR.endAt=Date.now()+T.rest*60000;
+    if(fresh)timerAnnounce('বিরতির সময় হয়েছে — সবাই রেস্ট নিন!','☕',true);
+    else toast('বিরতি চলছে (অ্যাপ বন্ধ থাকার সময়ে শুরু হয়েছে) ☕');}
+  else if(TMR.phase==='rest'){TMR.phase='h2';TMR.endAt=Date.now()+T.half*60000;
+    if(fresh)timerAnnounce('খেলা আরম্ভ করুন — মাঠে ফিরুন!','⚽',true);
+    else toast('দ্বিতীয়ার্ধ চলছে (অ্যাপ বন্ধ থাকার সময়ে শুরু হয়েছে) ⚽');}
+  else if(TMR.phase==='h2'){TMR.phase='done';TMR.endAt=0;
+    if(fresh)timerAnnounce('খেলা শেষ! এখন ফলাফল লিখুন।','🏁',true);
+    else toast('খেলা শেষ হয়ে গেছে 🏁');}
+  else return;
+  if(timerRunning()){clearInterval(TMR.iv);TMR.iv=setInterval(timerTick,500);}
+  timerSaveLive();timerRender();}
+function openTimer(tourId){if(tourId)TMR.tourId=tourId;else if(!TMR.tourId&&currentT)TMR.tourId=currentT;
+  openModal(`<div class="mhandle"></div><h3 class="mttl">⏱️ লাইভ ম্যাচ টাইমার</h3><div id="tface"></div>`);
   timerRender();}
-function openTimer(){if(TMR.phase==='idle'||!TMR.phase){TMR.phase='idle';TMR.left=0;}
-  openModal(`<div class="mhandle"></div><h3 class="mttl">⏱️ ম্যাচ টাইমার</h3><div id="tface"></div>`);
-  timerRender();}
+async function liveShare(){const T=timerCfg();const t=store.tournaments.find(x=>x.id===TMR.tourId);
+  const m=t&&t.matches.find(x=>x.id===TMR.matchId);
+  const st={phase:TMR.phase,endAt:TMR.endAt,pausedLeft:TMR.pausedLeft,half:T.half,rest:T.rest,tourId:TMR.tourId,
+    matchName:m?(tName(t,m.teamA)+' vs '+tName(t,m.teamB)):'',by:adminName(),at:Date.now()};
+  const ok=await livePut(st);
+  if(ok){SHARE=st;SHARE_ANN={};renderShareBar();timerRender();
+    toast('📡 শেয়ার চালু — সবার ফোনে লাইভ ঘড়ি দেখা যাবে (ইন্টারনেট থাকলে)');}
+  else toast('শেয়ার হয়নি — Firebase-এ Realtime Database তৈরি করুন (সহায়িকা → লাইভ ঘড়ি)','err');}
+async function liveStop(){const ok=await livePut({phase:'idle',by:adminName(),at:Date.now()});
+  if(ok){SHARE=null;renderShareBar();timerRender();toast('শেয়ার বন্ধ হয়েছে — কারো ফোনে ব্যানার আর দেখাবে না');}
+  else toast('বন্ধ করা গেল না — ইন্টারনেট চেক করুন','err');}
+function goalForm(){const t=store.tournaments.find(x=>x.id===TMR.tourId);const m=t&&t.matches.find(x=>x.id===TMR.matchId);
+  if(!t||!m){toast('আগে ম্যাচ বাছাই করুন','err');return;}
+  const names=store.players.map(x=>x.name);
+  openModal(`<div class="mhandle"></div><h3 class="mttl">⚽ গোল লিখুন — ${bnDigits(timerPlayMinute())}&prime;</h3>
+  <div class="mtxt">${esc(tName(t,m.teamA))} vs ${esc(tName(t,m.teamB))}</div>
+  <div class="fgrp"><label>কোন দলের গোল?</label><select id="gf-team"><option value="A">${esc(tName(t,m.teamA))}</option><option value="B">${esc(tName(t,m.teamB))}</option></select></div>
+  <div class="fgrp"><label>গোল কার? (নাম লিখুন)</label><input id="gf-name" list="gf-list" placeholder="যেমন: সুজন"><datalist id="gf-list">${names.map(n=>`<option value="${esc(n)}">`).join('')}</datalist></div>
+  <div class="fgrp"><label>কত মিনিটে?</label><input id="gf-min" type="number" min="1" max="300" value="${timerPlayMinute()}"></div>
+  <div class="mbtns"><button class="btn ghost" onclick="closeModal()">বাতিল</button><button class="btn pri" onclick="goalSave()">⚽ জমা দিন</button></div>`);}
+function goalSave(){const t=store.tournaments.find(x=>x.id===TMR.tourId);const m=t&&t.matches.find(x=>x.id===TMR.matchId);
+  if(!t||!m)return;
+  const name=$('#gf-name').value.trim();if(!name){toast('খেলোয়াড়ের নাম লিখুন','err');return;}
+  const min=Math.max(1,Math.min(300,parseInt($('#gf-min').value,10)||timerPlayMinute()));
+  if(!Array.isArray(m.events))m.events=[];
+  m.events.push({min:min,name:name,team:$('#gf-team').value,by:adminName(),at:Date.now()});
+  logAct('গোল: '+name+' '+bnNum(min)+' মিনিটে ('+tName(t,$('#gf-team').value==='B'?m.teamB:m.teamA)+')');
+  save();openTimer(TMR.tourId);toast('⚽ গোল লেখা হয়েছে: '+name+' — '+bnNum(min)+' মিনিটে');}
+function eventForm(){const t=store.tournaments.find(x=>x.id===TMR.tourId);const m=t&&t.matches.find(x=>x.id===TMR.matchId);
+  if(!t||!m){toast('আগে ম্যাচ বাছাই করুন','err');return;}
+  goalForm();}
 function matchDel(tId,mId){const t=store.tournaments.find(x=>x.id===tId);if(!t)return;
   confirmBox('এই ম্যাচটি মুছে ফেলবেন?',function(){
     t.matches=t.matches.filter(x=>x.id!==mId);save();closeModal();render();toast('মুছে ফেলা হয়েছে');});}
@@ -1148,7 +1255,7 @@ function standingsHTML(t){if(!t.teams.length)return `<div class="card empty"><sp
     ${list.map(function(r,i){return `<tr class="${i===0?'me':''}"><td class="l">${bnNum(i+1)}</td><td class="l">${esc(r.name)}${i===0?' 👑':''}</td><td>${bnNum(r.p)}</td><td>${bnNum(r.w)}</td><td>${bnNum(r.d)}</td><td>${bnNum(r.l)}</td><td>${bnNum(r.gf)}-${bnNum(r.ga)}</td><td><b>${bnNum(r.pts)}</b></td></tr>`;}).join('')}
   </table><div class="tsub" style="margin-top:8px">জয়ে ${(t.ptsWin||3)} পয়েন্ট, ড্রে ১। সেরা দলের পাশে 👑 চিহ্ন।</div></div>`;}
 function teamsHTML(t){
-  if(!t.teams.length)return `<div class="card empty"><span class="e">👥</span>এখনো কোনো দল নেই${isAdmin()?'<br><button class="btn pri" style="margin-top:12px" onclick="teamForm(\''+t.id+'\')">প্রথম দল যোগ করুন</button>':''}</div>`;
+  if(!t.teams.length)return `<div class="card empty"><span class="e">👥</span>এখনো কোনো দল নেই${canAdmin('tournaments')?'<br><button class="btn pri" style="margin-top:12px" onclick="teamForm(\''+t.id+'\')">প্রথম দল যোগ করুন</button>':''}</div>`;
   return `<div class="card">${t.teams.map(tm=>{const cnt=(tm.members||[]).length;
     const cap=tm.captain?store.players.find(p=>p.id===tm.captain):null;
     return `<div style="padding:11px 0;border-bottom:1px solid #f1f5f9">
@@ -1157,7 +1264,7 @@ function teamsHTML(t){
         <div style="flex:1;min-width:0"><b style="font-size:.9rem">${esc(tm.name)}</b>
         <div class="tsub">${cnt?bnNum(cnt)+' জন সদস্য'+(cap?' • 👑 ক্যাপ্টেন: '+esc(cap.name):''):'দলে সদস্য যোগ করা হয়নি'}</div></div>
         ${teamAvs(t,tm.id,'tm-avs')}
-        ${isAdmin()?`<button class="ibtn" onclick="teamForm('${t.id}','${tm.id}')">✏️</button><button class="ibtn" onclick="teamDel('${t.id}','${tm.id}')">🗑️</button>`:''}
+        ${canAdmin('tournaments')?`<button class="ibtn" onclick="teamForm('${t.id}','${tm.id}')">✏️</button><button class="ibtn" onclick="teamDel('${t.id}','${tm.id}')">🗑️</button>`:''}
       </div>
       ${cnt?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:7px">${(tm.members||[]).map(id=>{const p=store.players.find(x=>x.id===id);return p?`<span class="spbadge">${tm.captain===id?'👑 ':''}${esc(p.name)}</span>`:'';}).join('')}</div>`:''}
     </div>`;}).join('')}
@@ -1219,9 +1326,9 @@ function championSave(tId){const t=store.tournaments.find(x=>x.id===tId);if(!t)r
 
 /* ================= নোটিশ ================= */
 function vNotices(){const list=[...store.notices].sort((a,b)=>(b.date+(b.createdAt||'')).localeCompare(a.date+(a.createdAt||'')));
-  return `<div class="shead"><h3>📢 নোটিশ বোর্ড</h3>${isAdmin()?`<button class="btn pri sm" onclick="noticeForm()">+ নতুন</button>`:''}</div>
+  return `<div class="shead"><h3>📢 নোটিশ বোর্ড</h3>${canAdmin('notices')?`<button class="btn pri sm" onclick="noticeForm()">+ নতুন</button>`:''}</div>
   ${list.length?list.map(nCard).join('')
-  :`<div class="card empty"><span class="e">📭</span>এখনো কোনো নোটিশ নেই${isAdmin()?'<br><button class="btn pri" style="margin-top:12px" onclick="noticeForm()">প্রথম নোটিশ প্রকাশ করুন</button>':''}</div>`}
+  :`<div class="card empty"><span class="e">📭</span>এখনো কোনো নোটিশ নেই${canAdmin('notices')?'<br><button class="btn pri" style="margin-top:12px" onclick="noticeForm()">প্রথম নোটিশ প্রকাশ করুন</button>':''}</div>`}
   <div class="card" style="background:#eff6ff;border-color:#bfdbfe"><div class="mtxt">🔴 <b>জরুরি</b> • 🟠 <b>গুরুত্বপূর্ণ</b> • 🔵 <b>সাধারণ</b> — রঙ দেখে বুঝবেন কোনটি আগে পড়া জরুরি। ৩ দিনের নতুন নোটিশে "নতুন" লেখা থাকে।</div></div>`;}
 function noticeForm(id){const n=id?store.notices.find(x=>x.id===id):null;
   openModal(`<div class="mhandle"></div><h3 class="mttl">${n?'নোটিশ সম্পাদনা':'নতুন নোটিশ প্রকাশ'}</h3>
@@ -1246,69 +1353,100 @@ function noticeDel(id){const n=store.notices.find(x=>x.id===id);if(!n)return;
     logAct('নোটিশ মুছে ফেলা: '+n.title);save();closeModal();render();toast('মুছে ফেলা হয়েছে');});}
 </script>
 <script>
-/* ================= অ্যাডমিন লগইন ================= */
-function adminBtnClick(){if(isAdmin())go('admin');else adminLoginModal();}
-function adminLoginModal(){
-  if(!store.admins.length){firstAdminModal();return;}
-  openModal(`<div class="mhandle"></div><h3 class="mttl">🔐 অ্যাডমিন লগইন</h3>
-  <div class="fgrp"><label>আপনি কোন অ্যাডমিন?</label><select id="lg-who">${store.admins.map(a=>`<option value="${a.id}">${esc(a.name)} (${esc(a.role)})</option>`).join('')}</select></div>
-  <div class="fgrp"><label>পিন কোড (বড় করে লিখুন)</label><input id="lg-pin" type="password" inputmode="numeric" maxlength="6" placeholder="• • • •" style="font-size:1.5rem;text-align:center;letter-spacing:8px;height:54px" onkeydown="if(event.key==='Enter')adminTry()"></div>
-  <div class="mbtns"><button class="btn ghost" onclick="closeModal()">বাতিল</button><button class="btn pri" onclick="adminTry()">প্রবেশ</button></div>
-  <button class="lnk" style="width:100%;border:none;background:none;margin-top:6px;color:var(--mut);font-size:.8rem;text-decoration:underline" onclick="firstAdminModal()">➕ নতুন অ্যাডমিন তৈরি (প্রথমবার)</button>`);}
-function adminTry(){const a=store.admins.find(x=>x.id===$('#lg-who').value);
-  if(!a||a.pin!==hashPin($('#lg-pin').value||'')){toast('পিন ভুল! আবার চেষ্টা করুন','err');return;}
-  adminId=a.id;sessionStorage.setItem(SS_KEY,adminId);
-  closeModal();renderHeader();go('admin');toast('স্বাগতম, '+a.name+' 👋');}
-function adminLogout(){adminId=null;sessionStorage.removeItem(SS_KEY);
-  go('home');renderHeader();toast('লগআউট হয়েছে');}
-function firstAdminModal(){closeModal();
-  openModal(`<div class="mhandle"></div><h3 class="mttl">🛡️ প্রথম অ্যাডমিন তৈরি করুন</h3>
-  <div class="mtxt" style="margin-bottom:10px">এখনো কোনো অ্যাডমিন নেই। যিনি প্রধান দায়িত্বে থাকবেন, তাঁর নাম ও পিন দিন। পরে প্যানেল থেকে আরও অ্যাডমিন যোগ করা যাবে।</div>
-  <div class="fgrp"><label>নাম *</label><input id="fa-name" placeholder="যেমন: মোঃ করিম মিয়া"></div>
-  <div class="fgrp"><label>পদবি</label><select id="fa-role"><option>মুখ্য অ্যাডমিন</option><option>সহ-অ্যাডমিন</option><option>হিসাবরক্ষক</option></select></div>
-  <div class="frow">
-    <div class="fgrp"><label>পিন (৪–৬ সংখ্যা) *</label><input id="fa-pin" type="password" inputmode="numeric" maxlength="6"></div>
-    <div class="fgrp"><label>পিন আবার *</label><input id="fa-pin2" type="password" inputmode="numeric" maxlength="6"></div>
+/* ================= অ্যাডমিন লগইন — মূল এডমিন (জিমেইল) + সহ এডমিন (ইউজারনেম) ================= */
+function adminBtnClick(){if(isAdmin())go('admin');else loginModal();}
+function loginModal(){const M=store.mainAdmin;
+  openModal(`<div class="mhandle"></div><h3 class="mttl">🔐 অ্যাডমিন প্রবেশ</h3>
+  <div class="seg">
+    <button class="on" id="lt-main" onclick="loginTab('main')">👑 মূল এডমিন</button>
+    <button id="lt-co" onclick="loginTab('co')">🤝 সহ এডমিন</button>
   </div>
-  <div class="mbtns"><button class="btn ghost" onclick="closeModal()">বাতিল</button><button class="btn pri" onclick="firstAdminSave()">তৈরি করুন</button></div>`);}
-function firstAdminSave(){const name=$('#fa-name').value.trim(),pin=$('#fa-pin').value.trim(),pin2=$('#fa-pin2').value.trim();
-  if(!name){toast('নাম লিখুন','err');return;}
-  if(!/^[0-9]{4,6}$/.test(pin)){toast('পিন হবে ৪–৬ সংখ্যার','err');return;}
-  if(pin!==pin2){toast('দুটি পিন মিলছে না','err');return;}
-  store.admins.push({id:uid(),name:name,role:$('#fa-role').value,pin:hashPin(pin)});
-  logAct('অ্যাডমিন তৈরি: '+name);save();
-  adminId=store.admins[store.admins.length-1].id;sessionStorage.setItem(SS_KEY,adminId);
-  closeModal();renderHeader();go('admin');toast('অ্যাডমিন তৈরি হয়েছে 🎉');}
+  <div id="lp-main">
+    ${M?'':`<div class="mtxt" style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:8px 10px">🛡️ এই ফোনে এখনো মূল এডমিন নেই। <b>ক্লাবের মূল এডমিন</b> হলে আপনার জিমেইল ও পাসওয়ার্ড দিয়ে নিবন্ধন করুন — পরে এগুলো দিয়েই ঢুকবেন।</div>`}
+    ${M&&M.legacy?`<div class="mtxt" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:8px 10px">এই ফোনে আগের পিন দিয়ে মূল এডমিন (${esc(M.name)}) ছিলেন — নিচের <b>আগের পিন</b> ঘরে পিন দিয়ে ঢুকুন, অথবা ঢুকে প্যানেল থেকে জিমেইল যোগ করে আপগ্রেড করুন।</div>`:''}
+    ${!M?`<div class="fgrp"><label>আপনার নাম *</label><input id="lg-name" placeholder="যেমন: মোঃ করিম মিয়া"></div>`:''}
+    <div class="fgrp"><label>জিমেইল ঠিকানা *</label><input id="lg-mail" type="email" inputmode="email" placeholder="যেমন: shobarampurclub@gmail.com"></div>
+    <div class="fgrp"><label>${M?'পাসওয়ার্ড *':'নতুন পাসওয়ার্ড (কমপক্ষে ৪ অক্ষর) *'}</label><input id="lg-pass2" type="password" placeholder="• • • • • •" onkeydown="if(event.key==='Enter')mainTry()"></div>
+    ${M&&M.legacy?`<div class="fgrp"><label>অথবা আগের পিন (পুরোনো সংস্করণ)</label><input id="lg-oldpin" type="password" inputmode="numeric" maxlength="6" placeholder="• • • •"></div>`:''}
+    <div class="mbtns"><button class="btn ghost" onclick="closeModal()">বাতিল</button><button class="btn pri" onclick="mainTry()">${M?'প্রবেশ':'🛡️ মূল এডমিন হিসেবে নিবন্ধন'}</button></div>
+  </div>
+  <div id="lp-co" style="display:none">
+    <div class="mtxt">মূল এডমিন আপনাকে যে <b>ইউজারনেম ও পাসওয়ার্ড</b> দিয়েছেন, সেটা লিখুন।</div>
+    <div class="fgrp"><label>ইউজারনেম *</label><input id="lg-user" placeholder="যেমন: ইয়াসিন"></div>
+    <div class="fgrp"><label>পাসওয়ার্ড *</label><input id="lg-pass" type="password" placeholder="• • • •" onkeydown="if(event.key==='Enter')coTry()"></div>
+    <div class="mbtns"><button class="btn ghost" onclick="closeModal()">বাতিল</button><button class="btn pri" onclick="coTry()">প্রবেশ</button></div>
+  </div>`);}
+function loginTab(t){document.getElementById('lt-main').classList.toggle('on',t==='main');
+  document.getElementById('lt-co').classList.toggle('on',t!=='main');
+  document.getElementById('lp-main').style.display=t==='main'?'':'none';
+  document.getElementById('lp-co').style.display=t==='main'?'none':'';}
+function loginDone(s){setSession(s);closeModal();renderHeader();go('admin');toast('স্বাগতম, '+s.name+' 👋');}
+function mainTry(){const M=store.mainAdmin;
+  const mail=$('#lg-mail').value.trim().toLowerCase();
+  const pwd=$('#lg-pass2').value||'';
+  const oldpin=$('#lg-oldpin')?$('#lg-oldpin').value:'';
+  if(M&&M.legacy&&oldpin&&hashPin(oldpin)===M.pwd){loginDone({kind:'main',name:M.name,gmail:M.gmail||'',role:'মূল এডমিন'});return;}
+  const mailOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail);
+  if(!M){
+    const nm=$('#lg-name')?$('#lg-name').value.trim():'';
+    if(!nm){toast('আপনার নাম লিখুন','err');return;}
+    if(!mailOk){toast('সঠিক জিমেইল ঠিকানা লিখুন','err');return;}
+    if(pwd.length<4){toast('পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের দিন','err');return;}
+    store.mainAdmin={name:nm,gmail:mail,pwd:hashPin(pwd),legacy:false};
+    logAct('মূল এডমিন নিবন্ধন: '+nm+' ('+mail+')');save();
+    loginDone({kind:'main',name:nm,gmail:mail,role:'মূল এডমিন'});return;}
+  if(M.gmail&&mail===M.gmail&&M.pwd===hashPin(pwd)){loginDone({kind:'main',name:M.name,gmail:mail,role:'মূল এডমিন'});return;}
+  toast(M.legacy?'জিমেইল এখনো যোগ হয়নি — আগের পিন দিয়ে ঢুকুন':'জিমেইল বা পাসওয়ার্ড ভুল!','err');}
+async function coTry(){const u=$('#lg-user').value.trim(),p=$('#lg-pass').value||'';
+  if(!u||!p){toast('ইউজারনেম ও পাসওয়ার্ড দিন','err');return;}
+  const local=store.coAdmins.find(x=>String(x.user).toLowerCase()===u.toLowerCase()&&x.pwd===hashPin(p));
+  if(local){loginDone({kind:'co',name:u,role:local.role||'সব অধিকার'});return;}
+  toast('অনলাইনে যাচাই হচ্ছে…');
+  try{const r=await fbSignIn(coLocal(u)+CO_DOMAIN,p);
+    if(r&&r.idToken){loginDone({kind:'co',name:u,role:'সব অধিকার'});return;}
+    const m=r&&r.error?r.error.message:'';
+    if(fbProviderOff(m)){toast('এই ফোনে অ্যাকাউন্ট নেই এবং অনলাইন যাচাই এখনো চালু নয় — মূল এডমিনের সাথে কথা বলুন','err');return;}
+    toast('ইউজারনেম বা পাসওয়ার্ড ভুল!','err');}
+  catch(e){toast('ইন্টারনেট ছাড়া যাচাই হয় শুধু এই ফোনে তৈরি অ্যাকাউন্ট দিয়ে','err');}}
+function adminLogout(){setSession(null);go('home');renderHeader();toast('লগআউট হয়েছে');}
 
 /* ================= অ্যাডমিন প্যানেল ================= */
-function vAdmin(){if(!isAdmin()){setTimeout(adminLoginModal,50);return `<div class="card empty"><span class="e">🔐</span>শুধু অ্যাডমিন এখানে ঢুকতে পারবেন</div>`;}
-  const me=curAdmin();const usage=getUsage();
+function vAdmin(){const ses=curSession();
+  if(!ses){setTimeout(adminLoginModal,50);return `<div class="card empty"><span class="e">🔐</span>শুধু অ্যাডমিন এখানে ঢুকতে পারবেন — হেডারের 🔐 থেকে প্রবেশ করুন</div>`;}
+  const usage=getUsage();
+  const myRole=ses.kind==='main'?'মূল এডমিন'+(ses.gmail?' • '+ses.gmail:''):'সহ এডমিন • পদবি: '+ses.role;
+  const permText=ses.kind==='main'?'আপনার সব অধিকার — সব অংশ + সহ এডমিন ম্যানেজার।':'আপনার পদবি অনুযায়ী যে অংশগুলোর অনুমতি আছে, শুধু সেখানেই যোগ/সম্পাদনার বোতাম দেখা যাবে।';
   return `<div class="card" style="background:linear-gradient(135deg,#065f46,#0e9f4f);color:#fff;border:none">
     <div style="display:flex;align-items:center;gap:12px">
-      <div class="ava" style="background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4);color:#fff">${esc(initials(me.name))}</div>
-      <div style="flex:1;min-width:0"><b style="font-size:1.05rem">${esc(me.name)}</b>
-      <div style="font-size:.78rem;opacity:.92">${esc(me.role)} • অ্যাডমিন প্যানেল</div></div>
+      <div class="ava" style="background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4);color:#fff">${esc(initials(ses.name))}</div>
+      <div style="flex:1;min-width:0"><b style="font-size:1.05rem">${esc(ses.name)}</b>
+      <div style="font-size:.78rem;opacity:.92">${esc(myRole)}</div></div>
       <button class="btn ghost sm" onclick="adminLogout()">লগআউট</button>
     </div></div>
+  <div class="card" style="background:#f0fdf4;border-color:#bbf7d0"><div class="mtxt">🛡️ ${permText}</div></div>
   <div class="card" style="background:#fffbeb;border-color:#fde68a">
     <div class="mtxt"><b>🎁 শুরু করছেন?</b> মাত্র ৩ ধাপ: ১) 👥 সদস্য যোগ করুন → ২) 💰 হিসাব লিখুন (মাঠ ভাড়া, বিল, চাঁদা) → ৩) 🏆 টুর্নামেন্ট বানান। নিচের বড় বাটনেই সব কাজ এক চাপে!</div>
   </div>
   <div class="shead"><h3>⚡ এক চাপে কাজ</h3></div>
   <div class="qgrid">
-    <div class="qtile" onclick="incomeForm()"><span class="qe">💰</span><b>আয় যোগ</b><span class="qs">মাঠ ফি / চাঁদা / দান</span></div>
-    <div class="qtile" onclick="expenseForm()"><span class="qe">🛒</span><b>ব্যয় যোগ</b><span class="qs">মাঠ ভাড়া / বিল / সরঞ্জাম</span></div>
-    <div class="qtile" onclick="playerForm()"><span class="qe">👥</span><b>সদস্য যোগ</b><span class="qs">ছবি + মোবাইল নম্বর</span></div>
-    <div class="qtile" onclick="noticeForm()"><span class="qe">📢</span><b>নোটিশ দিন</b><span class="qs">সবার ফোনে পৌঁছাবে</span></div>
-    <div class="qtile" onclick="tForm()"><span class="qe">🏆</span><b>টুর্নামেন্ট</b><span class="qs">নতুন ঘোষণা করুন</span></div>
+    ${canAdmin('ledger')?`<div class="qtile" onclick="incomeForm()"><span class="qe">💰</span><b>আয় যোগ</b><span class="qs">মাঠ ফি / চাঁদা / দান</span></div>
+    <div class="qtile" onclick="expenseForm()"><span class="qe">🛒</span><b>ব্যয় যোগ</b><span class="qs">মাঠ ভাড়া / বিল / সরঞ্জাম</span></div>`:''}
+    ${canAdmin('members')?`<div class="qtile" onclick="playerForm()"><span class="qe">👥</span><b>সদস্য যোগ</b><span class="qs">ছবি + মোবাইল নম্বর</span></div>`:''}
+    ${canAdmin('notices')?`<div class="qtile" onclick="noticeForm()"><span class="qe">📢</span><b>নোটিশ দিন</b><span class="qs">সবার ফোনে পৌঁছাবে</span></div>`:''}
+    ${canAdmin('tournaments')?`<div class="qtile" onclick="tForm()"><span class="qe">🏆</span><b>টুর্নামেন্ট</b><span class="qs">নতুন ঘোষণা করুন</span></div>`:''}
     <div class="qtile" onclick="openGuide()"><span class="qe">❓</span><b>সহায়িকা</b><span class="qs">সব প্রশ্নের উত্তর</span></div>
   </div>
-  <div class="shead"><h3>🛡️ অ্যাডমিন তালিকা</h3><button class="btn pri sm" onclick="adminForm()">+ অ্যাডমিন যোগ</button></div>
-  <div class="card">${store.admins.map(a=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f1f5f9">
-    <div class="ava" style="width:38px;height:38px;font-size:.85rem;margin:0">${esc(initials(a.name))}</div>
-    <div style="flex:1;min-width:0"><b>${esc(a.name)}</b><div class="tsub">${esc(a.role)}</div></div>
-    <button class="ibtn" onclick="pinForm('${a.id}')">🔑 পিন</button>
-    ${a.id!==me.id?`<button class="ibtn" onclick="adminDel('${a.id}')">🗑️</button>`:''}</div>`).join('')}
-  <div class="tsub" style="margin-top:8px">মোট ${bnNum(store.admins.length)} জন অ্যাডমিন — সবাই সমান অধিকারে হিসাব লিখতে পারবেন।</div></div>
+  ${ses.kind==='main'?`<div class="shead"><h3>🤝 সহ এডমিন ম্যানেজার</h3><button class="btn pri sm" onclick="coForm()">+ সহ এডমিন যোগ</button></div>
+  <div class="card">
+    ${store.coAdmins.length?store.coAdmins.map(a=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f1f5f9">
+    <div class="ava" style="width:38px;height:38px;font-size:.85rem;margin:0">${esc(initials(a.user))}</div>
+    <div style="flex:1;min-width:0"><b>${esc(a.user)}</b><div class="tsub">পদবি: ${esc(a.role)}</div></div>
+    <button class="ibtn" onclick="coPwdForm('${a.id}')">🔑 পাসওয়ার্ড</button>
+    <button class="ibtn" onclick="coDel('${a.id}')">🗑️</button></div>`).join(''):'<div class="tsub">এখনো কোনো সহ এডমিন নেই। "+ সহ এডমিন যোগ" থেকে ইউজারনেম-পাসওয়ার্ড বানিয়ে দিন।</div>'}
+    <div class="tsub" style="margin-top:8px">💡 নতুন সহ এডমিনের <b>ইউজারনেম + পাসওয়ার্ড</b> ওই ব্যক্তিকে জানিয়ে দিন — তিনি নিজের ফোনে অ্যাপ খুলে 🔒 চেপে <b>সহ এডমিন</b> ট্যাব থেকে ঢুকবেন। পদবি অনুযায়ী তাঁর অনুমতি সীমিত থাকবে (যেমন "হিসাব" পদবি পেলে শুধু হিসাবের অংশ লিখতে পারবেন)।</div>
+    ${store.mainAdmin&&store.mainAdmin.legacy?`<button class="btn gold sm" style="margin-top:8px" onclick="gmailUpgrade()">📧 আপনার জিমেইল যোগ করুন (পুরোনো পিন → আপগ্রেড)</button>`:`<div class="tsub" style="margin-top:8px">👑 মূল এডমিন: ${esc(store.mainAdmin?store.mainAdmin.name:'')} ${store.mainAdmin&&store.mainAdmin.gmail?'('+esc(store.mainAdmin.gmail)+')':''}</div>`}
+  </div>`:`<div class="card" style="background:#eff6ff;border-color:#bfdbfe"><div class="mtxt">🤝 আপনি <b>সহ এডমিন</b> — পদবি: <b>${esc(ses.role)}</b>। নতুন সহ এডমিন তৈরি বা সেটিংস বদল শুধু মূল এডমিন করতে পারবেন।</div></div>`}
+  ${canAdmin('settings')?`
   <div class="shead"><h3>⚙️ ক্লাব সেটিংস</h3></div>
   <div class="card">
     <div class="fgrp"><label>ক্লাব / দলের নাম</label><input id="st-name" value="${esc(store.settings.clubName)}"></div>
@@ -1355,6 +1493,7 @@ function vAdmin(){if(!isAdmin()){setTimeout(adminLoginModal,50);return `<div cla
     <button class="btn ghost sm" onclick="loadDemo()">🎉 নমুনা ডেটা লোড করুন</button>
     <button class="btn red sm" onclick="resetAll()">🗑 সব ডেটা মুছে ফেলুন</button>
   </div>
+  `:''}
   <div class="shead"><h3>📜 কার্যক্রমের ইতিহাস</h3></div>
   <div class="card">${store.log.length?store.log.slice(0,15).map(l=>`<div style="padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:.8rem"><b>${esc(l.by)}</b> — ${esc(l.txt)}<div class="tsub">${ftime(l.t)}</div></div>`).join(''):'<div class="tsub">এখনো কোনো কার্যক্রম নেই</div>'}</div>`;}
 function settingsSave(){store.settings.clubName=$('#st-name').value.trim()||store.settings.clubName;
@@ -1380,38 +1519,62 @@ function catSave(){const kind=$('#cat-kind').value,name=$('#cat-name').value.tri
   if(store.settings[key].includes(name)){toast('এই খাত আগেই আছে','err');return;}
   store.settings[key].push(name);logAct('নতুন হিসাবের খাত ('+(kind==='inc'?'আয়':'ব্যয়')+'): '+name);
   save();closeModal();render();toast('খাত যোগ হয়েছে ✅');}
-function adminForm(){openModal(`<div class="mhandle"></div><h3 class="mttl">➕ নতুন অ্যাডমিন যোগ</h3>
-  <div class="fgrp"><label>নাম *</label><input id="ad-name" placeholder="যেমন: মোঃ রহিম মিয়া"></div>
-  <div class="fgrp"><label>পদবি</label><select id="ad-role"><option>সহ-অ্যাডমিন</option><option>মুখ্য অ্যাডমিন</option><option>হিসাবরক্ষক</option></select></div>
+function coForm(){openModal(`<div class="mhandle"></div><h3 class="mttl">🤝 সহ এডমিন যোগ করুন</h3>
+  <div class="fgrp"><label>ইউজারনেম *</label><input id="co-user" placeholder="যেমন: ইয়াসিন"></div>
+  <div class="fgrp"><label>পদবি — কোন কাজের অনুমতি দেবেন?</label><select id="co-role"><option>সব অধিকার</option><option>হিসাব</option><option>টুর্নামেন্ট</option><option>সদস্য</option><option>নোটিশ</option></select></div>
   <div class="frow">
-    <div class="fgrp"><label>পিন (৪–৬ সংখ্যা) *</label><input id="ad-pin" type="password" inputmode="numeric" maxlength="6"></div>
-    <div class="fgrp"><label>পিন আবার *</label><input id="ad-pin2" type="password" inputmode="numeric" maxlength="6"></div>
+    <div class="fgrp"><label>পাসওয়ার্ড (৪+ অক্ষর) *</label><input id="co-p1" type="password"></div>
+    <div class="fgrp"><label>আবার লিখুন *</label><input id="co-p2" type="password"></div>
   </div>
-  <div class="mtxt">💡 নতুন অ্যাডমিনকে তাঁর পিনটি মুখে মুখে জানিয়ে দিন; লিখে পাঠাবেন না।</div>
-  <div class="mbtns"><button class="btn ghost" onclick="closeModal()">বাতিল</button><button class="btn pri" onclick="adminSave()">যোগ করুন</button></div>`);}
-function adminSave(){const name=$('#ad-name').value.trim(),pin=$('#ad-pin').value.trim(),pin2=$('#ad-pin2').value.trim();
-  if(!name){toast('নাম লিখুন','err');return;}
-  if(!/^[0-9]{4,6}$/.test(pin)){toast('পিন হবে ৪–৬ সংখ্যার','err');return;}
-  if(pin!==pin2){toast('দুটি পিন মিলছে না','err');return;}
-  store.admins.push({id:uid(),name:name,role:$('#ad-role').value,pin:hashPin(pin)});
-  logAct('নতুন অ্যাডমিন যোগ: '+name);save();closeModal();render();toast(name+' এখন অ্যাডমিন ✅');}
-function pinForm(id){const a=store.admins.find(x=>x.id===id);if(!a)return;
-  openModal(`<div class="mhandle"></div><h3 class="mttl">🔑 পিন পরিবর্তন — ${esc(a.name)}</h3>
+  <div class="mbtns"><button class="btn ghost" onclick="closeModal()">বাতিল</button><button class="btn pri" onclick="coSave()">যোগ করুন</button></div>`);}
+function coSave(){const u=$('#co-user').value.trim(),p1=$('#co-p1').value||'',p2=$('#co-p2').value||'';
+  if(!u){toast('ইউজারনেম লিখুন','err');return;}
+  if(store.coAdmins.some(x=>String(x.user).toLowerCase()===u.toLowerCase())){toast('এই ইউজারনেম আগেই আছে','err');return;}
+  if(p1.length<4){toast('পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের দিন','err');return;}
+  if(p1!==p2){toast('দুটি পাসওয়ার্ড মিলছে না','err');return;}
+  const role=$('#co-role').value;
+  store.coAdmins.push({id:uid(),user:u,pwd:hashPin(p1),role:role,at:Date.now()});
+  logAct('সহ এডমিন যোগ: '+u+' ('+role+')');save();closeModal();render();
+  toast(u+' এখন সহ এডমিন ('+role+') ✅ — ইউজারনেম+পাসওয়ার্ড তাঁকে জানিয়ে দিন');
+  fbSignUp(coLocal(u)+CO_DOMAIN,p1).then(function(r){
+    if(r&&r.idToken){toast('অনলাইনেও তৈরি — এখন যেকোনো ফোন থেকে লগইন করতে পারবে ✅');}
+    else if(r&&r.error&&fbProviderOff(r.error.message)&&!store.settings.fbHintShown){
+      store.settings.fbHintShown=true;save();
+      toast('💡 যেকোনো ফোন থেকে লগইন চালু করতে: Firebase Console → Authentication → Sign-in method → Email/Password চালু করুন');}
+  }).catch(function(){});}
+function coPwdForm(id){const a=store.coAdmins.find(x=>x.id===id);if(!a)return;
+  openModal(`<div class="mhandle"></div><h3 class="mttl">🔑 পাসওয়ার্ড বদল — ${esc(a.user)}</h3>
   <div class="frow">
-    <div class="fgrp"><label>নতুন পিন *</label><input id="pn1" type="password" inputmode="numeric" maxlength="6"></div>
-    <div class="fgrp"><label>আবার লিখুন *</label><input id="pn2" type="password" inputmode="numeric" maxlength="6"></div>
+    <div class="fgrp"><label>নতুন পাসওয়ার্ড *</label><input id="cp1" type="password"></div>
+    <div class="fgrp"><label>আবার লিখুন *</label><input id="cp2" type="password"></div>
   </div>
-  <div class="mbtns"><button class="btn ghost" onclick="closeModal()">বাতিল</button><button class="btn pri" onclick="pinSave('${id}')">পরিবর্তন করুন</button></div>`);}
-function pinSave(id){const a=store.admins.find(x=>x.id===id);if(!a)return;
-  const p1=$('#pn1').value.trim(),p2=$('#pn2').value.trim();
-  if(!/^[0-9]{4,6}$/.test(p1)){toast('পিন হবে ৪–৬ সংখ্যার','err');return;}
-  if(p1!==p2){toast('দুটি পিন মিলছে না','err');return;}
-  a.pin=hashPin(p1);logAct('পিন পরিবর্তন: '+a.name);save();closeModal();toast('পিন বদলে গেছে ✅');}
-function adminDel(id){const a=store.admins.find(x=>x.id===id);if(!a)return;
-  if(store.admins.length<=1){toast('অন্তত একজন অ্যাডমিন থাকতেই হবে','err');return;}
-  confirmBox('"'+a.name+'"-কে অ্যাডমিন পদ থেকে বাদ দেবেন?',function(){
-    store.admins=store.admins.filter(x=>x.id!==id);
-    logAct('অ্যাডমিন বাদ: '+a.name);save();closeModal();render();toast('বাদ দেওয়া হয়েছে');});}
+  <div class="mbtns"><button class="btn ghost" onclick="closeModal()">বাতিল</button><button class="btn pri" onclick="coPwdSave('${id}')">পরিবর্তন</button></div>`);}
+function coPwdSave(id){const a=store.coAdmins.find(x=>x.id===id);if(!a)return;
+  const p1=$('#cp1').value||'',p2=$('#cp2').value||'';
+  if(p1.length<4){toast('পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের দিন','err');return;}
+  if(p1!==p2){toast('দুটি পাসওয়ার্ড মিলছে না','err');return;}
+  a.pwd=hashPin(p1);logAct('পাসওয়ার্ড বদল: '+a.user);save();closeModal();toast('পাসওয়ার্ড বদলে গেছে ✅');}
+function coDel(id){const a=store.coAdmins.find(x=>x.id===id);if(!a)return;
+  confirmBox('"'+a.user+'"-কে সহ এডমিন থেকে বাদ দেবেন?',function(){
+    store.coAdmins=store.coAdmins.filter(x=>x.id!==id);
+    logAct('সহ এডমিন বাদ: '+a.user);save();closeModal();render();toast('বাদ দেওয়া হয়েছে');});}
+function gmailUpgrade(){const M=store.mainAdmin;
+  openModal(`<div class="mhandle"></div><h3 class="mttl">📧 জিমেইল যোগ করুন (আপগ্রেড)</h3>
+  <div class="mtxt">আগের পিন-সিস্টেম থেকে নতুন সিস্টেমে আসছেন। আপনার জিমেইল ও নতুন পাসওয়ার্ড দিন — পরে এগুলো দিয়েই ঢুকবেন।</div>
+  <div class="fgrp"><label>জিমেইল *</label><input id="gu-mail" type="email" inputmode="email" placeholder="you@gmail.com"></div>
+  <div class="frow">
+    <div class="fgrp"><label>নতুন পাসওয়ার্ড (৪+) *</label><input id="gu-p1" type="password"></div>
+    <div class="fgrp"><label>আবার লিখুন *</label><input id="gu-p2" type="password"></div>
+  </div>
+  <div class="mbtns"><button class="btn ghost" onclick="closeModal()">বাতিল</button><button class="btn pri" onclick="gmailSave()">আপগ্রেড করুন</button></div>`);}
+function gmailSave(){const M=store.mainAdmin;if(!M)return;
+  const mail=$('#gu-mail').value.trim().toLowerCase();
+  const p1=$('#gu-p1').value||'',p2=$('#gu-p2').value||'';
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){toast('সঠিক জিমেইল লিখুন','err');return;}
+  if(p1.length<4){toast('পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের দিন','err');return;}
+  if(p1!==p2){toast('দুটি পাসওয়ার্ড মিলছে না','err');return;}
+  M.gmail=mail;M.pwd=hashPin(p1);M.legacy=false;
+  logAct('মূল এডমিন আপগ্রেড: '+mail);save();closeModal();render();toast('জিমেইল যোগ হয়েছে ✅ এখন এটা দিয়েই ঢুকবেন');}
 
 /* ================= ব্যাকআপ / রিসেট / ডেমো ================= */
 function backupExport(){const blob=new Blob([JSON.stringify(store,null,1)],{type:'application/json'});
@@ -1463,13 +1626,15 @@ function openGuide(){go('guide');}
 function togAcc(el){el.parentElement.classList.toggle('open');}
 function vGuide(){const sec=[
   ['🏠 অ্যাপটি কী কী করে?','হোম পেজে নিজে থেকে ঘোরা <b>ব্যানার</b> — সর্বোচ্চ ৩টি স্লাইড ঘুরে ঘুরে আসে: ১) চলমান টুর্নামেন্ট ও পরের ম্যাচ ২) ক্লাবের হিসাব ৩) সর্বশেষ নোটিশ। নিচের ছোট ডট বোতামে চেপে ইচ্ছে করে স্লাইড বদলানো যায়। এছাড়া <b>পরের ম্যাচের কাউন্টডাউন</b> (দুই দলের লোগো-ক্যাপ্টেন-খেলোয়াড়সহ ফেস-অফ কার্ড), অ্যানিমেটেড হিসাবের সারসংক্ষেপ আর সর্বশেষ নোটিশ। নিচের ৫টি বোতামে সব পাতা: হোম, সদস্য, হিসাব, টুর্নামেন্ট, নোটিশ — সবাই সব দেখতে পারবে, এটাই স্বচ্ছতা।'],
-  ['🔐 অ্যাডমিন কীভাবে কাজ করে?','হেডারের ডান কোণে 🔐 বোতামে চেপে পিন দিয়ে লগইন করুন। লগইন করলেই প্রতিটি পাতায় যোগ/সম্পাদনা/মুছে ফেলার বোতাম দেখা যাবে। ২–৩ জন অ্যাডমিন রাখুন — সবাই সমান অধিকারে হিসাব লিখতে পারবেন, একজন অনুপস্থিত থাকলেও কাজ চলবে। প্রতি এন্ট্রিতে কে লিখল, সেটাও জমা থাকে।'],
+  ['🔐 অ্যাডমিন সিস্টেম — মূল এডমিন ও সহ এডমিন','সাধারণ সদস্যরা অ্যাপ খুললেই সরাসরি হোম পেজ দেখবেন — তাঁদের কোনো লগইন লাগে না। অ্যাডমিন কাজ করতে হেডারের ডান কোণের <b>🔒</b> বোতামে চাপুন → দুটি ট্যাব আসবে: <b>👑 মূল এডমিন</b> — ক্লাবের প্রধান ব্যক্তি তাঁর <b>জিমেইল + পাসওয়ার্ড</b> দিয়ে ঢুকবেন (এই ফোনে প্রথমবার ঢোকার সময় নিবন্ধন হয়ে যাবে)। আগের সংস্করণে পিন দিয়ে চালাতেন? সেই পিনেই এখনো ঢুকতে পারবেন, পরে প্যানেল থেকে জিমেইল যোগ করে আপগ্রেড করুন। <b>🤝 সহ এডমিন</b> — মূল এডমিন যে ইউজারনেম ও পাসওয়ার্ড দিয়েছেন, সেটা দিয়ে ঢুকবেন। লগইন করলেই প্রতিটি পাতায় অনুমতি অনুযায়ী যোগ/সম্পাদনা/মুছে ফেলার বোতাম দেখা যাবে। প্রতি এন্ট্রিতে কে লিখল, সেটাও জমা থাকে।'],
+  ['📡 সবার ফোনে একসাথে লাইভ ঘড়ি (মূল এডমিন চালু করবে)','একবার সেটআপ (১ মিনিট): console.firebase.google.com → আপনার প্রজেক্ট (shovarampur-sports) → বাম মেনু থেকে <b>Realtime Database → Create database</b> → লোকেশন যেটা দেখায় সেটাই রাখুন → <b>Start in \"test mode\"</b> বেছে <b>Enable</b> চাপুন। তারপর: টাইমার চালু করে অ্যাডমিন বোতামের মধ্যে <b>📡 সবার ফোনে শেয়ার করুন</b> চাপলেই — গ্রামের যে ফোনেই অ্যাপ খোলা, সবার স্ক্রিনে লাল ব্যানার: <b>"📡 লাইভ খেলা চলছে — প্রথমার্ধ ১২:৩৪"</b>; ব্যানারে চাপ দিলে পুরো ঘড়ি খুলবে। ঘড়ি সবার ফোনে একই সময় দেখাবে, অর্ধ-বিরতি-শেষের তিনবার-ঘোষণাও প্রত্যেক ফোনেই বাজবে (অ্যাপ খোলা থাকলে)। খেলা শেষে <b>⏹ শেয়ার বন্ধ করুন</b> দিলে ব্যানার সবার থেকে চলে যাবে। খেয়াল রাখুন: শেয়ার করা ঘড়ি দেখতে ও ঘোষণা পেতে ইন্টারনেট লাগে; গোল-নামের লিস্ট এখনো প্রতি ফোনে আলাদা থাকে। শেয়ার না করলেও আগের মতো লোকাল টাইমার সবাই ব্যবহার করতে পারবেন।'],
+  ['🤝 সহ এডমিন বানানো ও পদবি দেওয়া','মূল এডমিন লগইন করে অ্যাডমিন প্যানেলের <b>"🤝 সহ এডমিন ম্যানেজার"</b> অংশে যান → <b>+ সহ এডমিন যোগ</b> → ইউজারনেম (যেমন: ইয়াসিন), <b>পদবি</b> ও পাসওয়ার্ড দিন। পদবির নিয়ম: <b>সব অধিকার</b> = সব কাজ; <b>হিসাব</b> = শুধু আয়-ব্যয় লেখা; <b>টুর্নামেন্ট</b> = শুধু টুর্নামেন্ট ও ম্যাচ; <b>সদস্য</b> = শুধু সদস্য তালিকা; <b>নোটিশ</b> = শুধু নোটিশ দেওয়া। তৈরি হলে ইউজারনেম-পাসওয়ার্ড ওই ব্যক্তিকে জানিয়ে দিন — তিনি তাঁর ফোনে অ্যাপ খুলে 🔒 চেপে "সহ এডমিন" ট্যাব থেকে ঢুকবেন। <b>যেকোনো ফোন থেকে লগইন চালু করতে</b> (একবারই করতে হবে): console.firebase.google.com → আপনার প্রজেক্ট (shovarampur-sports) → <b>Authentication → Get started → Sign-in method → Email/Password → Enable → Save</b>। চালু না থাকলেও মূল এডমিনের ফোনে বানানো অ্যাকাউন্ট দিয়ে ওই ফোনেই ঢোকা যায়। পাসওয়ার্ড বদল বা বাদ দেওয়াও এই ম্যানেজারেই।'],
   ['💰 হিসাব রাখার নিয়ম','১) কেউ টাকা দিলে <b>হিসাব → + আয় যোগ</b> থেকে নাম, টাকা, খাত লিখুন। যেমন: সাকিব মাঠ ভাড়ার জন্য ১৫০ দিলে — নাম "সাকিব", খাত "মাঠ ভাড়া", টাকা ১৫০; পরে সাকিব লাইটের জন্য আবার দিলে আবার এক লাইন — <b>সাকিবের মোট নিজে থেকেই জমা হবে</b>। ২) বিদ্যুৎ বিল, নেট, বল ইত্যাদি কিনলে <b>+ ব্যয় যোগ</b> থেকে লিখুন। ৩) "🙋 কে কত দিয়েছে" ট্যাবে প্রতিজনের মোট, সর্বোচ্চ দাতা 🥇, আর নামের নিচে <b>কোন কাজে কত</b> দিয়েছেন সব আলাদা করে দেখা যায় — সবাই দেখতে পারে। উপরে সদস্য পাতায় "মোট তহবিল" কার্ডে মাঠে এখন কত টাকা আছে দেখা যায় (আয় − ব্যয়)।'],
   ['📷 ছবি আপলোড','সদস্য → + নতুন → গোল ছবিতে চাপ দিয়ে ফোনের গ্যালারি থেকে ছবি বাছুন। ছবি ফোনেই ছোট করে জমা হয়, তাই জায়গা কম লাগে। ফুটবল-ক্রিকেট-ব্যাডমিন্টন বাছাই দিলে খেলা অনুযায়ী সদস্য ছেঁকে দেখা যাবে। সদস্যের <b>মোবাইল নম্বর ইংরেজিতে</b> লিখুন — প্রোফাইলে 📋 চেপে নম্বরটি সরাসরি কপি করা যায়।'],
   ['🔔 নোটিফিকেশন — কীভাবে কাজ করে?','হেডারের 🔔 বোতামে চাপ দিলে সব নোটিফিকেশন দেখা যায়। এডমিন <b>নোটিশ দিলে, নতুন ম্যাচ বা ফলাফল লিখলে, চ্যাম্পিয়ন ঘোষণা করলে</b> প্রতিটি ফোনের 🔔-এ লাল ব্যাজ ওঠে আর ছোট ঘণ্টার শব্দ বাজে — মেসেঞ্জারের মতোই। শব্দ বন্ধ/চালু করার বোতাম অ্যাডমিন প্যানেলে। মনে রাখবেন: ইন্টারনেট-ছাড়া অ্যাপে সবার ফোনে একসাথে নোটিফিকেশন "ভেসে ওঠা" (পুশ) পাঠাতে আলাদা সার্ভার লাগে; এই অ্যাপে সদস্যরা অ্যাপ খুললেই নতুন সব নোটিফিকেশন অটো পেয়ে যান।'],
   ['⚙️ হিসাবের খাত নিজেদের মতো সাজান + মাঠ ভাড়া','আমাদের মাঠের <b>বছরে ২,০০০ টাকা মাঠ ভাড়া</b> — এটা "মাঠ ভাড়া" খাতে লিখুন (ব্যয় যোগ → খাত: মাঠ ভাড়া)। বিদ্যুৎ বিল, নেট-বল, রেফারি ফি, পানি-ফলমূল সব খাত আগে থেকেই আছে; নতুন খাত দরকার হলে অ্যাডমিন প্যানেল → "নোটিফিকেশন ও হিসাবের খাত" → + নতুন খাত। আর লাগে না এমন খাত ✕ চেপে বাদ দিন — ফর্মে শুধু নিজেদের খাতগুলোই দেখাবে।'],
   ['🏆 টুর্নামেন্ট চালানোর পুরো নিয়ম (একবার পড়লেই হবে)','<b>ধাপ ১ — টুর্নামেন্ট খুলুন:</b> টুর্নামেন্ট পাতা → "+ নতুন" → খেলা বাছুন (⚽/🏏/🏸), তারপর ধরন বাছুন — <b>নকআউট</b> মানে "হারলেই বাদ" (যেমন ৪ দল: ২টি সেমি-ফাইনাল → ফাইনাল → চ্যাম্পিয়ন), <b>লিগ</b> মানে "সবাই সবার সাথে খেলবে, পয়েন্টে যে সেরা সে-ই চ্যাম্পিয়ন"। <b>ধাপ ২ — দল যোগ:</b> "+ দল যোগ" → প্রতি দলের একটা ছবি/লোগো দিন — নাম না দিলে "দল ১, দল ২…" নিজে থেকে হবে। খেলোয়াড় বাছাই ও ক্যাপ্টেন ঐচ্ছিক। <b>ধাপ ৩ — ম্যাচ:</b> "⚡ অটো ম্যাচ" চাপলে দুটো বাছাই আসবে — <b>🎲 র‍্যান্ডম ড্র</b> (লটারির মতো দল মিশিয়ে নির্পক্ষভাবে জোড়া তোলা) অথবা <b>🔢 তালিকা অনুযায়ী</b> (যে ক্রমে দল যোগ করেছেন)। নিজে হাতে বসাতে চাইলে "+ ম্যাচ" বোতাম দিয়ে কোন দল কার সাথে খেলবে তা বেছে নিন। কোনো ম্যাচে তারিখ-সময় দিতে চাইলে ম্যাচের পাশে ✏️ — তখন হোম পেজে কাউন্টডাউন ও ফেস-অফ কার্ড দেখা যাবে। <b>ধাপ ৪ — ফলাফল (সবচেয়ে সহজ):</b> খেলা শেষে ম্যাচের পাশের <b>🎯 ফলাফল</b> বোতামে চাপুন → কোন দল জিতলো, সেই দলের কার্ডে চাপ দিন (স্কোর জানলে লিখুন — ফুটবলে গোল, ক্রিকেটে রান, ব্যাডমিন্টনে সেট; না জানলে খালি — ১-০ ধরা হবে) → "জমা দিন"। ব্যস! <b>লিগে</b> জয়ে ৩ পয়েন্ট, ড্রয়ে ১ — "📊 পয়েন্ট তালিকা" ট্যাব নিজেই হিসাব করে সাজিয়ে দেয়। <b>নকআউটে</b> জয়ী দল নিজে থেকে পরের পর্বে (সেমি-ফাইনাল → ফাইনাল) উঠে যায়, হারা দল বাদ — ফাইনাল শেষ হলেই <b>চ্যাম্পিয়ন ঘোষণা অটোমেটিক</b>, সবার ফোনে নোটিফিকেশন ও ট্রফি যায়। আপনাকে আর কিছুই হিসাব করতে হবে না — শুধু বিজয়ীতে চাপ দিন।'],
-  ['⏱️ ম্যাচ টাইমার — সময় নিজেদের মতো','টুর্নামেন্ট খুলুন → অ্যাডমিন বোতামগুলোর মধ্যে <b>⏱️ টাইমার</b> চাপুন। ১) <b>সময় ঠিক করুন:</b> "প্রতি অর্ধ কত মিনিট?" আর "বিরতি কত মিনিট?" — ১০/১৫/২০/২৫/৩০ চিপে চাপ দিন, অথবা ঘরে নিজের সংখ্যা লিখুন (যেমন অর্ধ ২০ মিনিট, বিরতি ১০ মিনিট — ইচ্ছে হলে ৩০/১৫-ও করতে পারেন)। ২) <b>▶ শুরু করুন</b> চাপুন — বড় ঘড়িতে সময় কমতে দেখা যাবে। ৩) প্রথমার্ধ শেষ হলেই শব্দ+পুরো স্ক্রিনে তিনবার ঘোষণা: <b>"বিরতির সময় হয়েছে — সবাই রেস্ট নিন!"</b> → বিরতির ঘড়ি চলবে। ৪) বিরতি শেষ হলে তিনবার: <b>"খেলা আরম্ভ করুন — মাঠে ফিরুন!"</b> → দ্বিতীয়ার্ধ শুরু। ৫) দ্বিতীয়ার্ধ শেষে তিনবার: <b>"খেলা শেষ!"</b> — তখন 🎯 ফলাফল লিখুন। মাঝে থামাতে ⏸, আবার চালু করতে ▶, ভুল হলে ⏹ রিসেট। এই টাইমার <b>ফুটবল, ক্রিকেট, ব্যাডমিন্টন — যেকোনো খেলায়</b> কাজ করে। ঘড়ি চলার সময় ফোনের স্ক্রিন অন রাখুন (স্ক্রিন লক হলে ঘড়ি থামে)।'],
+  ['⏱️ ম্যাচ টাইমার — সবাই চালাতে পারবেন','টুর্নামেন্ট খুলুন → নিচের বড় <b>⏱️ লাইভ ম্যাচ টাইমার</b> বোতামে চাপুন — এটা সাধারণ সদস্য থেকে অ্যাডমিন, <b>সবাই</b> ব্যবহার করতে পারবেন। ১) <b>সময় ঠিক করুন:</b> "প্রতি অর্ধ কত মিনিট?" আর "বিরতি কত মিনিট?" — ১০/১৫/২০/২৫/৩০ চিপে চাপ দিন বা নিজের সংখ্যা লিখুন। ২) <b>▶ শুরু করুন</b> — বড় ঘড়ি চলবে। ৩) প্রথমার্ধ শেষ হলেই শব্দ+পুরো স্ক্রিনে তিনবার: <b>"বিরতির সময় হয়েছে — সবাই রেস্ট নিন!"</b> → ৪) বিরতি শেষে তিনবার: <b>"খেলা আরম্ভ করুন!"</b> → ৫) দ্বিতীয়ার্ধ শেষে তিনবার: <b>"খেলা শেষ!"</b> — তখন অ্যাডমিন 🎯 ফলাফল লিখবেন। <b>⚽ গোল লেখা:</b> টাইমারে ম্যাচ বাছাই করে রাখলে <b>⚽ গোল!</b> বোতাম পাবেন — কে গোল দিলো নাম লিখুন, <b>কত মিনিটে</b> তা ঘড়ি থেকে নিজে থেকে যোগ হবে (যেমন: "সুজন — ৫ মিনিটে গোল")। গোলগুলো ম্যাচের নিচে লাল চিপে দেখা যাবে। অ্যাডমিন চাইলে ➕ ইভেন্ট দিয়ে ম্যানুয়ালিও যোগ করতে পারবেন। <b>স্ক্রিন অফ বা অ্যাপ বন্ধ হলেও ঘড়ি চলতে থাকে</b> — ফিরে এসে খুললেই ঠিক সময় দেখবেন; বিরতি/শেষের ঘোষণা মিস হলে ঢুকেই জানা যাবে। মাঝে থামাতে ⏸, চালুতে ▶, রিসেটে ⏹। ফুটবল-ক্রিকেট-ব্যাডমিন্টন সব খেলায় চলে।'],
   ['💾 ব্যাকআপ — খুব জরুরি!','এই অ্যাপের ডেটা ফোনেই (ইন্টারনেট ছাড়া) জমা হয়। তাই: <b>১)</b> যে ফোনে হিসাব লেখা হয় সেটিকে মূল ফোন ধরুন। <b>২)</b> অ্যাডমিন প্যানেল → ব্যাকআপ / শেয়ার → ফাইলটি WhatsApp বা অন্য ফোনে পাঠিয়ে রাখুন (মাসে অন্তত একবার)। <b>৩)</b> অন্য অ্যাডমিনের ফোনে হিসাব দেখাতে চাইলে সেখানে ব্যাকআপ ইমপোর্ট করুন। ফোন হারালে/নষ্ট হলে ব্যাকআপ থেকে সব ফেরানো যাবে।'],
   ['📲 ফোনে অ্যাপের মতো চালানো','ব্রাউজারে (Chrome) অ্যাপের ঠিকানা খুলুন → মেনু (⋮) → <b>"Add to Home screen" / "হোম স্ক্রিনে যোগ করুন"</b>। তখন অ্যাপের আইকনে চেপে যেমন অন্য অ্যাপ খোলা যায়, তেমনই খুলবে। ইন্টারনেট ছাড়াও চলবে।'],
   ['🛡️ নিরাপত্তা ও ভালো চলার নিয়ম','১) পিন সহজ (1234) রাখবেন না, আর কাউকে লিখে পাঠাবেন না। ২) ভুল এন্ট্রি হলে ✏️ দিয়ে ঠিক করুন — মুছে ফেলার বদলে সম্পাদনা ভালো, ইতিহাস পরিষ্কার থাকে। ৩) মাস শেষে হিসাব মিলিয়ে নোটিশে টাকাপত্র প্রকাশ করুন। ৪) প্রয়োজনে অ্যাডমিন বদলালে পিন পাল্টে নিন।']]; 
