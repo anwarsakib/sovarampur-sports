@@ -57,6 +57,7 @@ header{position:sticky;top:0;z-index:50;background:linear-gradient(120deg,var(--
 .btn:active{transform:scale(.97)}
 .btn.pri{background:var(--green-d);color:#fff}
 .btn.gold{background:var(--gold);color:#3b2606}
+.btn.dark{background:#0f172a;color:#fff}
 .btn.red{background:#fee2e2;color:var(--red)}
 .btn.ghost{background:#fff;border:1.5px solid var(--line);color:var(--txt)}
 .btn.sm{padding:6px 11px;font-size:.78rem;border-radius:9px}
@@ -306,6 +307,21 @@ details.fold summary::before{content:'▸ ';color:#94a3b8}
 details.fold[open] summary::before{content:'▾ '}
 details.fold[open]{background:#fff}
 details.fold .fgrp:first-of-type{margin-top:10px}
+/* ম্যাচ টাইমার */
+.tface{text-align:center;padding:6px 0 2px}
+.tphase{font-size:.78rem;font-weight:800;color:#64748b;letter-spacing:.4px}
+.tbig{font-size:3.1rem;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.15;margin:2px 0}
+.tbig.done{color:var(--green)}
+.tbar{height:10px;border-radius:6px;background:#e2e8f0;overflow:hidden;margin:4px 0 10px}
+.tbar i{display:block;height:100%;background:var(--green);transition:width .6s linear}
+.tbtns{display:flex;gap:8px;justify-content:center;margin-bottom:6px}
+.tchips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tchip{border:1.5px solid var(--line);border-radius:999px;padding:5px 12px;font-size:.78rem;font-weight:700;background:#fff;cursor:pointer}
+.tchip.on{border-color:var(--green);background:#f0fdf4;color:#15803d}
+.tann{position:fixed;inset:0;background:rgba(6,26,15,.93);z-index:1200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#fff;text-align:center;animation:tflash .55s ease infinite alternate;padding:20px}
+.tann .te{font-size:4.2rem}
+.tann .tt{font-size:1.45rem;font-weight:800;line-height:1.4}
+@keyframes tflash{from{opacity:.5}to{opacity:1}}
 </style>
 </head>
 <script>/* এমবেড করা ছবি (লোগো + খেলার ছবি) — ইন্টারনেট ছাড়াই কাজ করে */
@@ -346,7 +362,7 @@ const LS_KEY='shobarampur_sports_v2';
 const SS_KEY='sobarampur_session';
 const BN='০১২৩৪৫৬৭৮৯';
 const MONTHS=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
-const SPORTS={football:{n:'ফুটবল',e:'⚽'},cricket:{n:'ক্রিকেট',e:'🏏'},badminton:{n:'ব্যাডমিন্টন',e:'🏸'}};
+const SPORTS={football:{n:'ফুটবল',e:'⚽',u:'গোল'},cricket:{n:'ক্রিকেট',e:'🏏',u:'রান'},badminton:{n:'ব্যাডমিন্টন',e:'🏸',u:'সেট'}};
 const DEFAULT_INC_CATS=['মাঠ ফি','মাসিক চাঁদা','অনুদান / দান','টুর্নামেন্ট ফি','অন্যান্য আয়'];
 const DEFAULT_EXP_CATS=['মাঠ ভাড়া','বিদ্যুৎ বিল','নেট / বল / সরঞ্জাম','টুর্নামেন্ট খরচ','রেফারি ফি','পানি / ফলমূল','ব্যানার / সাজসজ্জা','অন্যান্য ব্যয়'];
 function incCats(){return (store.settings&&store.settings.incCats&&store.settings.incCats.length)?store.settings.incCats:DEFAULT_INC_CATS;}
@@ -776,18 +792,22 @@ function vLedger(){const t=totals();
   </div>${body}
   <div class="card" style="background:#fffbeb;border-color:#fde68a"><div class="mtxt">💡 <b>স্বচ্ছতার নিয়ম:</b> প্রতিটি এন্ট্রির সাথে তারিখ ও কোন অ্যাডমিন এন্ট্রি করল, তা লেখা থাকে। কোনো সন্দেহ হলে এই পাতার হিসাব মিলিয়ে নিন।</div></div>`;}
 function vContributors(){const m={};
-  store.income.forEach(x=>{m[x.name]=(m[x.name]||0)+(+x.amount||0);});
-  const rows=Object.entries(m).sort((a,b)=>b[1]-a[1]);
+  store.income.forEach(x=>{const k=x.name||'অজানা';
+    if(!m[k])m[k]={tot:0,items:[]};
+    m[k].tot+=(+x.amount||0);
+    m[k].items.push({c:x.cat||'চাঁদা',a:+x.amount||0});});
+  const rows=Object.entries(m).sort((a,b)=>b[1].tot-a[1].tot);
   if(!rows.length)return `<div class="card empty"><span class="e">🙋</span>এখনো কেউ টাকা দেননি</div>`;
-  const max=rows[0][1]||1,total=rows.reduce((s,r)=>s+r[1],0);
+  const max=rows[0][1].tot||1,total=rows.reduce((s,r)=>s+r[1].tot,0);
   const medals=['🥇','🥈','🥉'];
-  return `<div class="card"><div class="tsub" style="margin-bottom:8px">🙏 মোট ${bnNum(rows.length)} জন মিলে দিয়েছেন <b style="color:#15803d">${bdt(total)}</b> — সবাইকে ধন্যবাদ!</div>
-  ${rows.map(function(r,i){const p=store.players.find(x=>x.name===r[0]);
+  return `<div class="card"><div class="tsub" style="margin-bottom:8px">🙏 মোট ${bnNum(rows.length)} জন মিলে দিয়েছেন <b style="color:#15803d">${bdt(total)}</b> — সবাইকে ধন্যবাদ! 🥇 = সর্বোচ্চ যিনি দিয়েছেন। নামের নিচে <b>কোন কাজে কত</b> দিয়েছেন সব আলাদা করে লেখা আছে।</div>
+  ${rows.map(function(r,i){const p=store.players.find(x=>x.name===r[0]);const v=r[1];
     return `<div class="crow">
       <div class="cmed">${medals[i]||bnNum(i+1)+'.'}</div>
       ${p&&p.photo?`<span class="cav"><img src="${p.photo}" alt=""></span>`:`<span class="cav">${esc(initials(r[0]))}</span>`}
-      <div class="cname"><b>${esc(r[0])}</b><div class="bar"><i style="width:${Math.max(4,r[1]/max*100)}%"></i></div></div>
-      <div class="camt">${bdt(r[1])}</div>
+      <div class="cname"><b>${esc(r[0])}</b><div class="bar"><i style="width:${Math.max(4,v.tot/max*100)}%"></i></div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">${v.items.slice(0,6).map(it=>`<span style="font-size:.62rem;background:#f0fdf4;color:#15803d;border-radius:999px;padding:2px 8px;font-weight:700">${esc(it.c)} ${bdt(it.a)}</span>`).join('')}${v.items.length>6?`<span style="font-size:.62rem;color:#64748b;padding:2px 4px">+আরও ${bnNum(v.items.length-6)}টি</span>`:''}</div></div>
+      <div class="camt">${bdt(v.tot)}</div>
     </div>`;}).join('')}</div>`;}
 function vExpCats(){const m={};
   store.expenses.forEach(x=>{m[x.cat]=(m[x.cat]||0)+(+x.amount||0);});
@@ -905,10 +925,12 @@ function vTournamentDetail(){const t=store.tournaments.find(x=>x.id===currentT);
       <div class="tsub">${SPORTS[t.sport]?SPORTS[t.sport].n:'—'} • ${t.type==='league'?'লিগ':'নকআউট'} • <span class="stchip ${t.status==='চলছে'?'live':''}">${t.status}</span></div></div>
     </div>
     ${t.champion?`<div class="champbox">🏆 চ্যাম্পিয়ন<br><b style="font-size:1.1rem">${esc(tName(t,t.champion))}</b><br>অভিনন্দন! 🎉</div>`:''}
+    <div class="tsub" style="margin-top:9px;background:${t.type==='league'?'#f0f9ff':'#fff7ed'};border-radius:10px;padding:7px 10px">📏 <b>নিয়ম:</b> ${t.type==='league'?'জয়ে ৩ পয়েন্ট • ড্রয়ে ১ পয়েন্ট • হারে ০ — পয়েন্ট তালিকা নিজেই হিসাব করে। সব ম্যাচ শেষে পয়েন্টে সেরা দলই চ্যাম্পিয়ন।':'হারলেই বাদ — জয়ী দল নিজে থেকে পরের পর্বে ওঠে। ফাইনাল শেষ হলেই চ্যাম্পিয়ন ঘোষণা হয়ে যায়।'} স্কোর গোনা হয় ${SPORTS[t.sport]?SPORTS[t.sport].u:'স্কোর'} হিসেবে।</div>
     ${isAdmin()?`<div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">
       <button class="btn ghost sm" onclick="teamForm('${t.id}')">+ দল যোগ</button>
       <button class="btn gold sm" onclick="autoFixtures('${t.id}')">⚡ অটো ম্যাচ</button>
       <button class="btn pri sm" onclick="matchForm('${t.id}')">+ ম্যাচ</button>
+      <button class="btn dark sm" onclick="openTimer()">⏱️ টাইমার</button>
       ${!t.champion&&t.type==='league'&&t.teams.length>=2?`<button class="btn gold sm" onclick="championForm('${t.id}')">🏆 চ্যাম্পিয়ন</button>`:''}
       <button class="btn ghost sm" onclick="tForm('${t.id}')">✏️</button>
       <button class="btn red sm" onclick="tDel('${t.id}')">🗑</button>
@@ -985,8 +1007,8 @@ function resultForm(tId,mId){const t=store.tournaments.find(x=>x.id===tId);if(!t
   <div class="tsub" style="margin-bottom:8px">${esc(m.round)}${m.date?' • '+fdate(m.date):''}${m.ref?' • 🧑‍⚖️ '+esc(m.ref):''}</div>
   <div class="wgrid">${wp(A)}<div class="wvs">VS</div>${wp(B)}</div>
   <div class="frow">
-    <div class="fgrp"><label>স্কোর (ঐচ্ছিক) — ${esc(A?A.name:'এ')}</label><input id="rf-sa" type="number" min="0" inputmode="numeric" value="${m.done?m.scoreA:''}" placeholder="০"></div>
-    <div class="fgrp"><label>স্কোর (ঐচ্ছিক) — ${esc(B?B.name:'বি')}</label><input id="rf-sb" type="number" min="0" inputmode="numeric" value="${m.done?m.scoreB:''}" placeholder="০"></div>
+    <div class="fgrp"><label>${SPORTS[t.sport]?SPORTS[t.sport].u:'স্কোর'} (ঐচ্ছিক) — ${esc(A?A.name:'এ')}</label><input id="rf-sa" type="number" min="0" inputmode="numeric" value="${m.done?m.scoreA:''}" placeholder="০"></div>
+    <div class="fgrp"><label>${SPORTS[t.sport]?SPORTS[t.sport].u:'স্কোর'} (ঐচ্ছিক) — ${esc(B?B.name:'বি')}</label><input id="rf-sb" type="number" min="0" inputmode="numeric" value="${m.done?m.scoreB:''}" placeholder="০"></div>
   </div>
   ${t.type==='league'?`<button class="btn ghost blk" style="margin-bottom:6px" onclick="pickDraw()">🤝 ড্র হয়েছে (দুই দল ১ পয়েন্ট করে)</button>`:''}
   <div class="mtxt">💡 বিজয়ীতে চাপ দিলেই হয়ে যাবে — ${t.type==='knockout'?'জয়ী দল পরের পর্বে নিজে থেকে উঠে যাবে':'পয়েন্ট টেবিলে নিজে থেকে যোগ হবে'}। স্কোর না জানলে খালি রাখুন (১-০ ধরা হবে)।</div>
@@ -1034,16 +1056,81 @@ function koAdvance(t){if(t.type!=='knockout')return;
   notify('⚔️ পরের পর্ব তৈরি হয়েছে','"'+t.name+'" — '+nextR+': কে জিতবে? সবাই মাঠে চোখ রাখুন!','match');}
 function autoFixtures(tId){const t=store.tournaments.find(x=>x.id===tId);if(!t)return;
   if(t.teams.length<2){toast('আগে "+ দল যোগ" থেকে অন্তত ২টি দল যোগ করুন','err');return;}
+  openModal(`<div class="mhandle"></div><h3 class="mttl">⚡ ম্যাচ কীভাবে সাজাব?</h3>
+  <div class="typegrid">
+    <div class="typecard" onclick="doAutoDraw('${t.id}','rand')"><span class="te">🎲</span><b>র‍্যান্ডম ড্র</b><span>লটারির মতো মিশিয়ে<br>জোড়া তোলা হবে (নির্পক্ষ)</span></div>
+    <div class="typecard" onclick="doAutoDraw('${t.id}','seq')"><span class="te">🔢</span><b>তালিকা অনুযায়ী</b><span>যে ক্রমে দল যোগ করেছেন<br>সেই ক্রমে জোড়া</span></div>
+  </div>
+  <div class="mtxt" style="margin-top:10px">✍️ নিজে হাতে বসাতে চাইলে বাতিল করে <b>"+ ম্যাচ"</b> বোতাম ব্যবহার করুন — কোন দল কার সাথে খেলবে, আপনি নিজেই বেছে নিতে পারবেন।</div>
+  <div class="mbtns"><button class="btn ghost" onclick="closeModal()">বাতিল</button></div>`);}
+function doAutoDraw(tId,mode){const t=store.tournaments.find(x=>x.id===tId);if(!t)return;
   const goAuto=function(){
+    let ids=t.teams.map(x=>x.id);
+    if(mode==='rand')for(let i=ids.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const tmp=ids[i];ids[i]=ids[j];ids[j]=tmp;}
     const added=[];
-    if(t.type==='league'){for(let i=0;i<t.teams.length;i++)for(let j=i+1;j<t.teams.length;j++)added.push([t.teams[i].id,t.teams[j].id,'গ্রুপ পর্ব']);}
-    else{const r=firstRoundName(t.teams.length);for(let i=0;i+1<t.teams.length;i+=2)added.push([t.teams[i].id,t.teams[i+1].id,r]);}
+    if(t.type==='league'){for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++)added.push([ids[i],ids[j],'গ্রুপ পর্ব']);}
+    else{const r=firstRoundName(ids.length);for(let i=0;i+1<ids.length;i+=2)added.push([ids[i],ids[i+1],r]);}
     added.forEach(x=>t.matches.push({id:uid(),round:x[2],teamA:x[0],teamB:x[1],date:'',time:'',ref:'',done:false,scoreA:0,scoreB:0,winner:''}));
-    logAct('অটো ফিক্সচার ['+t.name+']: '+bnNum(added.length)+'টি ম্যাচ');
+    logAct('অটো ফিক্সচার ['+t.name+'] ('+(mode==='rand'?'র‍্যান্ডম ড্র':'তালিকা অনুযায়ী')+'): '+bnNum(added.length)+'টি ম্যাচ');
     notify('⚡ সব ম্যাচ সাজানো হয়েছে',t.name+' — মোট '+bnNum(t.matches.length)+'টি ম্যাচ। খেলা শেষে 🎯 ফলাফলে বিজয়ী দিন।','match');
     save();closeModal();currentTT='match';render();toast(bnNum(added.length)+'টি ম্যাচ তৈরি হয়েছে ⚡');};
-  if(t.matches.length){confirmBox('আগে থেকে '+bnNum(t.matches.length)+'টি ম্যাচ আছে। নতুনগুলো তাদের সাথে যোগ হবে — চালিয়ে যাবেন?',goAuto);}
+  if(t.matches.length){closeModal();confirmBox('আগে থেকে '+bnNum(t.matches.length)+'টি ম্যাচ আছে। নতুনগুলো তাদের সাথে যোগ হবে — চালিয়ে যাবেন?',goAuto);}
   else goAuto();}
+/* ================= ম্যাচ টাইমার (যেকোনো খেলায়) ================= */
+let TMR={iv:null,phase:'idle',left:0};
+function timerCfg(){if(!store.settings.timer)store.settings.timer={half:20,rest:10};return store.settings.timer;}
+function bnDigits(s){return String(s).replace(/[0-9]/g,d=>BN[+d]);}
+function bnTime(sec){const m=Math.floor(sec/60),s=sec%60;return bnDigits(m)+':'+bnDigits(s<10?'0'+s:s);}
+function timerBeep(){try{const ac=new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=880;g.gain.value=.55;o.connect(g);g.connect(ac.destination);o.start();setTimeout(()=>{try{o.stop();ac.close();}catch(e){}},450);}catch(e){}}
+function timerSay(txt){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang='bn-BD';u.rate=.95;speechSynthesis.speak(u);}catch(e){}}
+function timerAnnounce(msg,emoji,say){const ov=document.createElement('div');ov.className='tann';
+  ov.innerHTML=`<div class="te">${emoji}</div><div class="tt">${msg}</div><div style="color:#bbf7d0;font-size:.8rem;font-weight:700">— ${bnDigits(3)} বার ঘোষণা —</div>`;
+  document.body.appendChild(ov);timerBeep();if(say)timerSay(msg);
+  let n=1;const iv=setInterval(()=>{n++;timerBeep();if(say)timerSay(msg);
+    if(n>=3){clearInterval(iv);setTimeout(()=>{if(ov.parentNode)ov.parentNode.removeChild(ov);},700);}},1700);}
+function timerPhaseLabel(){const T=timerCfg();return {idle:'প্রথমার্ধ শুরুর জন্য প্রস্তুত — প্রতি অর্ধ '+bnDigits(T.half)+' মিনিট',h1:'⚽ প্রথমার্ধ চলছে',h1p:'⏸ প্রথমার্ধ থামানো আছে',rest:'☕ বিরতি চলছে',restp:'⏸ বিরতি থামানো আছে',h2:'⚽ দ্বিতীয়ার্ধ চলছে',h2p:'⏸ দ্বিতীয়ার্ধ থামানো আছে',done:'✅ খেলা শেষ — ফলাফল লিখুন'}[TMR.phase]||'';}
+function timerRender(){const f=document.getElementById('tface');if(!f)return;const T=timerCfg();
+  const running=TMR.iv!==null;
+  const left=TMR.phase==='idle'?T.half*60:(TMR.phase==='done'?0:TMR.left);
+  const total=(TMR.phase==='rest'||TMR.phase==='restp')?T.rest*60:T.half*60;
+  const pct=Math.max(0,Math.min(100,total?Math.round((total-left)/total*100):0));
+  f.innerHTML=`
+    <div class="tface">
+      <div class="tphase">${timerPhaseLabel()}</div>
+      <div class="tbig ${TMR.phase==='done'?'done':''}">${TMR.phase==='done'?'🏁':bnTime(left)}</div>
+      <div class="tbar"><i style="width:${pct}%"></i></div>
+      <div class="tbtns">
+        ${running?`<button class="btn gold sm" onclick="timerPause()">⏸ থামান</button>`
+          :(TMR.phase==='done'?`<button class="btn pri sm" onclick="timerReset()">🔄 নতুন খেলা</button>`
+          :`<button class="btn pri sm" onclick="timerGo()">▶ ${TMR.phase==='idle'?'শুরু করুন':'চালু করুন'}</button>`)}
+        ${(TMR.phase!=='idle'&&TMR.phase!=='done')?`<button class="btn ghost sm" onclick="timerReset()">⏹ রিসেট</button>`:''}
+      </div>
+    </div>
+    <div class="flabel">⚙️ প্রতি অর্ধ কত মিনিট? (বাড়াতে/কমাতে পারবেন)</div>
+    <div class="tchips">${[10,15,20,25,30].map(v=>`<button class="tchip ${T.half===v?'on':''}" onclick="timerSet('half',${v})">${bnDigits(v)} মিনিট</button>`).join('')}<input type="number" min="1" max="120" value="${T.half}" style="width:76px;padding:6px 8px;border:1.5px solid var(--line);border-radius:10px" onchange="timerSet('half',this.value)" title="নিজের সময় লিখুন"></div>
+    <div class="flabel">☕ বিরতি কত মিনিট?</div>
+    <div class="tchips">${[5,10,15,20,30].map(v=>`<button class="tchip ${T.rest===v?'on':''}" onclick="timerSet('rest',${v})">${bnDigits(v)} মিনিট</button>`).join('')}<input type="number" min="1" max="120" value="${T.rest}" style="width:76px;padding:6px 8px;border:1.5px solid var(--line);border-radius:10px" onchange="timerSet('rest',this.value)" title="নিজের সময় লিখুন"></div>
+    <div class="mtxt" style="margin-top:10px">💡 অর্ধ শেষ হলে তিনবার ঘোষণা: <b>"বিরতির সময় হয়েছে"</b> → বিরতি শেষে তিনবার: <b>"খেলা আরম্ভ করুন"</b> → দ্বিতীয়ার্ধ শেষে: <b>"খেলা শেষ"</b>। শব্দ বাজবে, পুরো স্ক্রিনে বার্তা ভেসে উঠবে। যেকোনো খেলায় চলে। টাইমার চলাকালে ফোনের স্ক্রিন অন রাখুন।</div>`;}
+function timerSet(k,v){const T=timerCfg();T[k]=Math.max(1,Math.min(120,parseInt(v,10)||T[k]));save();timerRender();}
+function timerGo(){const T=timerCfg();
+  if(TMR.phase==='idle'){TMR.phase='h1';TMR.left=T.half*60;}
+  else if(TMR.phase==='h1p')TMR.phase='h1';
+  else if(TMR.phase==='restp')TMR.phase='rest';
+  else if(TMR.phase==='h2p')TMR.phase='h2';
+  else return;
+  clearInterval(TMR.iv);TMR.iv=setInterval(timerTick,1000);timerRender();}
+function timerPause(){clearInterval(TMR.iv);TMR.iv=null;
+  if(TMR.phase==='h1')TMR.phase='h1p';else if(TMR.phase==='rest')TMR.phase='restp';else if(TMR.phase==='h2')TMR.phase='h2p';timerRender();}
+function timerReset(){clearInterval(TMR.iv);TMR.iv=null;TMR.phase='idle';timerRender();}
+function timerTick(){TMR.left--;if(TMR.left<=0){clearInterval(TMR.iv);TMR.iv=null;timerNext();return;}timerRender();}
+function timerNext(){const T=timerCfg();
+  if(TMR.phase==='h1'){TMR.phase='rest';TMR.left=T.rest*60;timerAnnounce('বিরতির সময় হয়েছে — সবাই রেস্ট নিন!','☕',true);TMR.iv=setInterval(timerTick,1000);}
+  else if(TMR.phase==='rest'){TMR.phase='h2';TMR.left=T.half*60;timerAnnounce('খেলা আরম্ভ করুন — মাঠে ফিরুন!','⚽',true);TMR.iv=setInterval(timerTick,1000);}
+  else if(TMR.phase==='h2'){TMR.phase='done';TMR.left=0;timerAnnounce('খেলা শেষ! এখন ফলাফল লিখুন।','🏁',true);}
+  timerRender();}
+function openTimer(){if(TMR.phase==='idle'||!TMR.phase){TMR.phase='idle';TMR.left=0;}
+  openModal(`<div class="mhandle"></div><h3 class="mttl">⏱️ ম্যাচ টাইমার</h3><div id="tface"></div>`);
+  timerRender();}
 function matchDel(tId,mId){const t=store.tournaments.find(x=>x.id===tId);if(!t)return;
   confirmBox('এই ম্যাচটি মুছে ফেলবেন?',function(){
     t.matches=t.matches.filter(x=>x.id!==mId);save();closeModal();render();toast('মুছে ফেলা হয়েছে');});}
@@ -1377,11 +1464,12 @@ function togAcc(el){el.parentElement.classList.toggle('open');}
 function vGuide(){const sec=[
   ['🏠 অ্যাপটি কী কী করে?','হোম পেজে নিজে থেকে ঘোরা <b>ব্যানার</b> — সর্বোচ্চ ৩টি স্লাইড ঘুরে ঘুরে আসে: ১) চলমান টুর্নামেন্ট ও পরের ম্যাচ ২) ক্লাবের হিসাব ৩) সর্বশেষ নোটিশ। নিচের ছোট ডট বোতামে চেপে ইচ্ছে করে স্লাইড বদলানো যায়। এছাড়া <b>পরের ম্যাচের কাউন্টডাউন</b> (দুই দলের লোগো-ক্যাপ্টেন-খেলোয়াড়সহ ফেস-অফ কার্ড), অ্যানিমেটেড হিসাবের সারসংক্ষেপ আর সর্বশেষ নোটিশ। নিচের ৫টি বোতামে সব পাতা: হোম, সদস্য, হিসাব, টুর্নামেন্ট, নোটিশ — সবাই সব দেখতে পারবে, এটাই স্বচ্ছতা।'],
   ['🔐 অ্যাডমিন কীভাবে কাজ করে?','হেডারের ডান কোণে 🔐 বোতামে চেপে পিন দিয়ে লগইন করুন। লগইন করলেই প্রতিটি পাতায় যোগ/সম্পাদনা/মুছে ফেলার বোতাম দেখা যাবে। ২–৩ জন অ্যাডমিন রাখুন — সবাই সমান অধিকারে হিসাব লিখতে পারবেন, একজন অনুপস্থিত থাকলেও কাজ চলবে। প্রতি এন্ট্রিতে কে লিখল, সেটাও জমা থাকে।'],
-  ['💰 হিসাব রাখার নিয়ম','১) কেউ টাকা দিলে <b>হিসাব → + আয় যোগ</b> থেকে নাম, টাকা, খাত (মাঠ ফি / মাসিক চাঁদা / অনুদান) লিখুন। ২) বিদ্যুৎ বিল, নেট, বল ইত্যাদি কিনলে <b>+ ব্যয় যোগ</b> থেকে লিখুন। ৩) "কে কত দিয়েছে" ট্যাবে সবার মোট চাঁদা, "খরচের খাত" ট্যাবে কোন খাতে কত গেল — এক নজরে দেখা যায়। ব্যালেন্স = আয় − ব্যয়।'],
+  ['💰 হিসাব রাখার নিয়ম','১) কেউ টাকা দিলে <b>হিসাব → + আয় যোগ</b> থেকে নাম, টাকা, খাত লিখুন। যেমন: সাকিব মাঠ ভাড়ার জন্য ১৫০ দিলে — নাম "সাকিব", খাত "মাঠ ভাড়া", টাকা ১৫০; পরে সাকিব লাইটের জন্য আবার দিলে আবার এক লাইন — <b>সাকিবের মোট নিজে থেকেই জমা হবে</b>। ২) বিদ্যুৎ বিল, নেট, বল ইত্যাদি কিনলে <b>+ ব্যয় যোগ</b> থেকে লিখুন। ৩) "🙋 কে কত দিয়েছে" ট্যাবে প্রতিজনের মোট, সর্বোচ্চ দাতা 🥇, আর নামের নিচে <b>কোন কাজে কত</b> দিয়েছেন সব আলাদা করে দেখা যায় — সবাই দেখতে পারে। উপরে সদস্য পাতায় "মোট তহবিল" কার্ডে মাঠে এখন কত টাকা আছে দেখা যায় (আয় − ব্যয়)।'],
   ['📷 ছবি আপলোড','সদস্য → + নতুন → গোল ছবিতে চাপ দিয়ে ফোনের গ্যালারি থেকে ছবি বাছুন। ছবি ফোনেই ছোট করে জমা হয়, তাই জায়গা কম লাগে। ফুটবল-ক্রিকেট-ব্যাডমিন্টন বাছাই দিলে খেলা অনুযায়ী সদস্য ছেঁকে দেখা যাবে। সদস্যের <b>মোবাইল নম্বর ইংরেজিতে</b> লিখুন — প্রোফাইলে 📋 চেপে নম্বরটি সরাসরি কপি করা যায়।'],
   ['🔔 নোটিফিকেশন — কীভাবে কাজ করে?','হেডারের 🔔 বোতামে চাপ দিলে সব নোটিফিকেশন দেখা যায়। এডমিন <b>নোটিশ দিলে, নতুন ম্যাচ বা ফলাফল লিখলে, চ্যাম্পিয়ন ঘোষণা করলে</b> প্রতিটি ফোনের 🔔-এ লাল ব্যাজ ওঠে আর ছোট ঘণ্টার শব্দ বাজে — মেসেঞ্জারের মতোই। শব্দ বন্ধ/চালু করার বোতাম অ্যাডমিন প্যানেলে। মনে রাখবেন: ইন্টারনেট-ছাড়া অ্যাপে সবার ফোনে একসাথে নোটিফিকেশন "ভেসে ওঠা" (পুশ) পাঠাতে আলাদা সার্ভার লাগে; এই অ্যাপে সদস্যরা অ্যাপ খুললেই নতুন সব নোটিফিকেশন অটো পেয়ে যান।'],
   ['⚙️ হিসাবের খাত নিজেদের মতো সাজান + মাঠ ভাড়া','আমাদের মাঠের <b>বছরে ২,০০০ টাকা মাঠ ভাড়া</b> — এটা "মাঠ ভাড়া" খাতে লিখুন (ব্যয় যোগ → খাত: মাঠ ভাড়া)। বিদ্যুৎ বিল, নেট-বল, রেফারি ফি, পানি-ফলমূল সব খাত আগে থেকেই আছে; নতুন খাত দরকার হলে অ্যাডমিন প্যানেল → "নোটিফিকেশন ও হিসাবের খাত" → + নতুন খাত। আর লাগে না এমন খাত ✕ চেপে বাদ দিন — ফর্মে শুধু নিজেদের খাতগুলোই দেখাবে।'],
-  ['🏆 টুর্নামেন্ট চালানোর পুরো নিয়ম (একবার পড়লেই হবে)','<b>ধাপ ১ — টুর্নামেন্ট খুলুন:</b> টুর্নামেন্ট পাতা → "+ নতুন" → খেলা বাছুন (⚽/🏏/🏸), তারপর ধরন বাছুন — <b>নকআউট</b> মানে "হারলেই বাদ" (যেমন ৪ দল: ২টি সেমি-ফাইনাল → ফাইনাল → চ্যাম্পিয়ন), <b>লিগ</b> মানে "সবাই সবার সাথে খেলবে, পয়েন্টে যে সেরা সে-ই চ্যাম্পিয়ন"। <b>ধাপ ২ — দল যোগ:</b> "+ দল যোগ" → প্রতি দলের একটা ছবি/লোগো দিন — নাম না দিলে "দল ১, দল ২…" নিজে থেকে হবে। খেলোয়াড় বাছাই ও ক্যাপ্টেন ঐচ্ছিক। <b>ধাপ ৩ — ম্যাচ:</b> "⚡ অটো ম্যাচ" চাপলেই সব ম্যাচ নিজে থেকে সাজানো হবে (লিগে সব জোড়া, নকআউটে প্রথম রাউন্ড)। কোনো ম্যাচে তারিখ-সময় দিতে চাইলে ম্যাচের পাশে ✏️ — তখন হোম পেজে কাউন্টডাউন ও ফেস-অফ কার্ড দেখা যাবে। <b>ধাপ ৪ — ফলাফল (সবচেয়ে সহজ):</b> খেলা শেষে ম্যাচের পাশের <b>🎯 ফলাফল</b> বোতামে চাপুন → কোন দল জিতলো, সেই দলের কার্ডে চাপ দিন (স্কোর জানলে লিখুন, না জানলে খালি — ১-০ ধরা হবে) → "জমা দিন"। ব্যস! <b>লিগে</b> জয়ে ৩ পয়েন্ট, ড্রয়ে ১ — "📊 পয়েন্ট তালিকা" ট্যাব নিজেই হিসাব করে সাজিয়ে দেয়। <b>নকআউটে</b> জয়ী দল নিজে থেকে পরের পর্বে (সেমি-ফাইনাল → ফাইনাল) উঠে যায়, হারা দল বাদ — ফাইনাল শেষ হলেই <b>চ্যাম্পিয়ন ঘোষণা অটোমেটিক</b>, সবার ফোনে নোটিফিকেশন ও ট্রফি যায়। আপনাকে আর কিছুই হিসাব করতে হবে না — শুধু বিজয়ীতে চাপ দিন।'],
+  ['🏆 টুর্নামেন্ট চালানোর পুরো নিয়ম (একবার পড়লেই হবে)','<b>ধাপ ১ — টুর্নামেন্ট খুলুন:</b> টুর্নামেন্ট পাতা → "+ নতুন" → খেলা বাছুন (⚽/🏏/🏸), তারপর ধরন বাছুন — <b>নকআউট</b> মানে "হারলেই বাদ" (যেমন ৪ দল: ২টি সেমি-ফাইনাল → ফাইনাল → চ্যাম্পিয়ন), <b>লিগ</b> মানে "সবাই সবার সাথে খেলবে, পয়েন্টে যে সেরা সে-ই চ্যাম্পিয়ন"। <b>ধাপ ২ — দল যোগ:</b> "+ দল যোগ" → প্রতি দলের একটা ছবি/লোগো দিন — নাম না দিলে "দল ১, দল ২…" নিজে থেকে হবে। খেলোয়াড় বাছাই ও ক্যাপ্টেন ঐচ্ছিক। <b>ধাপ ৩ — ম্যাচ:</b> "⚡ অটো ম্যাচ" চাপলে দুটো বাছাই আসবে — <b>🎲 র‍্যান্ডম ড্র</b> (লটারির মতো দল মিশিয়ে নির্পক্ষভাবে জোড়া তোলা) অথবা <b>🔢 তালিকা অনুযায়ী</b> (যে ক্রমে দল যোগ করেছেন)। নিজে হাতে বসাতে চাইলে "+ ম্যাচ" বোতাম দিয়ে কোন দল কার সাথে খেলবে তা বেছে নিন। কোনো ম্যাচে তারিখ-সময় দিতে চাইলে ম্যাচের পাশে ✏️ — তখন হোম পেজে কাউন্টডাউন ও ফেস-অফ কার্ড দেখা যাবে। <b>ধাপ ৪ — ফলাফল (সবচেয়ে সহজ):</b> খেলা শেষে ম্যাচের পাশের <b>🎯 ফলাফল</b> বোতামে চাপুন → কোন দল জিতলো, সেই দলের কার্ডে চাপ দিন (স্কোর জানলে লিখুন — ফুটবলে গোল, ক্রিকেটে রান, ব্যাডমিন্টনে সেট; না জানলে খালি — ১-০ ধরা হবে) → "জমা দিন"। ব্যস! <b>লিগে</b> জয়ে ৩ পয়েন্ট, ড্রয়ে ১ — "📊 পয়েন্ট তালিকা" ট্যাব নিজেই হিসাব করে সাজিয়ে দেয়। <b>নকআউটে</b> জয়ী দল নিজে থেকে পরের পর্বে (সেমি-ফাইনাল → ফাইনাল) উঠে যায়, হারা দল বাদ — ফাইনাল শেষ হলেই <b>চ্যাম্পিয়ন ঘোষণা অটোমেটিক</b>, সবার ফোনে নোটিফিকেশন ও ট্রফি যায়। আপনাকে আর কিছুই হিসাব করতে হবে না — শুধু বিজয়ীতে চাপ দিন।'],
+  ['⏱️ ম্যাচ টাইমার — সময় নিজেদের মতো','টুর্নামেন্ট খুলুন → অ্যাডমিন বোতামগুলোর মধ্যে <b>⏱️ টাইমার</b> চাপুন। ১) <b>সময় ঠিক করুন:</b> "প্রতি অর্ধ কত মিনিট?" আর "বিরতি কত মিনিট?" — ১০/১৫/২০/২৫/৩০ চিপে চাপ দিন, অথবা ঘরে নিজের সংখ্যা লিখুন (যেমন অর্ধ ২০ মিনিট, বিরতি ১০ মিনিট — ইচ্ছে হলে ৩০/১৫-ও করতে পারেন)। ২) <b>▶ শুরু করুন</b> চাপুন — বড় ঘড়িতে সময় কমতে দেখা যাবে। ৩) প্রথমার্ধ শেষ হলেই শব্দ+পুরো স্ক্রিনে তিনবার ঘোষণা: <b>"বিরতির সময় হয়েছে — সবাই রেস্ট নিন!"</b> → বিরতির ঘড়ি চলবে। ৪) বিরতি শেষ হলে তিনবার: <b>"খেলা আরম্ভ করুন — মাঠে ফিরুন!"</b> → দ্বিতীয়ার্ধ শুরু। ৫) দ্বিতীয়ার্ধ শেষে তিনবার: <b>"খেলা শেষ!"</b> — তখন 🎯 ফলাফল লিখুন। মাঝে থামাতে ⏸, আবার চালু করতে ▶, ভুল হলে ⏹ রিসেট। এই টাইমার <b>ফুটবল, ক্রিকেট, ব্যাডমিন্টন — যেকোনো খেলায়</b> কাজ করে। ঘড়ি চলার সময় ফোনের স্ক্রিন অন রাখুন (স্ক্রিন লক হলে ঘড়ি থামে)।'],
   ['💾 ব্যাকআপ — খুব জরুরি!','এই অ্যাপের ডেটা ফোনেই (ইন্টারনেট ছাড়া) জমা হয়। তাই: <b>১)</b> যে ফোনে হিসাব লেখা হয় সেটিকে মূল ফোন ধরুন। <b>২)</b> অ্যাডমিন প্যানেল → ব্যাকআপ / শেয়ার → ফাইলটি WhatsApp বা অন্য ফোনে পাঠিয়ে রাখুন (মাসে অন্তত একবার)। <b>৩)</b> অন্য অ্যাডমিনের ফোনে হিসাব দেখাতে চাইলে সেখানে ব্যাকআপ ইমপোর্ট করুন। ফোন হারালে/নষ্ট হলে ব্যাকআপ থেকে সব ফেরানো যাবে।'],
   ['📲 ফোনে অ্যাপের মতো চালানো','ব্রাউজারে (Chrome) অ্যাপের ঠিকানা খুলুন → মেনু (⋮) → <b>"Add to Home screen" / "হোম স্ক্রিনে যোগ করুন"</b>। তখন অ্যাপের আইকনে চেপে যেমন অন্য অ্যাপ খোলা যায়, তেমনই খুলবে। ইন্টারনেট ছাড়াও চলবে।'],
   ['🛡️ নিরাপত্তা ও ভালো চলার নিয়ম','১) পিন সহজ (1234) রাখবেন না, আর কাউকে লিখে পাঠাবেন না। ২) ভুল এন্ট্রি হলে ✏️ দিয়ে ঠিক করুন — মুছে ফেলার বদলে সম্পাদনা ভালো, ইতিহাস পরিষ্কার থাকে। ৩) মাস শেষে হিসাব মিলিয়ে নোটিশে টাকাপত্র প্রকাশ করুন। ৪) প্রয়োজনে অ্যাডমিন বদলালে পিন পাল্টে নিন।']]; 
