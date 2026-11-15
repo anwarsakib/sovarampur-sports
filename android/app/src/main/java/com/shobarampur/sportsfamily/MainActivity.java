@@ -67,16 +67,30 @@ public class MainActivity extends Activity {
 
         web.loadUrl("file:///android_asset/index.html");
 
-        // ফায়ারবেস কনফিগার থাকলে: ব্যবহারের হিসাব (APP_OPEN) + Android 13+ নোটিফিকেশন অনুমতি
+        // ফায়ারবেস কনফিগার থাকলে: ব্যবহারের হিসাব (APP_OPEN)
         if (FirebaseApp.initializeApp(this) != null) {
             try {
                 com.google.firebase.analytics.FirebaseAnalytics.getInstance(this)
                         .logEvent(com.google.firebase.analytics.FirebaseAnalytics.Event.APP_OPEN, null);
             } catch (Exception ignored) {
             }
-            if (Build.VERSION.SDK_INT >= 33) {
-                requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 1);
-            }
+        }
+        // Android 13+ নোটিফিকেশন অনুমতি (ফায়ারবেস থাকুক বা না থাকুক)
+        if (Build.VERSION.SDK_INT >= 33) {
+            requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 1);
+        }
+        // প্রতি ১৫ মিনিটে ক্লাউডের 'notify' নোড চেক — নতুন খবর থাকলে অ্যাপের বাইরে নোটিফিকেশন
+        try {
+            androidx.work.PeriodicWorkRequest poll =
+                    new androidx.work.PeriodicWorkRequest.Builder(
+                            NoticePollerWorker.class, 15, java.util.concurrent.TimeUnit.MINUTES)
+                            .setConstraints(new androidx.work.Constraints.Builder()
+                                    .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+                                    .build())
+                            .build();
+            androidx.work.WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                    "srf_notice_poll", androidx.work.ExistingPeriodicWorkPolicy.KEEP, poll);
+        } catch (Exception ignored) {
         }
     }
 
