@@ -840,7 +840,11 @@ function logAct(txt){store.log.unshift({t:Date.now(),by:adminName(),txt:txt});if
 /* ================= নোটিফিকেশন সেন্টার + সাউন্ড ================= */
 function unreadCount(){return store.notifications.filter(n=>!n.read).length;}
 /* v5.1 নোটিফিকেশন-নিয়ম: শুধু ২ ধরন — ম্যাচ শুরু(live) আর নতুন নোটিশ(notice); ফলাফল/ড্র/গোল/সময়সূচি/চ্যাম্পিয়ন — কিছুই না */
-const NOTIFY_OK={live:1,notice:1};
+/* v6.3-নীতি: সিস্টেম-নোটিফিকেশন (ফোনের বার) শুধুমাত্র নোটিশের জন্য — লাইভ/ম্যাচ/সময়সূচির খবর আর কোথাও যায় না */
+const NOTIFY_OK={notice:1};
+
+/* v6.3: আগের সংস্করণে জমা থাকা লাইভ/ম্যাচের খবর তালিকা থেকে মুছে দেওয়া — শুধু নোটিশ থাকবে */
+(function(){try{if(Array.isArray(store.notifications))store.notifications=store.notifications.filter(function(n){return n.type==='notice';});}catch(e){}})();
 function notify(title,body,type){if(type&&NOTIFY_OK&&!NOTIFY_OK[type])return;
   /* v6.2-ফিক্স: শেষ ২০টি বার্তায় একই লেখা ২ মিনিটের কম আগে এলে আর দ্বিগুণ হয় না */
   const _now=Date.now();const _dup=store.notifications.slice(0,20).find(function(n){return n.title===title&&n.body===body&&(_now-(n.ts||0))<120000;});
@@ -2067,7 +2071,7 @@ function timerPlayMinute(){const T=timerCfg();
 function timerGo(){const T=timerCfg();
   if(TMR.phase==='idle'){TMR.phase='play';TMR.endAt=Date.now()+T.total*60000;TMR.breakTaken=false;
     const t0=store.tournaments.find(x=>x.id===TMR.tourId);const m0=t0&&t0.matches?t0.matches.find(x=>x.id===TMR.matchId):null;
-    if(m0)notify('🔴 ম্যাচ শুরু হয়েছে',tName(t0,m0.teamA)+' বনাম '+tName(t0,m0.teamB)+' • '+(m0.round||'ম্যাচ')+' • '+(t0.name||'')+' — লাইভ পেজে স্কোর, ঘড়ি আর গোল দেখুন!','live');}
+    /* v6.3: ম্যাচ-শুরুর নোটিফিকেশন বাদ — শুধু নোটিশ ফোনের বারে যায় */}
   else if(TMR.phase==='pause'){TMR.phase='play';TMR.endAt=Date.now()+Math.max(1000,TMR.pausedLeft||60000);}
   else return;
   clearInterval(TMR.iv);TMR.iv=setInterval(timerTick,500);timerSaveLive();timerRender();
