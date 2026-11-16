@@ -992,17 +992,20 @@ function syncSchedule(){if(_pushT)clearTimeout(_pushT);_pushT=setTimeout(syncPus
 document.addEventListener('visibilitychange',function(){if(!document.hidden&&typeof syncPull==='function')syncPull();});
 window.addEventListener('online',function(){if(typeof syncPull==='function')syncPull();});
 async function syncPush(){if(!isAdmin()||!navigator.onLine||_pullBusy)return;
-  const ok=await dbPut('club',{at:Date.now(),store:stripForSync()});
+  /* v6.5.1: এই কপি ফ্রেশ-ভার্সনের লেখা — v65-স্ট্যাম্প দেওয়া; সবার ফোন এটা নেবে */
+  const ok=await dbPut('club',{at:Date.now(),v65:true,store:stripForSync()});
   if(ok){REMOTE_AT=Date.now();localStorage.setItem('srf_remote_at',String(REMOTE_AT));}}
 async function syncPull(){if(_pullBusy||!navigator.onLine){await liveSync();return;}
   _pullBusy=true;
   try{const c=await dbGet('club');
-    /* v6.5: ফ্রেশ-মাইগ্রেশনের আগের ক্লাউড-কপি সদস্য-ফোনে ঢেকে দিতে পারে না — এডমিনের ফোন পুশ করতে পারবে */
-    if(!isAdmin()&&window._v65At&&c&&c.at&&c.at<window._v65At){await liveSync();return;}
+    /* v6.5.1: শুধু পুরনো ভার্সনের লেখা (স্ট্যাম্প-হীন) ক্লাউড-কপি ফিরে আসা বন্ধ —
+       v6.5-ফোনের লেখা স্ট্যাম্পড কপি কেউ কখনো ব্লক করবে না, তাই পরে ইনস্টল করা
+       সদস্যের ফোনও এডমিনের সদস্য/দল/সবকিছু সাথে সাথে পেয়ে যায় */
+    if(!isAdmin()&&window._v65At&&c&&c.at&&!c.v65){await liveSync();return;}
     /* v6.4: কর্তৃত্ব-নিয়ম — এডমিনের ফোনে লোকাল কপি ক্লাউডের চেয়ে নতুন হলে ক্লাউড তাকে ঢেকে দিতে পারে না;
        বরং লোকাল কপিটাই ক্লাউডে উঠবে (সদস্য-নাম্বার/ছবি এডিট নিজে থেকে গায়েব হওয়ার মূল কারণ এই রেস ছিল) */
     if(isAdmin()&&c&&c.at&&store.savedAt&&c.at<store.savedAt){
-      const okP=await dbPut('club',{at:Date.now(),store:stripForSync()});
+      const okP=await dbPut('club',{at:Date.now(),v65:true,store:stripForSync()});
       if(okP){REMOTE_AT=Date.now();localStorage.setItem('srf_remote_at',String(REMOTE_AT));}
       await liveSync();return;}
     if(c&&c.at&&c.store&&c.at>REMOTE_AT&&normStore(c.store)){
