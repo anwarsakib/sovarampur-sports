@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       version_name:
-        description: "ভার্সন নাম (যেমন: 6.2)"
+        description: "ভার্সন নাম (যেমন: 6.3)"
         required: false
-        default: "6.2"
+        default: "6.3"
 
 permissions:
   contents: write
@@ -51,37 +51,35 @@ jobs:
       - name: APK বিল্ড (Release, সাইনড)
         run: |
           gradle -p android assembleRelease --no-daemon \
-            -PappVersionName="${{ github.event.inputs.version_name || '6.2' }}"
+            -PappVersionName="${{ github.event.inputs.version_name || '6.3' }}"
 
       - name: APK ফাইল নামকরণ
         run: |
           mkdir -p out
           cp android/app/build/outputs/apk/release/app-release.apk \
-            "out/Shobarampur-Sports-Family-v${{ github.event.inputs.version_name || '6.2' }}.apk"
+            "out/Shobarampur-Sports-Family-v${{ github.event.inputs.version_name || '6.3' }}.apk"
           ls -la out/
 
       # রিলিজের বিবরণ (নিচের body অংশে প্রতিটি লাইনের আগে ১২টি স্পেস থাকতে হবে)
       - name: GitHub Release তৈরি — লিংক দিলেই সবাই ডাউনলোড করতে পারবে
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "v${{ github.event.inputs.version_name || '6.2' }}"
-          name: "⚽ Shobarampur Sports Family — v${{ github.event.inputs.version_name || '6.2' }}"
+          tag_name: "v${{ github.event.inputs.version_name || '6.3' }}"
+          name: "⚽ Shobarampur Sports Family — v${{ github.event.inputs.version_name || '6.3' }}"
           make_latest: true
           overwrite_files: true
           files: out/*.apk
           body: |
             ## 📱 ডাউনলোড করার নিয়ম
-            ১. নিচের **Assets** অংশ থেকে `Shobarampur-Sports-Family-v${{ github.event.inputs.version_name || '6.2' }}.apk` ফাইলটি চাপুন — ডাউনলোড শুরু হবে (কোনো লগইন লাগে না)।
+            ১. নিচের **Assets** অংশ থেকে `Shobarampur-Sports-Family-v${{ github.event.inputs.version_name || '6.3' }}.apk` ফাইলটি চাপুন — ডাউনলোড শুরু হবে (কোনো লগইন লাগে না)।
             ২. ফোনে খুলে **ইনস্টল** চাপুন। "অজানা উৎস থেকে ইনস্টল করার অনুমতি" চাইলে অনুমতি দিন।
             ৩. আগের ভার্সন থাকলে উপরে নতুনটা ইনস্টল হয়ে যাবে — ডেটা মুছবে না।
 
-            ## ✨ v6.2-এ নতুন (আপনার ৫-স্ক্রিনশট ফিডব্যাক অনুযায়ী)
-            - 📍 **লাইড-বার এখন স্ক্রিনের একদম উপরে স্থির** — নিচে স্ক্রল করলেও সরে না, মাঝখানে ভেসে ওঠে না; লেখা সবসময় পড়া যায়
-            - 🎯 **গোল-রেকর্ডিংয়ে শুধু সিলেক্ট-ম্যাচের দুই দল** — Team C vs D খেলা হলে Team A/B-র নাম আর দেখায় না (কনফিউশন বন্ধ)
-            - 🔔 **নোটিফিকেশন ডুপ্লিকেট বন্ধ** — একই খবর আর দ্বিগুণ আসে না; বার্তায় এখন টুর্নামেন্ট+রাউন্ডসহ কার-সাথে-কার-ম্যাচ স্পষ্ট
-            - 👥 **লাইড-কার্ডে প্রতিটি দলের নিচে খেলোয়াড়-প্রোফাইল** + ভাসমান **MVP-ব্যাজ** (সর্বোচ্চ গোলদাতা)
-            - 🏅 **বিরতি শেষের ভয়েস-ঘোষণা ফিক্স** — ফোনের ওয়েবভিউ অডিও-আটকে পড়ার সমস্যা সমাধান, "বিরতি শেষ — সবাই মাঠে" এখন বাজে
-            - 🤝 **ফুটবলে ড্র-অপশন** — স্কোর সমান হলে "ড্র" চেপে ফলাফল জমা দেওয়া যায় (আগে বিজয়ী-বাধ্যতামূলক ছিল)
+            ## ✨ v6.3-এ নতুন (নোটিফিকেশন-নীতি)
+            - 📢 **ফোনের নোটিফিকেশন বারে এখন শুধু নোটিশ যায়** — এডমিন নোটিশ দিলেই সবার মোবাইলে যাবে (যেমন "কাল বিকাল ৪টায় খেলা")
+            - 🔕 **লাইড/ম্যাচ/সময়সূচির অটো-নোটিফিকেশন সম্পূর্ণ বাদ** — ম্যাচ শুরু, গোল, ফলাফল, সময়সূচি কোনোটার আর নোটিফিকেশন আসে না
+            - 🧹 **আগে জমা থাকা পুরনো খবর তালিকা থেকে মুছে যাবে** — নোটিফিকেশন প্যানেলে শুধু নোটিশ থাকবে
+            - ✅ ফোনের পোলিং-ব্যবস্থায়ও (অ্যাপ-বাইরের নোটিফিকেশন বার) টাইপ-ফিল্টার বসানো হয়েছে — দুই স্তরেই শুধু নোটিশ
 
             ## ⚙️ এডমিনদের জন্য (একবারই)
             - **সবার ফোনে লাইভ ঘড়ি, ক্লাউড সিঙ্ক ও নোটিফিকেশন** চালু করতে: Firebase Console → **Realtime Database → Create Database → Start in test mode** (এডমিন লগইনের আর দরকার নেই — প্রবেশ এখন শুধু গোপন পিন দিয়ে)
