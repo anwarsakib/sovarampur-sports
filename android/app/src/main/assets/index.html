@@ -204,6 +204,12 @@ nav.bottom button.on .ic{transform:translateY(-2px) scale(1.1)}
 .cdbox b{display:block;font-size:1.22rem;line-height:1.15;font-variant-numeric:tabular-nums;animation:pulse1s 1s ease-in-out infinite}
 .cdbox span{font-size:.62rem;opacity:.85}
 @keyframes pulse1s{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+/* v6.5: গোল হলে লাইভ-স্কোরের উপরে নাম্বারটি লাফিয়ে ওঠে — সাথে সাথে চোখে পড়ে */
+@keyframes scorepop{0%{transform:scale(1)}30%{transform:scale(1.7);color:#b91c1c;text-shadow:0 0 14px rgba(220,38,38,.65)}100%{transform:scale(1)}}
+.lvscore.scorepop{animation:scorepop .9s cubic-bezier(.2,.8,.3,1)}
+.lvscore.scorepop span{animation:none}
+/* v6.5: নোটিফিকেশন প্যানেলের খবরগুলো একটা একটা ভেসে ওঠে */
+.nrow6{animation:fadeUp .35s ease both}
 .cdtitle{font-size:.74rem;letter-spacing:1px;color:rgba(255,255,255,.85);text-align:center;margin-top:8px;text-transform:uppercase}
 .faceoff{position:relative;background:linear-gradient(120deg,#065f46,#0b7a3e 48%,#1d4ed8 52%,#0284c7);border-radius:18px;padding:18px 14px 14px;color:#fff;margin-bottom:12px;overflow:hidden;box-shadow:0 10px 26px rgba(6,95,70,.3)}
 .fo-grid{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:4px;position:relative}
@@ -843,9 +849,11 @@ function unreadCount(){return store.notifications.filter(n=>!n.read).length;}
 /* v6.3-নীতি: সিস্টেম-নোটিফিকেশন (ফোনের বার) শুধুমাত্র নোটিশের জন্য — লাইভ/ম্যাচ/সময়সূচির খবর আর কোথাও যায় না */
 const NOTIFY_OK={notice:1};
 
-/* v6.3: আগের সংস্করণে জমা থাকা লাইভ/ম্যাচের খবর তালিকা থেকে মুছে দেওয়া — শুধু নোটিশ থাকবে */
-(function(){try{if(Array.isArray(store.notifications))store.notifications=store.notifications.filter(function(n){return n.type==='notice';});}catch(e){}})();
-function notify(title,body,type){if(type&&NOTIFY_OK&&!NOTIFY_OK[type])return;
+/* v6.4-নীতি: নোটিফিকেশন তালিকায় শুধু নোটিশ থাকবে — বুটে, ক্লাউড-সিঙ্কে, যে-কোনো সময়ে ফিরে এলেও মুছে যাবে */
+function normNotifPolicy(){try{if(Array.isArray(store.notifications)&&store.notifications.some(function(n){return n.type!=='notice';})){
+  store.notifications=store.notifications.filter(function(n){return n.type==='notice';});save();updateBell();render();}}catch(e){}}
+function notify(title,body,type){if(type&&NOTIFY_OK&&!NOTIFY_OK[type])return Promise.resolve(true);
+  /* v6.4: এডমিন হলে ক্লাউড-লেখার ফল জানায় — notifyAllGo ডুপ্লিকেট লেখা আর করে না */
   /* v6.2-ফিক্স: শেষ ২০টি বার্তায় একই লেখা ২ মিনিটের কম আগে এলে আর দ্বিগুণ হয় না */
   const _now=Date.now();const _dup=store.notifications.slice(0,20).find(function(n){return n.title===title&&n.body===body&&(_now-(n.ts||0))<120000;});
   if(_dup)return;
@@ -854,13 +862,18 @@ function notify(title,body,type){if(type&&NOTIFY_OK&&!NOTIFY_OK[type])return;
   const nid='n'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
   store.notifications.unshift({id:uid(),cid:nid,ts:Date.now(),title:title,body:body,type:type||'info',read:false});
   if(typeof dbPut==='function'&&isAdmin()){
-    dbPut('notify/'+nid,{cid:nid,title:title,body:body,type:type||'info',at:Date.now()});
-    dbGet('notify').then(function(list){
-      if(list&&typeof list==='object'&&Object.keys(list).length>20){
-        const ks=Object.keys(list).sort(function(a,b){return (list[a].at||0)-(list[b].at||0);});
-        ks.slice(0,ks.length-20).forEach(function(k){dbDel('notify/'+k);});}});}
+    const p=dbPut('notify/'+nid,{cid:nid,title:title,body:body,type:type||'info',at:Date.now()}).then(function(ok){
+      if(ok)dbGet('notify').then(function(list){
+        if(list&&typeof list==='object'&&Object.keys(list).length>20){
+          const ks=Object.keys(list).sort(function(a,b){return (list[a].at||0)-(list[b].at||0);});
+          ks.slice(0,ks.length-20).forEach(function(k){dbDel('notify/'+k);});}});
+      return ok;}).catch(function(){return false;});
+    if(store.notifications.length>40)store.notifications.length=40;
+    if(typeof toast==='function')toast('🔔 '+title);
+    save();updateBell();ding();return p;}
   if(store.notifications.length>40)store.notifications.length=40;
-  save();updateBell();ding();}
+  if(typeof toast==='function')toast('🔔 '+title);
+  save();updateBell();ding();return Promise.resolve(true);}
 function updateBell(){const b=$('#nbell');if(!b)return;const n=unreadCount();
   b.innerHTML='🔔'+(n?'<span class="nbadge">'+bnNum(n)+'</span>':'');}
 function ding(){if(store.settings&&store.settings.soundOn===false)return;
@@ -881,7 +894,7 @@ function notifPanel(){const ns=store.notifications;
       <div class="nmain6"><b>${esc(n.title)}</b><div class="tsub">${esc(n.body)}</div><div class="tsub6">${ftime(n.ts)}</div></div>
       <button class="ibtn" title="এটি মুছুন" onclick="event.stopPropagation();notifDel('${n.id}')">${ic('trash')}</button>
     </div>`).join(''):`<div class="card empty"><span class="e">${ic('bell')}</span>এখনো কোনো নোটিফিকেশন নেই</div>`}
-  <div class="mtxt" style="margin-top:8px">${ic('zap')} নোটিশ, নতুন ম্যাচ, ফলাফল বা চ্যাম্পিয়ন ঘোষণা হলে এখানে খবর আসবে ও শব্দ বাজবে।</div>
+  <div class="mtxt" style="margin-top:8px">${ic('zap')} কর্তৃপক্ষ নোটিশ দিলে এখানে খবর আসবে ও শব্দ বাজবে — ফোনের নোটিফিকেশন বারেও যাবে।</div>
   <div class="mbtns"><button class="btn red sm" onclick="notifClearAll()">${ic('trash')} সব মুছুন</button><button class="btn ghost" onclick="closeModal()">বন্ধ</button><button class="btn pri" onclick="markAllRead()">${ic('check')} সব পড়া হয়েছে</button></div>`);
   setTimeout(function(){store.notifications.forEach(n=>n.read=true);save();updateBell();},2500);}
 function markAllRead(){store.notifications.forEach(n=>n.read=true);save();updateBell();closeModal();toast('সব নোটিফিকেশন পড়া হয়েছে ✅');}
@@ -955,6 +968,8 @@ function normStore(st){if(!st||typeof st!=='object')return false;
   if(!st.settings.pinHash)st.settings.pinHash='';
   /* ক্লাউড/IDB-থেকে আসা পুরোনো টুর্নামেন্টেও matches/teams থাকবে — নেভ-ক্র্যাশের মূল সুরক্ষা */
   (st.tournaments||[]).forEach(function(t){if(!Array.isArray(t.matches))t.matches=[];if(!Array.isArray(t.teams))t.teams=[];if(!t.type)t.type='league';if(!t.status)t.status='চলছে';});
+  /* v6.4: ক্লাউড/IDB-থেকে আসা তালিকাতেও শুধু-নোটিশ — পুরনো ম্যাচ-খবর দরজা দিয়ে ফিরতে পারে না */
+  if(Array.isArray(st.notifications))st.notifications=st.notifications.filter(function(n){return n.type==='notice';});
   delete st.settings.pinEnc;/* প্লেইনটেক্সট পিন কখনো রাখা হয় না */
   /* পুরোনো ডিফল্ট-পিনের হ্যাশ থাকলে বাদ — এখন রিকভারি-পিন সার্ভার থেকে যাচাই হয় */
   if(st.settings.pinHash==='h2088506391')st.settings.pinHash='';
@@ -982,11 +997,21 @@ async function syncPush(){if(!isAdmin()||!navigator.onLine||_pullBusy)return;
 async function syncPull(){if(_pullBusy||!navigator.onLine){await liveSync();return;}
   _pullBusy=true;
   try{const c=await dbGet('club');
+    /* v6.5: ফ্রেশ-মাইগ্রেশনের আগের ক্লাউড-কপি সদস্য-ফোনে ঢেকে দিতে পারে না — এডমিনের ফোন পুশ করতে পারবে */
+    if(!isAdmin()&&window._v65At&&c&&c.at&&c.at<window._v65At){await liveSync();return;}
+    /* v6.4: কর্তৃত্ব-নিয়ম — এডমিনের ফোনে লোকাল কপি ক্লাউডের চেয়ে নতুন হলে ক্লাউড তাকে ঢেকে দিতে পারে না;
+       বরং লোকাল কপিটাই ক্লাউডে উঠবে (সদস্য-নাম্বার/ছবি এডিট নিজে থেকে গায়েব হওয়ার মূল কারণ এই রেস ছিল) */
+    if(isAdmin()&&c&&c.at&&store.savedAt&&c.at<store.savedAt){
+      const okP=await dbPut('club',{at:Date.now(),store:stripForSync()});
+      if(okP){REMOTE_AT=Date.now();localStorage.setItem('srf_remote_at',String(REMOTE_AT));}
+      await liveSync();return;}
     if(c&&c.at&&c.store&&c.at>REMOTE_AT&&normStore(c.store)){
       const adminTyping=isAdmin()&&document.querySelector('#modal-root .modal');
       if(!adminTyping){REMOTE_AT=c.at;localStorage.setItem('srf_remote_at',String(REMOTE_AT));
         store=c.store;save();renderHeader();if(view!=='live')render();toast('☁️ নতুন তথ্য সবার ফোন থেকে এসেছে');}}
+    normNotifPolicy();
     await mergeCloudNotifs();
+    normNotifPolicy();
     await mergeCloudGoals();
     await liveSync();}
   finally{_pullBusy=false;}}
@@ -996,7 +1021,9 @@ async function mergeCloudNotifs(){try{const list=await dbGet('notify');
   Object.keys(list).forEach(function(k){const n=list[k];if(!n||!n.title)return;
     const cid=n.cid||k,at=n.at||Date.now();
     if((store.settings.notDel||[]).indexOf(cid)>-1)return;
-    if(n.type&&!NOTIFY_OK[n.type]){store.settings.notDel=(store.settings.notDel||[]).concat([cid]).slice(-200);return;}
+    if(n.type&&!NOTIFY_OK[n.type]){store.settings.notDel=(store.settings.notDel||[]).concat([cid]).slice(-200);
+      /* v6.4: ক্লাউডের পুরনো ম্যাচ-খবরও সাফ — পুরনো সংস্করণের ফোনে আর পৌঁছাবে না */
+      if(isAdmin()&&typeof dbDel==='function')dbDel('notify/'+k);return;}
     if(store.notifications.some(function(x){return (x.cid&&x.cid===cid)||(x.title===n.title&&Math.abs((x.ts||0)-at)<3000);}))return;
     store.notifications.unshift({id:uid(),cid:cid,ts:at,title:n.title,body:n.body||'',type:n.type||'info',read:false});added++;});
   if(added){if(store.notifications.length>40)store.notifications.length=40;
@@ -1021,7 +1048,7 @@ async function mergeCloudGoals(){try{const tree=await dbGet('goals');if(!tree||t
 let REMOTE_AT=+(localStorage.getItem('srf_remote_at')||0);
 /* শেয়ার চালু থাকলে প্রতি মিনিটে হার্টবিট — অন্য ফোনে ব্যানার বেঁচে থাকে, বন্ধ করলে ১২ মিনিটে নিভে যায় */
 setInterval(function(){if(SHARE&&isAdmin()&&TMR.phase!=='idle'&&navigator.onLine&&typeof shareState==='function')livePut(shareState());},30000);
-setInterval(function(){if(navigator.onLine)syncPull();},8000);
+setInterval(function(){if(navigator.onLine)syncPull();},5000);
 function sharePhaseLabel(){const P=SHARE&&SHARE.phase?SHARE.phase:'';return {play:'খেলা চলছে',pause:'থামানো আছে',rest:'বিরতি',done:'খেলা শেষ',h1:'খেলা চলছে',h2:'খেলা চলছে'}[P]||'লাইভ';}
 function renderShareBar(){let bar=document.getElementById('sharebar');
   if(!SHARE){if(bar)bar.remove();return;}
@@ -1068,7 +1095,7 @@ function shareNext(){const T={total:SHARE.total||timerCfg().total,rest:SHARE.bre
   else if(SHARE.phase==='rest'){SHARE.phase='play';SHARE.endAt=Date.now()+(annDur('start')+0.6)*1000+Math.max(1000,SHARE.playLeftMs||T.total*60000);
     if(fresh)timerAnnounce('বিরতি শেষ — মাঠে ফিরে খেলা শুরু করুন!','🏅','start');else toast('লাইভ খেলা: খেলা আবার চলছে 🏅');}
   renderShareBar();}
-setInterval(liveSync,10000);
+setInterval(liveSync,4000);
 setInterval(shareTick,1000);
 function totals(){const inc=store.income.reduce((s,x)=>s+(+x.amount||0),0);const exp=store.expenses.reduce((s,x)=>s+(+x.amount||0),0);return{inc:inc,exp:exp,bal:inc-exp};}
 
@@ -1169,8 +1196,28 @@ function boot(){store=load();if(!store)store=freshStore();
     if(TMR.phase==='play'&&(!TMR.endAt||TMR.endAt<Date.now()))TMR.phase='done';
     if(TMR.phase==='play'||TMR.phase==='rest')TMR.iv=setInterval(timerTick,500);}
   storageSelfTest();
+  /* v6.5: একবারে টোটালি ফ্রেশ — পুরনো সংস্করণের সব জমা (নোটিফিকেশন, নোটিশ, টুর্নামেন্ট, হিসাব, লগ)
+     মুছে যায়; শুধু সদস্য-তালিকা আর সেটিংস (ক্লাবের নাম/লোগো/পিন) থাকে। জীবনে একবারই চলে। */
+  try{window._v65At=+(localStorage.getItem('srf_v65_fresh')||0);
+    if(!localStorage.getItem('srf_v65_fresh')){
+    const keepP=Array.isArray(store.players)?store.players.slice():[];
+    const keepS=store.settings?JSON.parse(JSON.stringify(store.settings)):{};
+    const fresh=freshStore();
+    store=fresh;store.players=keepP;
+    store.settings=Object.assign(fresh.settings,keepS||{});
+    if(!Array.isArray(store.settings.notDel))store.settings.notDel=[];
+    store.settings.notDel=[];/* পুরনো মুছা-মার্ক তালিকা আর দরকার নেই — ক্লাউড খালি করা হবে */
+    window._v65At=Date.now();localStorage.setItem('srf_v65_fresh',String(window._v65At));
+    /* _v65At: এই মুহূর্তের আগের ক্লাউড-কপি আর কাউকে ঢেকে দিতে পারবে না (গার্ড syncPull-এ) */
+    save();logAct('v6.5: অ্যাপ টোটালি ফ্রেশ করা হয়েছে — শুধু সদস্য-তালিকা রাখা হয়েছে');}}catch(e){}
+  /* v6.4: লোড হওয়া তালিকা থেকে আগের সংস্করণের ম্যাচ/লাইড-খবর মুছে ফেলা — অ্যাপ খুললেই একবারে ফ্রেশ */
+  normNotifPolicy();
+  /* v6.5: এডমিনের ফোন চালু হলে ক্লাউডের পুরোনো নোটিফিকেশন/গোল-জমা/ক্লাব-কপি — পুরো নোড মুছে একবারে ফ্রেশ;
+     তারপর এই ফ্রেশ কপিই ক্লাউডে উঠবে — কোনো পুরনো ফোনে আর আগের খবর ফিরে আসবে না */
+  if(isAdmin()&&window._v65At&&typeof dbDel==='function'){
+    dbDel('notify');dbDel('goals');dbDel('club');}
   /* আগে IDB-থেকে-গ্রহণ, তারপর ক্লাউড-সিঙ্ক — রেস নেই */
-  bootStoreMerge().catch(function(){}).then(function(){try{syncPull();}catch(e){}});
+  bootStoreMerge().catch(function(){}).then(function(){normNotifPolicy();try{syncPull();}catch(e){}});
   bumpUsage();
   const sc=document.querySelector('#splash .core');
   if(sc&&typeof ASSETS!=='undefined'&&ASSETS.logo)sc.innerHTML='<img src="'+ASSETS.logo+'" style="width:86%;height:86%;object-fit:cover;border-radius:50%">';
@@ -1246,7 +1293,13 @@ function countUp(){document.querySelectorAll('[data-cnt]').forEach(function(el){
     el.textContent=el.dataset.fmt==='bdt'?bdt(v):bnNum(v);
     if(p<1)requestAnimationFrame(step);}
   requestAnimationFrame(step);});}
-function postRender(){countUp();initBanner();if(view==='timer'&&typeof timerRender==='function')setTimeout(timerRender,0);}
+/* v6.5: লাইভ-স্কোরের নাম্বার বদলালে লাফিয়ে ওঠে — গোল চোখে পড়ে সাথে সাথে */
+let _scoreSig='';
+function scorePopCheck(){const el=document.getElementById('lvscorebox');if(!el)return;
+  const sig=el.dataset.s||'';
+  if(_scoreSig&&sig!==_scoreSig)window._popUntil=Date.now()+950;
+  _scoreSig=sig;}
+function postRender(){countUp();initBanner();scorePopCheck();if(view==='timer'&&typeof timerRender==='function')setTimeout(timerRender,0);}
 </script>
 <script>
 'use strict';
@@ -2177,7 +2230,7 @@ function goalPRows(t,evs){if(!t||!Array.isArray(t.teams))return '';
   return tlist.map(function(tm,ti){const side=tm_?((tm.id===tm_.teamA)?'A':'B'):(ti===0?'A':'B');const cls=side==='A'?'pa':'pb';
     const chips=((tm&&tm.members)||[]).map(function(pid){const pp=store.players.find(function(x){return x.id===pid;});if(!pp)return '';
       const c=cnt(pp.name,side);
-      return `<span class="pwrap"><button class="pchip ${cls}" onclick="instantGoal('${pp.id}')">${esc(pp.name)}${c?`<span class="gcount">${bnNum(c)}</span>`:''}</button><button class="pminus" onclick="goalMinus('${pp.id}')" title="সর্বশেষ গোল বাদ দিন">−</button></span>`;}).join('');
+      return `<span class="pwrap"><button class="pchip ${cls}" onclick="instantGoal('${pp.id}','${side}')">${esc(pp.name)}${c?`<span class="gcount">${bnNum(c)}</span>`:''}</button><button class="pminus" onclick="goalMinus('${pp.id}')" title="সর্বশেষ গোল বাদ দিন">−</button></span>`;}).join('');
     return `<div class="gtrow"><div class="gtlab ${cls}">${esc((tm&&tm.name)||'টিম')}</div><div class="prow">${chips||'<span class="tsub">এই দলে সদস্য নেই</span>'}</div></div>`;}).join('');}
 function goalMinus(pid){const t=store.tournaments.find(x=>x.id===TMR.tourId);const m=t&&TMR.matchId?t.matches.find(x=>x.id===TMR.matchId):null;
   if(!m||!Array.isArray(m.events)||!m.events.length){toast('বাদ দেওয়ার মতো গোল নেই','err');return;}
@@ -2189,7 +2242,7 @@ function goalMinus(pid){const t=store.tournaments.find(x=>x.id===TMR.tourId);con
     m.events.splice(idx,1);
     if(typeof SHARE!=='undefined'&&SHARE&&SHARE.matchId===m.id){try{SHARE=shareState();if(typeof livePut==='function')livePut(SHARE);}catch(err){}}
     logAct('গোল বাদ (লাইভ চিপ): '+pp.name+' '+lbl);save();timerRender();render();toast('গোল বাদ দেওয়া হয়েছে −');});}
-function instantGoal(pid){const L=(typeof liveInfo==='function')?liveInfo():null;
+function instantGoal(pid,side){const L=(typeof liveInfo==='function')?liveInfo():null;
   const t=(L&&L.t)||(TMR.tourId?store.tournaments.find(x=>x.id===TMR.tourId):null);
   const m=(L&&L.m)||(t&&TMR.matchId?t.matches.find(x=>x.id===TMR.matchId):null);
   if(!t||!m){toast('আগে ম্যাচ বাছাই করুন','err');return;}
@@ -2197,8 +2250,11 @@ function instantGoal(pid){const L=(typeof liveInfo==='function')?liveInfo():null
   const playing=(L?(L.phase==='play'):(timerRunning()));
   if(!playing){toast('গোল শুধু খেলা চলাকালীন যোগ হয়','err');return;}
   const pp=store.players.find(function(x){return x.id===pid;});if(!pp)return;
-  let team='A';const mb1=((t.teams[1]&&t.teams[1].members)||[]),mb0=((t.teams[0]&&t.teams[0].members)||[]);
-  if(mb1.indexOf(pid)>-1&&mb0.indexOf(pid)<0)team='B';
+  /* v6.4-ফিক্স: দল-পরিচয় এখন সিলেক্ট-করা ম্যাচের দুই দল (m.teamA/m.teamB) থেকে নির্ধারিত —
+     আগে টুর্নামেন্টের প্রথম দুই দলের সদস্য-তালিকা দেখে ভুল দিকে গণনা হতো, তাই লাইভ স্কোর ০:০ দেখাত */
+  let team=(side==='B')?'B':'A';const tmA=t.teams.find(function(x){return x.id===m.teamA;}),tmB=t.teams.find(function(x){return x.id===m.teamB;});
+  if(tmA&&tmB){const inA=((tmA.members||[]).indexOf(pid)>-1),inB=((tmB.members||[]).indexOf(pid)>-1);
+    if(inB&&!inA)team='B';/* চিপ-ঘরের দিক কর্তৃত্বপূর্ণ: খেলোয়াড় দুই দলে না মিললেও যে-ঘরের চিপে চাপা, সে-দিকই */}
   /* মিনিট: SHARE-লাইভে দূরের ফোনেও সঠিক খেলা-মিনিট */
   let cl=timerPlayClock();
   if(L&&L.phase==='play'){const left=Math.max(0,(L.endAt||Date.now())-Date.now());
@@ -2219,6 +2275,7 @@ function instantGoal(pid){const L=(typeof liveInfo==='function')?liveInfo():null
   if(!m.events)m.events=[];
   m.events.push({id:uid(),min:min,sec:sec,name:pp.name,team:team,by:'এডমিন',at:Date.now()});
   if(typeof SHARE!=='undefined'&&SHARE&&SHARE.matchId===m.id){try{SHARE=shareState();if(typeof livePut==='function')livePut(SHARE);}catch(err){}}
+  window._popUntil=Date.now()+950;/* v6.5: গোল-মুহূর্তে স্কোর-লাফ — রেন্ডার যতবারই হোক লাফটা দেখা যাবে */
   logAct('গোল (লাইভ চিপ): '+pp.name+' '+clockTxt({min:min,sec:sec}));save();
   goalAnnounce(pp.name,min,team,sec);timerRender();render();}
 function shareState(){const T=timerCfg();const t=store.tournaments.find(x=>x.id===TMR.tourId);
@@ -2486,7 +2543,7 @@ function vLive(){const L=(typeof liveInfo==='function')?liveInfo():null;
       <div style="opacity:.92;font-size:.8rem;margin-top:3px">${m?esc(m.round||'')+(m.date?' • '+fdate(m.date):''):(L.matchName?'• '+esc(L.matchName):'')}${L.by?' • 📡 '+esc(L.by)+' চালু করেছেন':''}</div></div>
     <div class="lvteams">
       <div class="lvteam"><div class="lav">${tA&&tA.logo?`<img src="${tA.logo}" alt="">`:'⚽'}</div><b>${esc(nameA)}</b></div>
-      <div class="lvscore">${bnNum(L.sa)}<span>:</span>${bnNum(L.sb)}</div>
+      <div class="lvscore${(Date.now()<(window._popUntil||0))?' scorepop':''}" id="lvscorebox" data-s="${L.sa+':'+L.sb}">${bnNum(L.sa)}<span>:</span>${bnNum(L.sb)}</div>
       <div class="lvteam"><div class="lav">${tB&&tB.logo?`<img src="${tB.logo}" alt="">`:'⚽'}</div><b>${esc(nameB)}</b></div>
     </div>
     ${profRow(tA,'A',nameA)}${profRow(tB,'B',nameB)}
@@ -2657,9 +2714,8 @@ async function notifyAllBtn(){openModal(`<div class="mhandle"></div><h3 class="m
   <div class="fgrp"><label>বিস্তারিত</label><input id="na-body" placeholder="যেমন: সবাই ৪টায় মাঠে উপস্থিত থাকবেন"></div>
   <div class="mbtns"><button class="btn ghost" onclick="closeModal()">বাতিল</button><button class="btn pri" onclick="notifyAllGo()">📤 পাঠান</button></div>`);}
 async function notifyAllGo(){const ti=$('#na-title').value.trim()||'ক্লাবের খবর',bd=$('#na-body').value.trim()||'নতুন আপডেট এসেছে';
-  const nid='n'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-  const ok=await dbPut('notify/'+nid,{cid:nid,title:ti,body:bd,type:'notice',at:Date.now()});
-  notify(ti,bd,'info');closeModal();
+  /* v6.4: লেখা এখন notify() নিজেই করে — দুইবার লেখা বন্ধ (আগে দুই cid-এ একই খবর যেত, ফোনে দ্বিগুণ দেখাত) */
+  const ok=await notify(ti,bd,'notice');closeModal();
   if(ok)toast('✅ পাঠানো হয়েছে — সবার ফোনে পৌঁছাবে');
   else toast('❗ ইন্টারনেট ছাড়া পাঠানো গেল না — পরে আবার চেষ্টা করুন','err');}
 function adminLogout(){setSession(null);go('home');renderHeader();toast('প্রবেশ বন্ধ হয়েছে');}

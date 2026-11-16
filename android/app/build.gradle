@@ -49,8 +49,10 @@ android {
         applicationId appId
         minSdk 24
         targetSdk 34
-        versionCode 12
-        versionName vName
+        /* v6.4: প্রতি বিল্ডে আলাদা পরিচয় — GitHub Actions-এ রান-নাম্বার, নিজের বিল্ডে টাইমস্ট্যাম্প;
+           ফলে দুই বিল্ড কখনো একই MD5 হয় না — ফোন ও রিলিজ সব সময় নতুন কি পুরনো বুঝা যায় */
+        versionCode (System.getenv("RUN_NUMBER") ? System.getenv("RUN_NUMBER").toInteger() : (System.currentTimeMillis() / 1000L).intValue() - 1700000000)
+        versionName vName + (System.getenv("RUN_NUMBER") ? "." + System.getenv("RUN_NUMBER") : "")
     }
 
     signingConfigs {
