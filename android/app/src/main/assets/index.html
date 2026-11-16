@@ -390,7 +390,7 @@ details.fold .fgrp:first-of-type{margin-top:10px}
 .autoitem:last-child{border-bottom:none}
 .autoitem:active{background:#f0fdf4}
 .btnpulse{animation:breathe 2.2s ease-in-out infinite}
-/* ===== v3.9: আইকন + লাইভ-ওয়াচ + প্লেয়ার-চিপ ===== */
+/* ===== v5.2: আইকন + লাইভ-ওয়াচ + প্লেয়ার-চিপ ===== */
 .icv{width:22px;height:22px;vertical-align:-5px}
 .hbtn .icv{width:21px;height:21px}
 nav.bottom .ic .icv{width:22px;height:22px}
@@ -425,6 +425,243 @@ nav.bottom button:active{transform:scale(.9)}
 .gfchip img{width:22px;height:22px;border-radius:50%;object-fit:cover}
 @keyframes gpop{0%{transform:scale(0)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
 </style>
+<style>
+/* v5 লাইভ-পেজ • গোল-লিস্ট • রাউন্ড-হেডার • দল-রঙ */
+.lvcard{padding:16px 12px}
+.lvphase{display:inline-block;background:rgba(0,0,0,.28);border-radius:999px;padding:5px 14px;font-weight:800;font-size:.82rem}
+.lvteams{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}
+.lvteam{flex:1;text-align:center;min-width:0}
+.lvteam b{display:block;margin-top:6px;font-size:.92rem;text-shadow:0 1px 2px rgba(0,0,0,.35);overflow-wrap:anywhere}
+.lav{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.22);display:inline-flex;align-items:center;justify-content:center;font-size:1.3rem;border:2.5px solid #fff;overflow:hidden}
+.lav img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.lvscore{font-size:2.2rem;font-weight:900;background:rgba(255,255,255,.22);border-radius:14px;padding:4px 14px;text-shadow:0 1px 3px rgba(0,0,0,.3)}
+.lvscore span{margin:0 4px;opacity:.75}
+.lvbig{font-size:2.5rem;font-weight:900;letter-spacing:1px;margin-top:6px;text-shadow:0 1px 3px rgba(0,0,0,.3)}
+.lvsub{font-size:.78rem;opacity:.92}
+.glist{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.grow{display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid #eef2f7;border-radius:10px;padding:7px 9px}
+.gnum{font-weight:900;font-size:.72rem;color:#fff;background:#334155;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 20px}
+.gdot{width:10px;height:10px;border-radius:50%;flex:0 0 10px}
+.gmain{flex:1;min-width:0}
+.gmain b{font-size:.88rem}
+.gsub{display:block;font-size:.72rem;color:#64748b}
+.rhead{margin:14px 0 6px;font-weight:800;color:#166534;background:#dcfce7;border-radius:10px;padding:6px 12px;font-size:.85rem}
+.nextlabel{background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:3px 10px;font-size:.7rem;font-weight:800}
+.wmark{font-size:.85rem}
+</style>
+<style>
+/* ═════ v5.1 ডিজাইন-আপগ্রেড: অ্যানিমেশন • লেয়ার • গ্রেডিয়েন্ট ═════ */
+@keyframes fadeUp{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:none}}
+@keyframes popIn{0%{opacity:0;transform:scale(.9)}70%{transform:scale(1.02)}100%{opacity:1;transform:scale(1)}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}
+@keyframes duePulse{0%,100%{border-color:#fca5a5;box-shadow:0 0 0 0 rgba(239,68,68,.25)}50%{border-color:#ef4444;box-shadow:0 0 0 6px rgba(239,68,68,.12)}}
+@keyframes sheen{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.card,.mtc,.tcard,.qtile,.nrow,.lvcard{animation:fadeUp .38s cubic-bezier(.2,.7,.3,1) both}
+.btn{position:relative;overflow:hidden;transition:transform .12s ease,box-shadow .18s ease,filter .18s ease}
+.btn:active{transform:scale(.95)}
+.btn.pri,.btn.dark{box-shadow:0 6px 16px -6px rgba(16,185,129,.45)}
+.btn.gold{box-shadow:0 6px 16px -6px rgba(245,158,11,.5)}
+.shead{position:relative;padding-bottom:6px}
+.shead h3{background:linear-gradient(90deg,#059669,#10b981 60%,transparent);-webkit-background-clip:text;background-clip:text}
+.qtile{border:1.5px solid var(--line);border-radius:14px;background:linear-gradient(160deg,#fff,#f8fafc);transition:transform .15s ease,box-shadow .2s ease}
+.qtile:active{transform:scale(.96)}
+.qtile:hover{box-shadow:0 10px 24px -12px rgba(2,44,34,.35);transform:translateY(-2px)}
+.wpick{transition:all .18s ease;border:2px solid var(--line);border-radius:14px;background:linear-gradient(165deg,#fff,#f8fafc)}
+.wpick.on{border-color:var(--green);background:linear-gradient(165deg,#ecfdf5,#d1fae5);animation:popIn .3s ease both;box-shadow:0 8px 22px -10px rgba(16,185,129,.5)}
+.mtc{border:1.5px solid var(--line);border-radius:16px;background:linear-gradient(170deg,#fff,#fbfdff);box-shadow:0 6px 18px -12px rgba(2,44,34,.25);transition:transform .15s ease}
+.mtc-due{animation:duePulse 1.6s ease-in-out infinite;border-width:2px}
+.livebtn{background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;border:none;font-weight:800}
+.livelabel{animation:glowPulse 1.8s infinite}
+.tchip,.ibtn{transition:transform .12s ease,background .18s ease,color .18s ease}
+.tchip:active,.ibtn:active{transform:scale(.92)}
+.tchip.on{background:linear-gradient(135deg,#059669,#10b981);color:#fff;border-color:transparent;box-shadow:0 4px 12px -4px rgba(16,185,129,.5)}
+/* গোল-টাইমলাইন: মাঝ-মেরু • টিম এ ডানে • টিম বি বামে */
+.gspine{display:flex;flex-direction:column;gap:8px;padding:10px 2px;background:linear-gradient(180deg,#f8fafc,#f1f5f9);border-radius:14px;border:1px solid #eef2f7}
+.grow5{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;animation:fadeUp .45s cubic-bezier(.2,.7,.3,1) both}
+.gcard5{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid #e8eef5;border-radius:12px;padding:8px 10px;min-height:44px;box-shadow:0 3px 10px -6px rgba(2,44,34,.18);min-width:0}
+.gcard5.empty{background:transparent;border-style:dashed;border-color:transparent;box-shadow:none}
+.gr .gcard5{justify-content:flex-start;border-left:3px solid var(--green)}
+.gl .gcard5{flex-direction:row-reverse;justify-content:flex-start;text-align:right;border-right:3px solid #2563eb}
+.gwho{flex:1;min-width:0}
+.gwho b{font-size:.86rem;display:block;overflow-wrap:anywhere}
+.gsub{font-size:.68rem;color:#64748b}
+.gnum5{flex:0 0 20px;width:20px;height:20px;border-radius:50%;background:#0f172a;color:#fff;font-size:.68rem;font-weight:900;display:inline-flex;align-items:center;justify-content:center}
+.gmid{display:flex;flex-direction:column;align-items:center;gap:3px;flex:0 0 auto}
+.gdot5{width:12px;height:12px;border-radius:50%;box-shadow:0 0 0 3px rgba(255,255,255,.7)}
+.gtime5{font-weight:900;font-size:.82rem;color:#0f172a;background:#e2e8f0;border-radius:999px;padding:2px 9px}
+/* নেভ-বার লিফট */
+nav.bottom button{transition:color .2s ease,transform .2s ease}
+nav.bottom button.on{transform:translateY(-2px)}
+/* লাইভ-স্কোরবোর্ড ঝলক */
+.lvcard{position:relative;overflow:hidden}
+.lvcard::after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.16) 50%,transparent 60%);background-size:200% 100%;animation:sheen 3.2s linear infinite;pointer-events:none}
+.lvbig{font-variant-numeric:tabular-nums}
+/* খাত-চিপ */
+.catchip{display:inline-flex;align-items:center;gap:4px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:999px;padding:3px 10px;font-size:.78rem;margin:2px}
+</style>
+<style>
+/* ═════ v5.2: আইকন-মাপ • টাইমার-কাস্টমাইজ • লাইভ-বোতাম • সময়সূচি-স্ট্রিপ • ব্যানার-সোয়াইপ ═════ */
+.qe .icv{width:21px;height:21px}
+.shead h3 .icv{width:19px;height:19px;vertical-align:-4px;margin-right:2px}
+.btn .icv{width:17px;height:17px;vertical-align:-3px;margin-right:3px}
+.livedot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#ef4444;margin-right:6px;animation:glowPulse 1.8s infinite}
+/* টাইমার-ইনলাইন-কাস্টমাইজ */
+.tcustom{background:linear-gradient(160deg,#f8fafc,#f1f5f9);border:1.5px solid #e2e8f0;border-radius:14px;padding:10px 12px;margin-top:8px;animation:fadeUp .3s ease both;text-align:left}
+.tcrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:.82rem;margin-bottom:6px}
+.tcrow b{color:#334155}
+.tcin{width:64px;padding:6px 8px;border:1.5px solid #cbd5e1;border-radius:9px;font-weight:800;font-size:.9rem;text-align:center;background:#fff}
+.tcu{font-size:.72rem;color:#64748b}
+/* ডেডিকেটেড লাইভ-বোতাম */
+.btn.livebig{background:linear-gradient(135deg,#dc2626,#ef4444 60%,#f97316);color:#fff;font-weight:900;padding:12px 14px;font-size:.95rem;border-radius:14px;box-shadow:0 8px 20px -8px rgba(239,68,68,.55);animation:breathe 2.4s ease-in-out infinite}
+.btn.livebig .icv{width:19px;height:19px;vertical-align:-4px}
+/* সময়সূচি-স্ট্রিপ */
+.schedlist{padding:4px}
+.srow{padding:10px 8px;border-bottom:1px solid #f1f5f9;animation:fadeUp .35s ease both}
+.srow:last-child{border-bottom:none}
+.s-team{font-weight:700;font-size:.9rem}
+.s-vs{font-size:.7rem;color:#94a3b8;border:1px solid #e2e8f0;border-radius:999px;padding:1px 7px;margin:0 6px}
+.s-meta{font-size:.75rem;color:#64748b;margin-top:2px}
+/* ব্যানার ম্যানুয়াল সোয়াইপ */
+#btrack{touch-action:pan-y}
+#btrack .bslide{user-select:none;-webkit-user-drag:none}
+</style>
+<style>
+/* ═════ v5.3: মিনিমালিস্ট-পাস • কমপ্যাক্ট-লাইভ-হেডার • icbtn ═════ */
+:root{--shadow:0 1px 8px -3px rgba(15,40,25,.07);--shadow2:0 8px 22px -12px rgba(15,40,25,.14)}
+.card{border-radius:16px;box-shadow:var(--shadow)}
+.btn{transition:transform .14s ease,box-shadow .2s ease,background .2s ease,opacity .2s ease}
+.btn:active{transform:scale(.96)}
+.qtile{border-radius:16px;box-shadow:var(--shadow);transition:transform .15s ease}
+.qtile:active{transform:scale(.97)}
+input,select,textarea{transition:border-color .15s ease,box-shadow .15s ease}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#0b7a3e;box-shadow:0 0 0 3px rgba(11,122,62,.10)}
+/* কমপ্যাক্ট লাইভ-হেডার */
+#sharebar{padding:7px 12px;font-size:.78rem;display:flex;align-items:center;gap:7px;flex-wrap:nowrap;white-space:nowrap;overflow:hidden}
+#sharebar .sbmain{display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:56%;overflow:hidden;text-overflow:ellipsis}
+#sharebar .sbmain b{font-size:.8rem}
+#sharebar .sbscore{background:rgba(255,255,255,.24);border-radius:8px;padding:2px 8px;font-weight:900;font-size:.82rem}
+#sharebar .sbphase{font-size:.6rem;background:rgba(255,255,255,.2);border-radius:999px;padding:2px 7px;flex:none}
+#sharebar .sbclock{margin-left:auto;flex:none;font-size:.82rem;font-weight:900}
+#sharebar .sb2{display:block;width:100%;flex-basis:100%;overflow:hidden;text-overflow:ellipsis;font-size:.66rem;opacity:.9;white-space:nowrap}
+/* লগ-ডিলিট বোতাম */
+.icbtn{border:none;background:#fef2f2;color:#dc2626;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:none;cursor:pointer;transition:transform .12s ease,background .15s ease}
+.icbtn:active{transform:scale(.88);background:#fee2e2}
+.icbtn .icv{width:14px;height:14px}
+.arow{align-items:center}
+</style>
+<style>
+/* ═════ v6.0: রি-ডিজাইন — ২০২৭-ফিল • অ্যানিমেটেড-হেডার • এক-সারি-কন্ট্রোল • গোল-চিপ ═════ */
+/* হেডার: গভীর গ্রেডিয়েন্ট + চলমান শীন + কাচ-আইকন */
+header{position:relative;overflow:hidden;background:linear-gradient(120deg,#052e16 0%,#0b7a3e 55%,#16a34a 100%)}
+header .hsheen{position:absolute;top:0;left:-60%;width:55%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.16),transparent);animation:hsheen 5.5s ease-in-out infinite;pointer-events:none}
+@keyframes hsheen{0%,55%{left:-60%}85%,100%{left:120%}}
+header .hbtn{background:rgba(255,255,255,.14);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.18);transition:transform .15s cubic-bezier(.2,1.4,.4,1),background .2s}
+header .hbtn:active{transform:scale(.88) rotate(-4deg);background:rgba(255,255,255,.28)}
+header .htitle h1{letter-spacing:.3px;text-shadow:0 1px 8px rgba(0,0,0,.25)}
+/* হোম-টাইল: স্ট্যাগার্ড-এন্ট্রি + স্প্রিং-চাপ + আইকন-লাফ */
+.qtile{animation:tileIn .55s cubic-bezier(.2,.9,.3,1.25) both}
+@keyframes tileIn{from{opacity:0;transform:translateY(16px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+.qtile .qe{transition:transform .25s cubic-bezier(.2,1.6,.4,1)}
+.qtile:active{transform:scale(.93)}
+.qtile:active .qe{transform:scale(1.22) rotate(-7deg)}
+/* কন্ট্রোল-বাটন: এক সারিতে ছোট সুন্দর — লাফিয়ে-ভাঙা লম্বা-বাটন বন্ধ */
+.tbtns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:6px}
+.tbtns .btn{white-space:nowrap;min-width:0;flex:0 1 auto}
+.btn{transition:transform .14s cubic-bezier(.2,1.4,.4,1),box-shadow .2s,background .2s,opacity .2s}
+.btn:active{transform:scale(.93)}
+.btn.sm{padding:9px 14px}
+/* টিম-প্রতি গোল-চিপ: লেবেল + নাম + কাউন্ট + মাইনাস */
+.gtrow{margin:6px 0}
+.gtlab{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;font-weight:900;border-radius:999px;padding:3px 10px;margin-bottom:5px}
+.gtlab.pa{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+.gtlab.pb{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.gtlab.pa::before{content:'';width:8px;height:8px;border-radius:50%;background:#ef4444}
+.gtlab.pb::before{content:'';width:8px;height:8px;border-radius:50%;background:#3b82f6}
+.pwrap{display:inline-flex;align-items:stretch;gap:0;margin:0 4px 4px 0;border-radius:999px}
+.pwrap .pchip{border-radius:999px 0 0 999px;margin:0}
+.pminus{border:1.5px solid #fecaca;border-left:none;background:#fff5f5;color:#dc2626;font-weight:900;font-size:.9rem;padding:6px 9px;border-radius:0 999px 999px 0;cursor:pointer;transition:transform .12s ease,background .15s}
+.pminus:active{transform:scale(.85);background:#fee2e2}
+.pchip.pa{border-radius:999px 0 0 999px}
+.gcount{background:#0f172a;color:#fff;border-radius:999px;padding:1px 7px;font-size:.64rem;font-weight:900;margin-left:5px;animation:gpop .35s cubic-bezier(.2,1.6,.4,1)}
+@keyframes gpop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.pchip:active{transform:scale(.9)}
+/* গোল-কার্ড: নাম আর খাড়া-লেখা হবে না */
+.gwho{flex:1 1 auto;min-width:104px}
+.gwho b{word-break:break-word;line-height:1.25}
+.gcard5{flex-wrap:nowrap}
+.gcard5 .ibtn{width:30px;height:30px;flex:none;font-size:.78rem}
+@media(max-width:370px){.gcard5 .ibtn{width:26px;height:26px;padding:0}.gwho{min-width:88px}}
+/* মোডাল/কার্ড এন্ট্রি-অ্যানিমেশন মসৃণ */
+.card{animation:cardIn .3s ease both}
+@keyframes cardIn{from{opacity:.55;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+</style>
+<style>
+/* ═════ v6.1: রি-ডিজাইন — গোল-কার্ড • নোটিফ • হোম-ফিল • সার্চ-সংস্কার ═════ */
+/* গোল-কার্ড v6: নামের পেছনে টিম-রঙের ব্যাকগ্রাউন্ড + চলমান গ্লো-অ্যানিমেশন — ব্র্যাকেট/পাশ-কার্ড মুছে গেছে */
+.gspine6{gap:9px;padding:12px 10px}
+.grow6{animation:goalInL .5s cubic-bezier(.2,.8,.3,1.15) both}
+.grow6:nth-child(even){animation-name:goalInR}
+@keyframes goalInL{from{opacity:0;transform:translateX(-20px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes goalInR{from{opacity:0;transform:translateX(20px) scale(.94)}to{opacity:1;transform:none}}
+.gcard6{position:relative;display:flex;align-items:center;gap:9px;min-width:0;min-height:46px;border-radius:14px;padding:9px 11px;overflow:hidden;box-shadow:0 3px 12px -6px rgba(2,44,34,.22);border:1.5px solid rgba(15,23,42,.08);background:linear-gradient(90deg,rgba(255,255,255,.82),rgba(255,255,255,.62)),var(--tint)}
+.gcard6::before{content:'';position:absolute;inset:0;background:var(--tint);opacity:.08;filter:blur(22px);animation:goalGlow 2.6s ease-in-out infinite;pointer-events:none}
+.gcard6.ga::before{left:30%;right:-10%}.gcard6.gb::before{left:-10%;right:30%}
+@keyframes goalGlow{0%,100%{opacity:.05}50%{opacity:.17}}
+.gcard6.ga{border-left:4px solid var(--tint)}
+.gcard6.gb{border-right:4px solid var(--tint);flex-direction:row-reverse}
+.gnum6{flex:0 0 22px;width:22px;height:22px;border-radius:50%;background:var(--tint);color:#fff;font-size:.68rem;font-weight:900;display:inline-flex;align-items:center;justify-content:center;position:relative;z-index:1;box-shadow:0 2px 6px -2px rgba(15,23,42,.4)}
+.gwho6{flex:1 1 auto;min-width:96px;position:relative;z-index:1}
+.gwho6 b{display:block;font-size:.88rem;word-break:break-word;line-height:1.25;color:#0f172a}
+.gwho6 .gsub{font-size:.66rem;color:#64748b;font-weight:700}
+.gtime6{flex:none;background:rgba(15,23,42,.92);color:#fff;font-weight:800;font-size:.72rem;letter-spacing:.5px;border-radius:999px;padding:3px 10px;position:relative;z-index:1}
+.gedit{display:inline-flex;gap:4px;flex:none;position:relative;z-index:1}
+.gedit .ibtn{width:28px;height:28px;font-size:.72rem;padding:0}
+/* নোটিফিকেশন v6: রঙিন-আইকন-বাবল + ছাপা-কার্ড */
+.nrow6{border-radius:14px;padding:10px 12px;gap:11px;transition:transform .15s ease,box-shadow .2s}
+.nrow6:active{transform:scale(.98)}
+.nrow6.un{border-left:4px solid var(--green);background:linear-gradient(90deg,#f0fdf4,#fff 55%);box-shadow:0 3px 10px -6px rgba(2,44,34,.25)}
+.nic6{flex:0 0 40px;width:40px;height:40px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:#047857}
+.nic6 .icv{width:20px;height:20px}
+.nmain6{min-width:0;flex:1}
+.nmain6 b{font-size:.9rem;color:#0f172a}
+.tsub6{font-size:.68rem;color:#94a3b8;margin-top:3px;font-weight:600}
+/* হোম ২০২৭-ফিল */
+.spchip{backdrop-filter:blur(6px);background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.45);border-radius:999px;padding:9px 16px;box-shadow:0 4px 14px -6px rgba(0,0,0,.45);transition:transform .18s cubic-bezier(.2,1.4,.4,1)}
+.spchip span{text-shadow:0 1px 6px rgba(0,0,0,.55);font-weight:800;font-size:.86rem;letter-spacing:.3px}
+.spchip:active{transform:scale(.92) rotate(-1.5deg)}
+.qtile .qe{width:46px;height:46px;border-radius:15px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#dcfce7,#a7f3d0);color:#047857;box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 4px 10px -5px rgba(2,44,34,.4)}
+.qtile .qe .icv{width:22px;height:22px}
+.qtile:nth-child(3n+2) .qe{background:linear-gradient(135deg,#e0f2fe,#bae6fd);color:#0369a1}
+.qtile:nth-child(3n) .qe{background:linear-gradient(135deg,#fef3c7,#fde68a);color:#b45309}
+/* ফেসঅফ (কে কার সাথে) মডার্ন: সফট-কার্ড + টিম-স্ট্রাইপ */
+.faceoff{border-radius:18px;border:1px solid #e2e8f0;box-shadow:0 10px 26px -14px rgba(2,44,34,.3)}
+.faceoff .fo-grid{padding:14px 10px 8px}
+.fo-vs{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#7c2d12;border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.9rem;box-shadow:0 6px 16px -6px rgba(245,158,11,.6);animation:vsFloat 2.8s ease-in-out infinite}
+@keyframes vsFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-4px) rotate(3deg)}}
+/* লাইভ-ব্যানার-স্লাইড গ্লো */
+.bslide{border-radius:16px}
+.banner{border-radius:16px;box-shadow:0 10px 24px -12px rgba(2,44,34,.4)}
+/* টপ-স্কোরার-ব্যানার */
+.lastgoal.top{background:linear-gradient(120deg,#1e293b,#7c2d12);border:1px solid rgba(251,191,36,.35)}
+.lastgoal.top .lge{color:#fbbf24}
+</style>
+<style>
+/* ═════ v6.2: স্থির-লাইড-বার • লাইড-প্রোফাইল+MVP • ড্র-কার্ড ═════ */
+#sharebar{position:fixed;left:0;right:0;z-index:60;animation:barIn .35s cubic-bezier(.2,.9,.3,1.2) both}
+/* v6.2: হেডারের overflow:hidden + position:relative দ্বিতীয়-নিয়মে sticky ভেঙে গিয়েছিল — বার এখন নিজেই হেডার-কিনার মেপে শীর্ষে স্থির */
+@keyframes barIn{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+.lvpros{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:9px;align-items:center}
+.lvpl{font-size:.68rem;font-weight:900;letter-spacing:1px;opacity:.85;background:rgba(255,255,255,.16);border-radius:999px;padding:3px 10px;margin-right:2px}
+.lvpro{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:4px 10px 4px 4px;backdrop-filter:blur(4px);cursor:pointer;transition:transform .15s ease}
+.lvpro:active{transform:scale(.93)}
+.lvpro img,.lvpro .lvpr{width:26px;height:26px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,.25);display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800}
+.lvpro b{font-size:.74rem;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lvmvp{margin:10px auto 0;width:fit-content;background:rgba(251,191,36,.18);border:1px solid rgba(251,191,36,.5);color:#fde68a;font-size:.78rem;font-weight:800;border-radius:999px;padding:5px 14px;display:flex;gap:6px;align-items:center;animation:vsFloat 2.8s ease-in-out infinite}
+.wdraw{display:flex;align-items:center;justify-content:center;gap:8px;margin:10px auto 2px;width:92%;max-width:360px;border:1.5px dashed #94a3b8;border-radius:14px;padding:10px;background:#f8fafc;color:#334155;font-weight:800;font-size:.85rem;cursor:pointer;transition:all .18s ease}
+.wdraw .icv{width:18px;height:18px}
+.wdraw.on{background:linear-gradient(135deg,#f1f5f9,#e2e8f0);border-style:solid;border-color:var(--green);color:#065f46;box-shadow:0 4px 14px -6px rgba(2,44,34,.35)}
+.wdraw:active{transform:scale(.97)}
+</style>
 </head>
 <script>/* এমবেড করা ছবি (লোগো + খেলার ছবি) — ইন্টারনেট ছাড়াই কাজ করে */
 const ASSETS={
@@ -440,20 +677,21 @@ hero:'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAoHCAkIBgoJCAkMCwo
   <div class="sball">⚽</div></div>
 <div id="shell">
   <header>
+    <div class="hsheen" aria-hidden="true"></div>
     <div class="hlogo" id="hlogo">⚽</div>
     <div class="htitle"><h1 id="hname">শোভারামপুর স্পোর্টস ফ্যামিলি</h1><p id="hvil">শোভারামপুর গ্রাম</p></div>
-    <button class="hbtn" id="nbell" onclick="notifPanel()" title="নোটিফিকেশন">🔔</button>
-    <button class="hbtn" onclick="openGuide()" title="সহায়িকা">❓</button>
-    <button class="hbtn" id="adminbtn" onclick="if(window._lpLock){window._lpLock=false;return;}adminBtnClick()">🔐</button>
+    <button class="hbtn" id="nbell" onclick="notifPanel()" title="নোটিফিকেশন"><svg class="icv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 6-2.5 7-2.5 7h17S18 15 18 9z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg></button>
+    <button class="hbtn" onclick="openGuide()" title="সহায়িকা"><svg class="icv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2-2.4 3.6"/><path d="M12 17.2h.01"/></svg></button>
+    <button class="hbtn" id="adminbtn" onclick="if(window._lpLock){window._lpLock=false;return;}adminBtnClick()"><svg class="icv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.4"/></svg></button>
   </header>
   <main id="view"></main>
   <nav class="bottom">
-    <button data-v="home" onclick="go('home')"><span class="ic">🏠</span>হোম</button>
-    <button data-v="members" onclick="go('members')"><span class="ic">👥</span>সদস্য</button>
-    <button data-v="ledger" onclick="go('ledger')"><span class="ic">💰</span>হিসাব</button>
-    <button data-v="timer" onclick="go('timer')"><span class="ic">⏱️</span>টাইমার</button>
-    <button data-v="tournaments" onclick="go('tournaments')"><span class="ic">🏆</span>টুর্নামেন্ট</button>
-    <button data-v="notices" onclick="go('notices')"><span class="ic">📢</span>নোটিশ</button>
+    <button data-v="home" onclick="go('home')"><span class="ic"><svg class="icv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></svg></span>হোম</button>
+    <button data-v="members" onclick="go('members')"><span class="ic"><svg class="icv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.8 19.5c.7-3.2 3.2-5 6.2-5s5.5 1.8 6.2 5"/><circle cx="17" cy="9" r="2.4"/><path d="M16.2 14.6c2.4.3 4.3 1.9 4.9 4.4"/></svg></span>সদস্য</button>
+    <button data-v="ledger" onclick="go('ledger')"><span class="ic"><svg class="icv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M16 12.5h2"/><path d="M3 9h18"/></svg></span>হিসাব</button>
+    <button data-v="timer" onclick="go('timer')"><span class="ic"><svg class="icv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13.5" r="7"/><path d="M12 10v3.5l2.3 2"/><path d="M10 2.5h4"/><path d="M12 2.5v3"/></svg></span>টাইমার</button>
+    <button data-v="tournaments" onclick="go('tournaments')"><span class="ic"><svg class="icv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 5.5H5a3 3 0 0 0 3 4.5"/><path d="M16 5.5h3a3 3 0 0 1-3 4.5"/><path d="M12 13v3.5"/><path d="M8.5 20.5h7"/><path d="M12 16.5c-1.5 0-2.5 1-3.5 4h7c-1-3-2-4-3.5-4z"/></svg></span>টুর্নামেন্ট</button>
+    <button data-v="notices" onclick="go('notices')"><span class="ic"><svg class="icv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5v4l4 .8L20 19V5L7 9.7l-4 .8z"/><path d="M7 15.5l1 4.5"/></svg></span>নোটিশ</button>
   </nav>
 </div>
 <div id="modal-root"></div>
@@ -491,7 +729,16 @@ const IC={
  x:'<path d="M6 6l12 12M18 6 6 18"/>',
  star:'<path d="m12 3 2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-3-5.4 3 1.1-6L3.2 9.4l6.1-.8L12 3z"/>',
  logout:'<path d="M9 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H9"/><path d="M15 16l4-4-4-4"/><path d="M19 12H9"/>',
- ball:'<circle cx="12" cy="12" r="8.5"/><path d="m12 7.5 3.4 2.5-1.3 4h-4.2l-1.3-4L12 7.5z"/><path d="M12 3.5v4M5.5 10l3.1.2M18.5 10l-3.1.2M8 19.5l2.1-2.7M16 19.5l-2.1-2.7"/>'};
+ ball:'<circle cx="12" cy="12" r="8.5"/><path d="m12 7.5 3.4 2.5-1.3 4h-4.2l-1.3-4L12 7.5z"/><path d="M12 3.5v4M5.5 10l3.1.2M18.5 10l-3.1.2M8 19.5l2.1-2.7M16 19.5l-2.1-2.7"/>',
+ skip:'<path d="M5.5 5.5v13L14 12 5.5 5.5z"/><path d="M17.5 5.5v13"/>',
+ coffee:'<path d="M4.5 9.5h11v5a4.5 4.5 0 0 1-4.5 4.5H9a4.5 4.5 0 0 1-4.5-4.5v-5z"/><path d="M15.5 10.5h1.6a2.6 2.6 0 0 1 0 5.2h-1.6"/><path d="M8 3.8c0 .9-.9 1.3-.9 2.2M11.5 3.8c0 .9-.9 1.3-.9 2.2"/>',
+ broadcast:'<circle cx="12" cy="12" r="2.1"/><path d="M8.2 8.2a5.4 5.4 0 0 0 0 7.6M15.8 8.2a5.4 5.4 0 0 1 0 7.6M5.4 5.4a9.4 9.4 0 0 0 0 13.2M18.6 5.4a9.4 9.4 0 0 1 0 13.2"/>',
+ help:'<circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2-2.4 3.6"/><path d="M12 17.2h.01"/>',
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/>',
+ moon:'<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>',
+ hand:'<circle cx="12" cy="12" r="9.5"/><path d="M8 12h8"/>',
+crown:'<path d="M3.5 8.5 6 16h12l2.5-7.5-4.3 2.4L12 5.5 7.8 10.9 3.5 8.5z"/><path d="M6.5 19h11"/>',
+ zap:'<path d="M13 2.5 4.5 13.5H11l-1 8L19.5 10H13l0-7.5z"/>'};
 function ic(name,cls){const d=IC[name]||IC.ball;
   return '<svg class="icv '+(cls||'')+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d+'</svg>';}
 function iconize(){
@@ -592,7 +839,15 @@ function logAct(txt){store.log.unshift({t:Date.now(),by:adminName(),txt:txt});if
 
 /* ================= নোটিফিকেশন সেন্টার + সাউন্ড ================= */
 function unreadCount(){return store.notifications.filter(n=>!n.read).length;}
-function notify(title,body,type){const nid='n'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+/* v5.1 নোটিফিকেশন-নিয়ম: শুধু ২ ধরন — ম্যাচ শুরু(live) আর নতুন নোটিশ(notice); ফলাফল/ড্র/গোল/সময়সূচি/চ্যাম্পিয়ন — কিছুই না */
+const NOTIFY_OK={live:1,notice:1};
+function notify(title,body,type){if(type&&NOTIFY_OK&&!NOTIFY_OK[type])return;
+  /* v6.2-ফিক্স: শেষ ২০টি বার্তায় একই লেখা ২ মিনিটের কম আগে এলে আর দ্বিগুণ হয় না */
+  const _now=Date.now();const _dup=store.notifications.slice(0,20).find(function(n){return n.title===title&&n.body===body&&(_now-(n.ts||0))<120000;});
+  if(_dup)return;
+  const lastN=store.notifications[0];
+  if(lastN&&lastN.title===title&&Date.now()-(lastN.ts||0)<10000)return;
+  const nid='n'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
   store.notifications.unshift({id:uid(),cid:nid,ts:Date.now(),title:title,body:body,type:type||'info',read:false});
   if(typeof dbPut==='function'&&isAdmin()){
     dbPut('notify/'+nid,{cid:nid,title:title,body:body,type:type||'info',at:Date.now()});
@@ -615,15 +870,24 @@ function ding(){if(store.settings&&store.settings.soundOn===false)return;
       g.gain.exponentialRampToValueAtTime(.001,t0+.55);
       o.start(t0);o.stop(t0+.6);});}catch(e){}}
 function notifPanel(){const ns=store.notifications;
-  openModal(`<div class="mhandle"></div><h3 class="mttl">🔔 নোটিফিকেশন</h3>
-  ${ns.length?ns.map(n=>`<div class="nrow ${n.read?'':'un'}" style="cursor:pointer" onclick="notifGo('${n.type||'info'}','${n.id}')">
-      <span class="nic">${n.type==='notice'?'📢':n.type==='match'?'⚽':n.type==='result'?'✅':n.type==='champion'?'🏆':'ℹ️'}</span>
-      <div><b>${esc(n.title)}</b><div class="tsub">${esc(n.body)}</div><div class="tsub" style="opacity:.7">🕘 ${ftime(n.ts)}</div></div>
-    </div>`).join(''):`<div class="card empty"><span class="e">🔕</span>এখনো কোনো নোটিফিকেশন নেই</div>`}
-  <div class="mtxt" style="margin-top:8px">💡 অ্যাডমিন নোটিশ দিলে, নতুন ম্যাচ/ফলাফল/চ্যাম্পিয়ন ঘোষণা করলে এখানে নোটিফিকেশন আসবে ও শব্দ বাজবে।</div>
-  <div class="mbtns"><button class="btn ghost" onclick="closeModal()">বন্ধ</button><button class="btn pri" onclick="markAllRead()">সব পড়া হয়েছে ✓</button></div>`);
+  const nic2=function(t){return ic(t==='notice'?'megaphone':t==='schedule'?'calendar':t==='tourlive'||t==='champion'?'trophy':t==='match'?'ball':t==='result'?'check':'bell');};
+  openModal(`<div class="mhandle"></div><h3 class="mttl">${ic('bell')} নোটিফিকেশন</h3>
+  ${ns.length?ns.map(n=>`<div class="nrow nrow6 ${n.read?'':'un'}" onclick="notifGo('${n.type||'info'}','${n.id}')">
+      <span class="nic6">${nic2(n.type)}</span>
+      <div class="nmain6"><b>${esc(n.title)}</b><div class="tsub">${esc(n.body)}</div><div class="tsub6">${ftime(n.ts)}</div></div>
+      <button class="ibtn" title="এটি মুছুন" onclick="event.stopPropagation();notifDel('${n.id}')">${ic('trash')}</button>
+    </div>`).join(''):`<div class="card empty"><span class="e">${ic('bell')}</span>এখনো কোনো নোটিফিকেশন নেই</div>`}
+  <div class="mtxt" style="margin-top:8px">${ic('zap')} নোটিশ, নতুন ম্যাচ, ফলাফল বা চ্যাম্পিয়ন ঘোষণা হলে এখানে খবর আসবে ও শব্দ বাজবে।</div>
+  <div class="mbtns"><button class="btn red sm" onclick="notifClearAll()">${ic('trash')} সব মুছুন</button><button class="btn ghost" onclick="closeModal()">বন্ধ</button><button class="btn pri" onclick="markAllRead()">${ic('check')} সব পড়া হয়েছে</button></div>`);
   setTimeout(function(){store.notifications.forEach(n=>n.read=true);save();updateBell();},2500);}
 function markAllRead(){store.notifications.forEach(n=>n.read=true);save();updateBell();closeModal();toast('সব নোটিফিকেশন পড়া হয়েছে ✅');}
+/* একটি একটি করে / সব একসঙ্গে মুছা — ক্লাউড থেকে আর ফিরে আসবে না (notDel-তালিকা) */
+function notifDel(id){const i=store.notifications.findIndex(x=>x.id===id);if(i<0)return;
+  const cid=store.notifications[i].cid;if(cid)store.settings.notDel=(store.settings.notDel||[]).concat([cid]).slice(-200);
+  store.notifications.splice(i,1);save();updateBell();notifPanel();toast('নোটিফিকেশন মুছে ফেলা হয়েছে');}
+function notifClearAll(){confirmBox('সব নোটিফিকেশন মুছে ফেলবেন? পুরোনোগুলো আর ফিরে আসবে না (নতুন খবর আসবে যথারীতি)।',function(){
+  (store.notifications||[]).forEach(function(n){if(n.cid)store.settings.notDel=(store.settings.notDel||[]).concat([n.cid]).slice(-200);});
+  store.notifications=[];save();updateBell();closeModal();toast('সব নোটিফিকেশন মুছে ফেলা হয়েছে');});}
 /* নোটিফিকেশনে চাপ দিলে সঠিক পেজ খুলবে */
 function notifGo(type,id){try{if(id){const n=store.notifications.find(x=>x.id===id);if(n){n.read=true;save();updateBell();}}
   closeModal();const t=String(type||'info');
@@ -659,12 +923,15 @@ async function liveGet(){if(RTDB_URL){try{const r=await fetch(RTDB_URL+'/liveTim
   for(const b of RTDB_CANDIDATES){try{const r=await fetch(b+'/liveTimer.json',{cache:'no-store'});const j=await r.json();
     if(j&&typeof j==='object'&&!j.error){RTDB_URL=b;localStorage.setItem('srf_rtdb_url',b);return j;}
     if(j&&j.error&&String(j.error).indexOf('404')>-1)return null;}catch(e){}}
-  return null;}
+  return {__fail:true};}
 async function livePut(st){if(!RTDB_URL){try{const r=await fetch(RTDB_CANDIDATES[0]+'/.json?shallow=true');const j=await r.json();
     if(!j||!j.error){RTDB_URL=RTDB_CANDIDATES[0];localStorage.setItem('srf_rtdb_url',RTDB_URL);}}catch(e){}}
   if(!RTDB_URL)return false;
   try{const r=await fetch(RTDB_URL+'/liveTimer.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(st)});const j=await r.json();return !(j&&j.error);}catch(e){return false;}}
 async function liveSync(){const st=await liveGet();
+  if(st&&st.__fail){/* নেট-ব্লিপ: চলমান লাইভ-অবস্থা ধরে রাখা — ব্যানার ভুলভাবে মরে যাবে না (মেয়াদ বয়স হলে নিজেই বাদ) */
+    if(SHARE&&SHARE.at&&Date.now()-SHARE.at>12*60000)SHARE=null;
+    renderShareBar();return;}
   if(st&&st.phase&&st.phase!=='idle'){
     /* কর্তৃপক্ষের ফোন বন্ধ/শেয়ার বন্ধ হয়ে গেলে পুরোনো ব্যানার আর ঝুলে থাকবে না */
     const stale=(!st.at||Date.now()-st.at>12*60000);
@@ -677,10 +944,13 @@ function normStore(st){if(!st||typeof st!=='object')return false;
   ['admins','players','income','expenses','tournaments','notices','log','notifications'].forEach(function(k){if(!Array.isArray(st[k]))st[k]=[];});
   if(!Array.isArray(st.coAdmins))st.coAdmins=[];
   if(st.settings.soundOn===undefined)st.settings.soundOn=true;
-  if(!st.settings.annMap||typeof st.settings.annMap!=='object')st.settings.annMap={start:'start',rest:'rest',resume:'start',end:'end'};
+  if(!st.settings.annMap||typeof st.settings.annMap!=='object')st.settings.annMap={rest:'rest',resume:'start',end:'end'};delete st.settings.annMap.start;
+  if(!Array.isArray(st.settings.notDel))st.settings.notDel=[];
   if(!Array.isArray(st.settings.incCats)||!st.settings.incCats.length)st.settings.incCats=DEFAULT_INC_CATS.slice();
   if(!Array.isArray(st.settings.expCats)||!st.settings.expCats.length)st.settings.expCats=DEFAULT_EXP_CATS.slice();
   if(!st.settings.pinHash)st.settings.pinHash='';
+  /* ক্লাউড/IDB-থেকে আসা পুরোনো টুর্নামেন্টেও matches/teams থাকবে — নেভ-ক্র্যাশের মূল সুরক্ষা */
+  (st.tournaments||[]).forEach(function(t){if(!Array.isArray(t.matches))t.matches=[];if(!Array.isArray(t.teams))t.teams=[];if(!t.type)t.type='league';if(!t.status)t.status='চলছে';});
   delete st.settings.pinEnc;/* প্লেইনটেক্সট পিন কখনো রাখা হয় না */
   /* পুরোনো ডিফল্ট-পিনের হ্যাশ থাকলে বাদ — এখন রিকভারি-পিন সার্ভার থেকে যাচাই হয় */
   if(st.settings.pinHash==='h2088506391')st.settings.pinHash='';
@@ -711,8 +981,9 @@ async function syncPull(){if(_pullBusy||!navigator.onLine){await liveSync();retu
     if(c&&c.at&&c.store&&c.at>REMOTE_AT&&normStore(c.store)){
       const adminTyping=isAdmin()&&document.querySelector('#modal-root .modal');
       if(!adminTyping){REMOTE_AT=c.at;localStorage.setItem('srf_remote_at',String(REMOTE_AT));
-        store=c.store;save();renderHeader();render();toast('☁️ নতুন তথ্য সবার ফোন থেকে এসেছে');}}
+        store=c.store;save();renderHeader();if(view!=='live')render();toast('☁️ নতুন তথ্য সবার ফোন থেকে এসেছে');}}
     await mergeCloudNotifs();
+    await mergeCloudGoals();
     await liveSync();}
   finally{_pullBusy=false;}}
 /* ক্লাউডের 'notify' তালিকা → অ্যাপের ঘণ্টায় (ডিডাপ: cid বা শিরোনাম+৩ সেকেন্ড) */
@@ -720,36 +991,79 @@ async function mergeCloudNotifs(){try{const list=await dbGet('notify');
   if(!list||typeof list!=='object')return;let added=0;
   Object.keys(list).forEach(function(k){const n=list[k];if(!n||!n.title)return;
     const cid=n.cid||k,at=n.at||Date.now();
+    if((store.settings.notDel||[]).indexOf(cid)>-1)return;
+    if(n.type&&!NOTIFY_OK[n.type]){store.settings.notDel=(store.settings.notDel||[]).concat([cid]).slice(-200);return;}
     if(store.notifications.some(function(x){return (x.cid&&x.cid===cid)||(x.title===n.title&&Math.abs((x.ts||0)-at)<3000);}))return;
     store.notifications.unshift({id:uid(),cid:cid,ts:at,title:n.title,body:n.body||'',type:n.type||'info',read:false});added++;});
   if(added){if(store.notifications.length>40)store.notifications.length=40;
     if(typeof updateBell==='function')updateBell();save();if(typeof render==='function')render();}}catch(e){}}
+/* সদস্যদের জমা দেওয়া গোল (ক্লাউড 'goals' নোড) → ম্যাচের তালিকায় মিশানো; ডিডাপ cid-ভিত্তিক */
+async function mergeCloudGoals(){try{const tree=await dbGet('goals');if(!tree||typeof tree!=='object')return;
+  let added=0;const dels=[];
+  Object.keys(tree).forEach(function(mid){const node=tree[mid];if(!node||typeof node!=='object')return;
+    /* রেকর্ডের tourId দিয়ে টুর্নামেন্ট খোঁজা — ম্যাচ-আইডি ও টুর্নামেন্ট-আইডি আলাদা */
+    let t=null,m=null;
+    Object.keys(node).forEach(function(cid){const rec=node[cid];if(!rec||!rec.name)return;
+      if(!t){t=store.tournaments.find(function(x){return x.id===(rec.tourId||mid);});
+        m=t&&t.matches?t.matches.find(function(x){return x.id===mid;}):null;}
+      if(!m)return;
+      if((m.events||[]).some(function(x){return x.cid===cid||(x.name===rec.name&&x.min===rec.min&&Math.abs((x.at||0)-(rec.at||0))<2000);})){dels.push([mid,cid]);return;}
+      if(!m.events)m.events=[];
+      m.events.push({id:uid(),cid:cid,min:rec.min,name:rec.name,team:rec.team||'A',by:rec.by||'সদস্য',at:rec.at||Date.now()});
+      added++;dels.push([mid,cid]);});});
+  if(added){save();if(view!=='live')render();else{try{renderLive();}catch(e){}}if(document.getElementById('tface')||document.getElementById('tfacepage'))timerRender();
+    toast('⚽ সদস্যের জমা দেওয়া '+bnNum(added)+'টি গোল যোগ হয়েছে');}
+  dels.slice(0,40).forEach(function(p){try{dbDel('goals/'+p[0]+'/'+p[1]);}catch(e){}});}catch(e){}}
 let REMOTE_AT=+(localStorage.getItem('srf_remote_at')||0);
 /* শেয়ার চালু থাকলে প্রতি মিনিটে হার্টবিট — অন্য ফোনে ব্যানার বেঁচে থাকে, বন্ধ করলে ১২ মিনিটে নিভে যায় */
-setInterval(function(){if(SHARE&&isAdmin()&&TMR.phase!=='idle'&&navigator.onLine&&typeof shareState==='function')livePut(shareState());},60000);
-setInterval(function(){if(navigator.onLine)syncPull();},12000);
-function sharePhaseLabel(){return {h1:'প্রথমার্ধ',h1p:'প্রথমার্ধ (থামানো)',rest:'বিরতি',restp:'বিরতি (থামানো)',h2:'দ্বিতীয়ার্ধ',h2p:'দ্বিতীয়ার্ধ (থামানো)',done:'খেলা শেষ'}[SHARE.phase]||'';}
+setInterval(function(){if(SHARE&&isAdmin()&&TMR.phase!=='idle'&&navigator.onLine&&typeof shareState==='function')livePut(shareState());},30000);
+setInterval(function(){if(navigator.onLine)syncPull();},8000);
+function sharePhaseLabel(){const P=SHARE&&SHARE.phase?SHARE.phase:'';return {play:'খেলা চলছে',pause:'থামানো আছে',rest:'বিরতি',done:'খেলা শেষ',h1:'খেলা চলছে',h2:'খেলা চলছে'}[P]||'লাইভ';}
 function renderShareBar(){let bar=document.getElementById('sharebar');
   if(!SHARE){if(bar)bar.remove();return;}
-  if(!bar){bar=document.createElement('div');bar.id='sharebar';bar.onclick=function(){openTimer(SHARE.tourId);};document.body.appendChild(bar);}
-  const left=Math.max(0,Math.ceil((SHARE.endAt-Date.now())/1000));
-  const score=(SHARE.teamA||SHARE.matchName)?'<span class="sbscore">'+bnNum(SHARE.sa||0)+' : '+bnNum(SHARE.sb||0)+'</span>':'';
-  bar.innerHTML='<span class="sbdot"></span>লাইভ খেলা চলছে — '+sharePhaseLabel()+' <b>'+bnTime(left)+'</b>'+score
-    +(SHARE.matchName?' <span style="opacity:.85">('+esc(SHARE.matchName)+')</span>':'')
-    +'<span class="sb2">'+esc(SHARE.by||'কর্তৃপক্ষ')+' চালু করেছেন • চাপ দিলে ঘড়ি খুলবে</span>';}
-function shareTick(){if(!SHARE){return;}
+  /* v6.2-ফিক্স: বারটি স্টিকি-হেডারের ভেতরে পূর্ণ-সারি হয়ে বসে — স্ক্রল/কীবোর্ড যা-ই হোক সম্পূর্ণ উপরে স্থির, মাঝখানে ভাসে না */
+  const hd=document.querySelector('header');
+  if(!bar){bar=document.createElement('div');bar.id='sharebar';bar.onclick=function(){go('live');};document.body.appendChild(bar);
+    const updB=function(){try{const h2=document.querySelector('header');const r=h2?h2.getBoundingClientRect():null;
+      bar.style.top=Math.max(0,Math.round(r?r.bottom:0))+'px';}catch(e){}};
+    window.addEventListener('scroll',updB,{passive:true});
+    window.addEventListener('resize',updB);
+    bar._updB=updB;}
+  if(bar._updB)try{bar._updB();}catch(e){}
+  const restLeft=(SHARE.phase==='rest')?Math.max(0,Math.ceil((((SHARE.restEnd||Date.now()))-Date.now())/1000)):0;
+  const totSec=(SHARE.total||timerCfg().total)*60;
+  const playedSec=(SHARE.phase==='pause')?Math.max(0,Math.floor(totSec-(SHARE.playLeftMs||0)/1000)):Math.max(0,totSec-Math.max(0,Math.ceil((((SHARE.endAt||Date.now()))-Date.now())/1000)));
+  /* v5.3: কাঠামো কেবল অবস্থা-বদলে আঁকা হয় — ঘড়ি প্রতি সেকেন্ডে শুধু টেক্সট-হালনাগাদ (লাফানো/বাফারিং বন্ধ) */
+  const ph=SHARE.phase||'play';
+  const sig=[ph,SHARE.tourId||'',SHARE.matchId||'',SHARE.sa||0,SHARE.sb||0,SHARE.teamA||'',SHARE.teamB||'',SHARE.matchName||''].join('|');
+  if(bar._sig!==sig){bar._sig=sig;
+    const A=(SHARE.teamA||'').trim(),B=(SHARE.teamB||'').trim();
+    const main=(A||B)?('<b>'+esc(A)+'</b><span class="sbscore">'+bnNum(SHARE.sa||0)+' : '+bnNum(SHARE.sb||0)+'</span><b>'+esc(B)+'</b>')
+      :'<b>'+esc(SHARE.matchName||'লাইভ খেলা')+'</b>';
+    const pl={play:'',pause:'থামানো',rest:'বিরতি',restp:'বিরতি-থামানো',done:'ফুল-টাইম',restw:'বিরতি-ঘোষণা',startw:'শুরু-ঘোষণা'}[ph]||'';
+    bar.innerHTML='<span class="sbdot"></span><span class="sbmain">'+main+'</span>'
+      +(pl?'<span class="sbphase">'+pl+'</span>':'')
+      +'<b class="sbclock">—</b>'
+      +'<span class="sb2">'+esc(SHARE.by||'কর্তৃপক্ষ')+' চালু করেছেন • চাপ দিলে ঘড়ি খুলবে</span>';}
+  const ck=bar.querySelector('.sbclock');
+  if(ck)ck.textContent=(ph==='rest')?('বাকি '+bnTime(restLeft)):bnTime(playedSec);}
+function shareTick(){if(view==='live')try{renderLive();}catch(e){}
+  if(!SHARE){return;}
   renderShareBar();
-  if(Date.now()>=SHARE.endAt&&!String(SHARE.phase).endsWith('p')){const key=SHARE.phase+':'+SHARE.endAt;
+  const trig=(SHARE.phase==='rest')?(SHARE.restEnd||SHARE.endAt):SHARE.endAt;
+  if(trig&&Date.now()>=trig&&!String(SHARE.phase).endsWith('w')){const key=SHARE.phase+':'+trig;
     if(!SHARE_ANN[key]){SHARE_ANN[key]=1;shareNext();}}}
-function shareNext(){const T={half:SHARE.half||20,rest:SHARE.rest||10};const over=Date.now()-SHARE.endAt;const fresh=over<90000;
-  if(SHARE.phase==='h1'){SHARE.phase='rest';SHARE.endAt=Date.now()+T.rest*60000;
-    if(fresh)timerAnnounce('বিরতির সময় হয়েছে, সবাই রেস্ট নিন!','☕','rest');else toast('লাইভ খেলা: বিরতি চলছে ☕');renderShareBar();}
-  else if(SHARE.phase==='rest'){const back=SHARE.restBack==='h1'?'h1':'h2';
-    SHARE.phase=back;SHARE.endAt=Date.now()+(annDur('start')+0.6)*1000+(back==='h1'?Math.max(1000,SHARE.restPaused||T.half*60000):T.half*60000);
-    if(fresh)timerAnnounce('বিরতি শেষ — মাঠে ফিরে খেলা শুরু করুন!','🏅','start');else toast('লাইভ খেলা: খেলা আবার চলছে 🏅');renderShareBar();}
-  else if(SHARE.phase==='h2'){SHARE.phase='done';
-    if(fresh)timerAnnounce('খেলা শেষ!','🏁','end');else toast('লাইভ খেলা শেষ 🏁');
-    SHARE=null;renderShareBar();}}
+function shareNext(){const T={total:SHARE.total||timerCfg().total,rest:SHARE.breakLen!==undefined?SHARE.breakLen:10};
+  const over=(SHARE.phase==='play')?(Date.now()-(SHARE.endAt||0)):(SHARE.phase==='rest')?(Date.now()-(SHARE.restEnd||0)):0;const fresh=over<90000;
+  if(SHARE.phase==='play'){
+    if(SHARE.restEnd){SHARE.phase='rest';
+      if(fresh)timerAnnounce('বিরতির সময় হয়েছে, সবাই রেস্ট নিন!','☕','rest');else toast('লাইভ খেলা: বিরতি চলছে ☕');}
+    else{SHARE.phase='done';
+      if(fresh)timerAnnounce('খেলা শেষ!','🏁','end');else toast('লাইভ খেলা শেষ 🏁');
+      SHARE=null;renderShareBar();return;}}
+  else if(SHARE.phase==='rest'){SHARE.phase='play';SHARE.endAt=Date.now()+(annDur('start')+0.6)*1000+Math.max(1000,SHARE.playLeftMs||T.total*60000);
+    if(fresh)timerAnnounce('বিরতি শেষ — মাঠে ফিরে খেলা শুরু করুন!','🏅','start');else toast('লাইভ খেলা: খেলা আবার চলছে 🏅');}
+  renderShareBar();}
 setInterval(liveSync,10000);
 setInterval(shareTick,1000);
 function totals(){const inc=store.income.reduce((s,x)=>s+(+x.amount||0),0);const exp=store.expenses.reduce((s,x)=>s+(+x.amount||0),0);return{inc:inc,exp:exp,bal:inc-exp};}
@@ -757,7 +1071,8 @@ function totals(){const inc=store.income.reduce((s,x)=>s+(+x.amount||0),0);const
 /* ================= toast / modal / confirm ================= */
 function toast(msg,type){const t=document.createElement('div');t.className='tmsg '+(type||'ok');t.textContent=msg;$('#toast').appendChild(t);setTimeout(()=>t.remove(),2800);}
 let confirmCb=null;
-function openModal(html){$('#modal-root').innerHTML='<div class="mback" onclick="if(event.target===this)closeModal()"><div class="modal">'+html+'</div></div>';}
+function openModal(html){$('#modal-root').innerHTML='<div class="mback" onclick="if(event.target===this)closeModal()"><div class="modal">'+html+'</div></div>';
+  try{if(window.__navReady)history.pushState({modal:1},'');}catch(e){}}  /* ব্যাকে চাপলে আগে মোডাল বন্ধ হবে */
 function closeModal(){$('#modal-root').innerHTML='';confirmCb=null;}
 function confirmBox(msg,cb){confirmCb=cb;
   openModal('<div class="mhandle"></div><h3 class="mttl">🤔 নিশ্চিত?</h3><p class="mtxt">'+esc(msg)+'</p><div class="mbtns"><button class="btn ghost" onclick="closeModal()">না, থাক</button><button class="btn red" onclick="confirmYes()">হ্যাঁ, করুন</button></div>');}
@@ -787,26 +1102,37 @@ function pickLogo(inp){const f=inp.files&&inp.files[0];if(!f)return;
 function togChk(el){el.classList.toggle('on');const c=el.querySelector('input');if(c)c.checked=!c.checked;}
 
 /* ================= router ================= */
-function navActive(){if(view==='tournamentDetail')return 'tournaments';if(view==='home'||view==='members'||view==='ledger'||view==='timer'||view==='tournaments'||view==='notices')return view;return '';}
+function navActive(){if(view==='tournamentDetail'||view==='live')return 'tournaments';if(view==='home'||view==='members'||view==='ledger'||view==='timer'||view==='tournaments'||view==='notices')return view;return '';}
 function render(){
   document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on',b.dataset.v===navActive()));
   const v=$('#view');let h='';
+  try{
   if(view==='home')h=vHome();
   else if(view==='members')h=vMembers();
   else if(view==='ledger')h=vLedger();
   else if(view==='timer')h=vTimer();
   else if(view==='tournaments')h=vTournaments();
   else if(view==='tournamentDetail')h=vTournamentDetail();
+  else if(view==='live')h=vLive();
   else if(view==='notices')h=vNotices();
   else if(view==='activity')h=vActivity();
   else if(view==='admin')h=vAdmin();
   else if(view==='guide')h=vGuide();
-  else h=vHome();
-  v.innerHTML=h;window.scrollTo(0,0);postRender();}
+  else h=vHome();}
+  catch(e){console.error('view error ['+view+']:',e);h='<div class="card empty"><span class="e">⚠️</span>পেজটি আঁকতে একটু গোলমাল হয়েছে — আবার চাপুন।<br><button class="btn pri sm" style="margin-top:10px" onclick="render()">🔄 আবার দেখুন</button></div>';}
+  v.innerHTML=h;postRender();if(window.__rf){const el=document.getElementById(window.__rf);if(el&&document.activeElement!==el){try{el.scrollIntoView({block:'center'});}catch(e){}el.focus();try{el.setSelectionRange(el.value.length,el.value.length);}catch(e){}}if(el&&document.activeElement===el)window.__rf=null;}}
+window.addEventListener('error',function(e){try{console.error('app error:',e.message);}catch(x){}});
 function go(v,arg){view=v;
   if(v==='tournamentDetail'){currentT=arg;}
   else{currentT=null;currentTT='match';}
-  render();}
+  window.scrollTo(0,0);render();
+  /* v6.0: ফোনের ব্যাক-বোতাম = অ্যাপ থেকে বের না হয়ে হোমে/পেছনে */
+  try{if(window.__navReady)history.pushState({v:view},'');}catch(e){}}
+window.addEventListener('popstate',function(){
+  const mr=document.getElementById('modal-root');
+  if(mr&&mr.innerHTML.trim()){try{closeModal();}catch(e){}return;}
+  if(typeof view!=='undefined'&&view&&view!=='home'){view='home';currentT=null;try{render();}catch(e){}}});
+setTimeout(function(){window.__navReady=true;},0);
 function renderHeader(){const s=store.settings;
   $('#hname').textContent=s.clubName;$('#hvil').textContent=s.village+' গ্রাম';
   $('#hlogo').innerHTML=s.logo?'<img src="'+s.logo+'">':(typeof ASSETS!=='undefined'&&ASSETS.logo?'<img src="'+ASSETS.logo+'">':'⚽');
@@ -819,6 +1145,7 @@ function renderHeader(){const s=store.settings;
 function boot(){store=load();if(!store)store=freshStore();
   if(!store.settings)store.settings=freshStore().settings;
   ['admins','players','income','expenses','tournaments','notices','log','notifications'].forEach(k=>{if(!Array.isArray(store[k]))store[k]=[];});
+  store.tournaments.forEach(function(t){if(!Array.isArray(t.matches))t.matches=[];if(!Array.isArray(t.teams))t.teams=[];if(!t.type)t.type='league';if(!t.status)t.status='চলছে';});
   if(!Array.isArray(store.coAdmins))store.coAdmins=[];
   if(store.settings.soundOn===undefined)store.settings.soundOn=true;
   if(!Array.isArray(store.settings.incCats)||!store.settings.incCats.length)store.settings.incCats=DEFAULT_INC_CATS.slice();
@@ -830,11 +1157,13 @@ function boot(){store=load();if(!store)store=freshStore();
   /* টাইমার বন্ধ হলেও (স্ক্রিন অফ / অ্যাপ বন্ধ) ঘড়ি দেওয়াল-ঘড়ি অনুযায়ী চলতে থাকে — খুললেই ঠিক সময় দেখা যাবে */
   const tl=store.timerLive;
   let tlP=tl&&tl.phase?tl.phase:null;
-  if(tlP==='restw'||tlP==='startw'){tlP='rest';/* ঘোষণার মাঝে বন্ধ হলে বিরতি-কাউন্টডাউন থেকে চলবে */}
-  if(tl&&(tlP==='h1'||tlP==='rest'||tlP==='h2')){
-    TMR={phase:tlP,endAt:tl.endAt||0,pausedLeft:tl.pausedLeft||0,restPaused:tl.restPaused||0,restBack:tl.restBack||'h2',matchId:tl.matchId||'',tourId:tl.tourId||'',iv:null};
-    if(TMR.phase==='rest'&&(!TMR.endAt||TMR.endAt<Date.now()))TMR.endAt=Date.now()+60000;
-    TMR.iv=setInterval(timerTick,500);}
+  if(tlP==='restw'||tlP==='startw')tlP='rest';
+  if(tlP==='h1'||tlP==='h2')tlP='play';/* v4-মডেল → v5 মোট-সময় মাইগ্রেশন */
+  if(tl&&(tlP==='play'||tlP==='pause'||tlP==='rest')){
+    TMR={phase:tlP,endAt:tl.endAt||0,pausedLeft:tl.pausedLeft||0,restEnd:tl.restEnd||0,restLeftPaused:0,breakTaken:!!tl.breakTaken,matchId:tl.matchId||'',tourId:tl.tourId||'',iv:null};
+    if(TMR.phase==='rest'&&(!TMR.restEnd||TMR.restEnd<Date.now())){TMR.phase='play';TMR.endAt=Date.now()+Math.max(1000,TMR.pausedLeft||timerCfg().total*60000);}
+    if(TMR.phase==='play'&&(!TMR.endAt||TMR.endAt<Date.now()))TMR.phase='done';
+    if(TMR.phase==='play'||TMR.phase==='rest')TMR.iv=setInterval(timerTick,500);}
   storageSelfTest();
   /* আগে IDB-থেকে-গ্রহণ, তারপর ক্লাউড-সিঙ্ক — রেস নেই */
   bootStoreMerge().catch(function(){}).then(function(){try{syncPull();}catch(e){}});
@@ -848,7 +1177,7 @@ function boot(){store=load();if(!store)store=freshStore();
 
 /* ================= v2: কাউন্টডাউন • ব্যানার • ফেস-অফ • কাউন্ট-আপ ================= */
 function matchTs(m){if(!m||!m.date)return 0;const v=new Date(m.date+'T'+(m.time||'16:00')).getTime();return isNaN(v)?0:v;}
-function nextMatch(t){const now=Date.now();const undone=t.matches.filter(m=>!m.done);
+function nextMatch(t){const now=Date.now();const lm=(typeof liveMatchId==='function')?liveMatchId():'';const undone=((t.matches||[])).filter(m=>!m.done&&m.id!==lm);
   const fut=undone.filter(m=>matchTs(m)>now).sort((a,b)=>matchTs(a)-matchTs(b));
   if(fut.length)return fut[0];
   const undated=undone.filter(m=>!matchTs(m));
@@ -889,16 +1218,22 @@ function faceoffCard(t,m){if(!t||!m)return '';
     ${ts?cdBoxes(ts)+'<div class="cdtitle">খেলা শুরুর অপেক্ষায় — '+fdate(m.date)+(m.time?' • '+bnNum(m.time):'')+(m.ref?' • 🧑‍⚖️ '+esc(m.ref):'')+'</div>'
         :'<div class="fo-meta">⏰ খেলার সময় ঘোষণা হয়নি'+(m.ref?' • 🧑‍⚖️ '+esc(m.ref):'')+'</div>'}
   </div>`;}
+/* v5.2: ব্যানার অটো-স্লাইড বন্ধ — শুধু হাতে সোয়াইপ/ডট-চাপ */
 let bTimer=null,bIdx=0,bN=0;
 function bSlide(i){bIdx=i;const tr=document.getElementById('btrack');if(!tr)return;
   tr.style.transform='translateX(-'+(i*100)+'%)';
   document.querySelectorAll('.bdot').forEach((d,j)=>d.classList.toggle('on',j===i));}
-function bAuto(){if(bTimer)clearInterval(bTimer);
-  bTimer=setInterval(function(){if(!document.getElementById('btrack')){clearInterval(bTimer);bTimer=null;return;}
-    bIdx=(bIdx+1)%bN;bSlide(bIdx);},4200);}
-function bMan(i){bSlide(i);bAuto();}
-function initBanner(){bN=(document.querySelectorAll('#btrack .bslide')||[]).length;
-  if(bN){bSlide(0);bAuto();}else{if(bTimer){clearInterval(bTimer);bTimer=null;}}}
+function bMan(i){bSlide(i);}
+function initBanner(){const tr=document.getElementById('btrack');
+  bN=(document.querySelectorAll('#btrack .bslide')||[]).length;
+  if(bTimer){clearInterval(bTimer);bTimer=null;}
+  if(bN&&tr){bSlide(0);
+    let x0=null,y0=null;
+    tr.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+    tr.addEventListener('touchend',function(e){if(x0===null)return;
+      const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;
+      if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)){bSlide((bIdx+(dx<0?1:bN-1))%bN);}
+      x0=null;y0=null;},{passive:true});}}
 function countUp(){document.querySelectorAll('[data-cnt]').forEach(function(el){
   const target=+el.dataset.cnt;if(isNaN(target)){return;}
   const t0=performance.now(),dur=800;
@@ -945,10 +1280,10 @@ function nCard(n){const cls=n.pri==='জরুরি'?'urg':n.pri==='গুর�
   ${canAdmin('notices')?`<span style="flex:1"></span><button class="ibtn" onclick="noticeForm('${n.id}')">✏️</button><button class="ibtn" onclick="noticeDel('${n.id}')">🗑️</button>`:''}</div></div>`;}
 function sportImg(sp){return (typeof ASSETS!=='undefined'&&ASSETS[sp])?ASSETS[sp]:'';}
 function bannerSlides(){const s=[];const act=store.tournaments.filter(x=>x.status==='চলছে');
-  if(act.length){const tn=act[0];const done=tn.matches.filter(m=>m.done).length;
+  if(act.length){const tn=act[0];const done=(tn.matches||[]).filter(m=>m.done).length;
     const nm=nextMatch(tn);const a=nm?tn.teams.find(x=>x.id===nm.teamA):null;const b=nm?tn.teams.find(x=>x.id===nm.teamB):null;
     const sub=nm?('পরের ম্যাচ: '+(a?a.name:'—')+' vs '+(b?b.name:'—')+(nm.date?' • '+fdate(nm.date):''))
-      :('দল '+bnNum(tn.teams.length)+'টি • ম্যাচ সম্পন্ন '+bnNum(done)+'/'+bnNum(tn.matches.length));
+      :('দল '+bnNum((tn.teams||[]).length)+'টি • ম্যাচ সম্পন্ন '+bnNum(done)+'/'+bnNum((tn.matches||[]).length));
     s.push(`<div class="bslide bg2" onclick="go('tournamentDetail','${tn.id}')" style="cursor:pointer"><div class="bimg" style="background-image:url('${sportImg(tn.sport)}')"></div><div class="bov"></div>
       <span class="bchip">🔴 টুর্নামেন্ট চলছে</span><div class="bt">${esc(tn.name)}</div>
       <div class="bs">${sub} — বিস্তারিত দেখতে চাপ দিন!</div></div>`);}
@@ -966,12 +1301,18 @@ function vActivity(){if(!isAdmin())return '<div class="card empty"><span class="
   return `<button class="btn ghost sm" onclick="go('home')">‹ হোম</button>
   <div class="shead" style="margin-top:8px"><h3>🕘 ক্লাবের কার্যক্রম — সবার সামনে খোলা</h3></div>
   <div class="card" style="background:#f0fdf4;border-color:#bbf7d0"><div class="mtxt">কখন কী যোগ হলো, কী বদলালো, কী মুছে গেল — প্রতিটি কাজ এখানে সময় ও নামসহ জমা থাকে। হিসাব নিয়ে কোনো প্রশ্ন থাকলে এখানেই মিলিয়ে নিন — <b>এটাই আমাদের স্বচ্ছতার নিশ্চয়তা।</b></div></div>
+  <div class="shead"><h3>${ic('timer')} ইতিহাস-ব্যবস্থাপনা</h3>${isAdmin()&&logs.length?`<button class="lnk" onclick="logClear()" style="color:#ef4444">${ic('trash')} সব-মুছুন</button>`:''}</div>
   ${logs.length?`<div class="card">${logs.map(l=>`<div class="arow"><span class="aic">${actIcon(l.txt)}</span>
-    <div class="atx">${esc(l.txt)}<div class="atm">✍️ ${esc(l.by||'—')} • ${ftime(l.t)}</div></div></div>`).join('')}</div>`
+    <div class="atx">${esc(l.txt)}<div class="atm">✍️ ${esc(l.by||'—')} • ${ftime(l.t)}</div></div>
+    ${isAdmin()?`<button class="icbtn" onclick="logDel(${l.t})" title="মুছে ফেলুন">${ic('trash')}</button>`:''}</div>`).join('')}</div>`
   :`<div class="card empty"><span class="e">🕘</span>এখনো কোনো কাজের ইতিহাস নেই</div>`}`}
-function schedHTML(){const list=[];
-  store.tournaments.forEach(function(tn){tn.matches.forEach(function(m){
-    if(!m.done&&matchTs(m)>Date.now())list.push({t:tn,m:m,ts:matchTs(m)});});});
+function logDel(t){if(!isAdmin())return;const n=store.log.length;store.log=store.log.filter(x=>x.t!==t);
+  if(store.log.length<n){save();render();toast('কার্যক্রম-এন্ট্রি মুছে ফেলা হয়েছে');}}
+function logClear(){if(!isAdmin())return;
+  confirmBox('সব কার্যক্রম-ইতিহাস (সর্বোচ্চ ১৫০টি) মুছে যাবে — এটা ফেরানো যাবে না। মুছবেন?',function(){store.log=[];save();render();toast('ইতিহাস পরিষ্কার হয়েছে');});}
+function schedHTML(){const list=[];const lm=(typeof liveMatchId==='function')?liveMatchId():'';
+  store.tournaments.forEach(function(tn){(tn.matches||[]).forEach(function(m){
+    if(!m.done&&m.id!==lm&&matchTs(m)>Date.now())list.push({t:tn,m:m,ts:matchTs(m)});});});
   list.sort(function(a,b){return a.ts-b.ts;});
   const top=list.slice(0,3);
   if(!top.length)return '';
@@ -988,12 +1329,12 @@ function vHome(){const t=totals();
   const tx=[...store.income.map(x=>Object.assign({},x,{kind:'in'})),...store.expenses.map(x=>Object.assign({},x,{kind:'out'}))]
     .sort((a,b)=>((b.date)+(b.createdAt||'')).localeCompare((a.date)+(a.createdAt||''))).slice(0,4);
   const actCard=act.length?(()=>{
-    const tn=act[0];const done=tn.matches.filter(m=>m.done).length;
+    const tn=act[0];const done=(tn.matches||[]).filter(m=>m.done).length;
     return `<div class="tcard" onclick="go('tournamentDetail','${tn.id}')" style="cursor:pointer">
       <div style="display:flex;align-items:center;gap:10px">
         <div class="temoji">${SPORTS[tn.sport]?SPORTS[tn.sport].e:'🏅'}</div>
         <div style="flex:1;min-width:0"><div class="tnm">${esc(tn.name)}</div>
-        <div class="tsub">ম্যাচ সম্পন্ন: ${bnNum(done)}/${bnNum(tn.matches.length)} • দল ${bnNum(tn.teams.length)}টি</div></div>
+        <div class="tsub">ম্যাচ সম্পন্ন: ${bnNum(done)}/${bnNum((tn.matches||[]).length)} • দল ${bnNum((tn.teams||[]).length)}টি</div></div>
         <span class="stchip live">🔴 চলছে</span></div></div>`;})()
     :`<div class="card" style="display:flex;gap:10px;align-items:center"><span style="font-size:1.6rem">🏆</span><span class="mtxt">এখন কোনো টুর্নামেন্ট চলছে না। পরবর্তী ঘোষণার জন্য নোটিশ বোর্ড দেখুন।</span></div>`;
   let foHtml='';let foT=null;
@@ -1015,6 +1356,8 @@ function vHome(){const t=totals();
   ${slides.length?`<div class="banner"><div class="btrack" id="btrack">${slides.join('')}</div>
     <div class="bdots">${slides.map((s,i)=>`<button class="bdot ${i===0?'on':''}" onclick="bMan(${i})" aria-label="ব্যানার ${bnNum(i+1)}"></button>`).join('')}</div>
   </div>`:''}
+  <div class="shead"><h3>${ic('zap')} এক চাপে কাজ</h3></div>
+  <div class="qgrid">${(isAdmin()?[["incomeForm()","wallet","আয় যোগ","মাঠ ফি / চাঁদা"],["expenseForm()","zap","ব্যয় যোগ","ভাড়া / বিল"],["playerForm()","users","সদস্য যোগ","ছবি + নম্বর"],["noticeForm()","megaphone","নোটিশ","সবার ফোনে"],["tForm()","trophy","টুর্নামেন্ট","নতুন ঘোষণা"],["openGuide()","help","সহায়িকা","সব উত্তর"]]:[["go('live')","broadcast","লাইভ খেলা","ঘড়ি + স্কোর"],["go('members')","users","সদস্য","গ্যালারি"],["go('tournaments')","trophy","টুর্নামেন্ট","ব্র্যাকেট"],["go('notices')","megaphone","নোটিশ","ঘোষণা"],["go('timer')","timer","টাইমার","ম্যাচ-ঘড়ি"],["go('ledger')","wallet","হিসাব","স্বচ্ছ খাতা"]]).map(function(q,i){return `<div class="qtile" style="animation-delay:${i*70}ms" onclick="${q[0]}"><span class="qe">${ic(q[1])}</span><b>${q[2]}</b><span class="qs">${q[3]}</span></div>`;}).join('')}</div>
   ${foHtml?`<div class="shead"><h3>⚔️ পরের ম্যাচ — কে কার সাথে?</h3><button class="lnk" onclick="go('tournaments')">বিস্তারিত ›</button></div>${foHtml}`:''}
   ${schedHTML()}
   <div class="shead"><h3>🏆 ${act.length?'চলমান টুর্নামেন্ট':'টুর্নামেন্ট'}</h3><button class="lnk" onclick="go('tournaments')">সব দেখুন ›</button></div>
@@ -1108,7 +1451,7 @@ function playerDel(id){const p=store.players.find(x=>x.id===id);if(!p)return;
 function setLedTab(k){ledTab=k;render();}
 let ledQ='',ledMem='';
 function setLedMem(id){ledMem=id;render();}
-function setLedQ(v){ledQ=v;render();}
+function setLedQ(v){ledQ=v;window.__rf='ledq';render();}  /* v6.1: রি-রেন্ডারের পরেও ইনপুট-ফোকাস+ক্যারেট অক্ষত — অক্ষর-মুছে-যাওয়া বন্ধ */
 function vMemFilter(){const q=ledQ.trim().toLowerCase();
   const hits=store.players.filter(function(pp){return !q||pp.name.toLowerCase().indexOf(q)>-1;});
   return `<div class="card" style="padding:10px 12px">
@@ -1244,16 +1587,16 @@ function expenseDel(id){const e=store.expenses.find(x=>x.id===id);if(!e)return;
 function tName(t,id){const tm=t.teams.find(x=>x.id===id);return tm?tm.name:'—';}
 function vTournaments(){const ts=[...store.tournaments].sort((a,b)=>(b.created||0)-(a.created||0));
   return `<div class="shead"><h3>🏆 টুর্নামেন্ট</h3>${canAdmin('tournaments')?`<button class="btn pri sm" onclick="tForm()">+ নতুন</button>`:''}</div>
-  ${ts.length?ts.map(function(t){const done=t.matches.filter(m=>m.done).length;
+  ${ts.length?ts.map(function(t){const done=(t.matches||[]).filter(m=>m.done).length;
     return `<div class="tcard" onclick="go('tournamentDetail','${t.id}')" style="cursor:pointer">
       <div style="display:flex;align-items:center;gap:10px">
         <div class="temoji">${SPORTS[t.sport]?SPORTS[t.sport].e:'🏅'}</div>
         <div style="flex:1;min-width:0"><div class="tnm">${esc(t.name)}</div>
-        <div class="tsub">${SPORTS[t.sport]?SPORTS[t.sport].n:'—'} • ${t.type==='league'?'লিগ':'নকআউট'} • দল ${bnNum(t.teams.length)}টি</div></div>
+        <div class="tsub">${SPORTS[t.sport]?SPORTS[t.sport].n:'—'} • ${t.type==='league'?'লিগ':'নকআউট'} • দল ${bnNum((t.teams||[]).length)}টি</div></div>
         <span class="stchip ${t.status==='চলছে'?'live':''}">${t.status==='চলছে'?'🔴 চলছে':'✅ সম্পন্ন'}</span></div>
       ${t.champion?`<div class="champline">🏆 চ্যাম্পিয়ন: <b>${esc(tName(t,t.champion))}</b></div>`:''}
-      <div class="bar" style="margin-top:10px"><i style="width:${t.matches.length?done/t.matches.length*100:0}%"></i></div>
-      <div class="tsub" style="margin-top:4px">ম্যাচ সম্পন্ন: ${bnNum(done)}/${bnNum(t.matches.length)}</div>
+      <div class="bar" style="margin-top:10px"><i style="width:${(t.matches||[]).length?done/(t.matches||[]).length*100:0}%"></i></div>
+      <div class="tsub" style="margin-top:4px">ম্যাচ সম্পন্ন: ${bnNum(done)}/${bnNum((t.matches||[]).length)}</div>
     </div>`;}).join('')
   :`<div class="card empty"><span class="e">🏆</span>কোনো টুর্নামেন্ট নেই।${canAdmin('tournaments')?'<br><button class="btn pri" style="margin-top:12px" onclick="tForm()">প্রথম টুর্নামেন্ট তৈরি করুন</button>':'<br>অ্যাডমিনরা শীঘ্রই ঘোষণা করবেন।'}</div>`}
   <div class="card" style="background:#f0fdf4;border-color:#bbf7d0"><div class="mtxt">💡 <b>কীভাবে টুর্নামেন্ট চালাবেন?</b> মাত্র ৪ ধাপ: ১) "+ নতুন" থেকে খেলা ও ধরন বাছুন → ২) "+ দল যোগ"-এ প্রতি দলের একটা ছবি দিন (নাম না দিলেও চলবে) → ৩) "⚡ অটো ম্যাচ" চাপুন — সব ম্যাচ নিজে থেকেই সাজানো হবে → ৪) খেলা শেষে ম্যাচের পাশে <b>🎯 ফলাফল</b>-এ বিজয়ীতে চাপ দিন — পয়েন্ট, সেমি/ফাইনাল, চ্যাম্পিয়ন <b>সব অটো!</b> বিস্তারিত: হেডারের ❓ সহায়িকা।</div></div>`;}
@@ -1279,8 +1622,7 @@ function tSave(id){const name=$('#tf-name').value.trim()||((SPORTS[window._tfSpo
   if(id){Object.assign(store.tournaments.find(x=>x.id===id),data);logAct('টুর্নামেন্ট সম্পাদনা: '+name);save();closeModal();render();toast('সংরক্ষিত ✅');}
   else{const t=Object.assign({id:uid(),created:Date.now(),status:'চলছে',teams:[],matches:[],champion:''},data);
     store.tournaments.push(t);logAct('নতুন টুর্নামেন্ট তৈরি: '+name);
-    notify('🏆 নতুন টুর্নামেন্ট ঘোষণা',name+' — খেলা শুরু হতে যাচ্ছে, সবাই প্রস্তুত হোন!','info');
-    save();closeModal();go('tournamentDetail',t.id);toast('টুর্নামেন্ট তৈরি হয়েছে 🏆 এখন দল যোগ করুন');}}
+    notify('🏆 টুর্নামেন্ট শুরু হচ্ছে',name+' — খেলা শুরু হতে যাচ্ছে, সবাই প্রস্তুত হোন!','tourlive');    save();closeModal();go('tournamentDetail',t.id);toast('টুর্নামেন্ট তৈরি হয়েছে 🏆 এখন দল যোগ করুন');}}
 function tDel(id){confirmBox('টুর্নামেন্টটি তার সব ম্যাচসহ সম্পূর্ণ মুছে যাবে। নিশ্চিত?',function(){
     const t=store.tournaments.find(x=>x.id===id);
     store.tournaments=store.tournaments.filter(x=>x.id!==id);
@@ -1307,8 +1649,8 @@ function vTournamentDetail(){const t=store.tournaments.find(x=>x.id===currentT);
       <button class="btn gold sm" onclick="autoFixtures('${t.id}')">⚡ অটো ম্যাচ</button>
       <button class="btn pri sm" onclick="matchForm('${t.id}')">+ ম্যাচ</button>
       ${!t.champion&&t.type==='league'&&t.teams.length>=2?`<button class="btn gold sm" onclick="championForm('${t.id}')">🏆 চ্যাম্পিয়ন</button>`:''}
-      <button class="btn ghost sm" onclick="tForm('${t.id}')">✏️</button>
-      <button class="btn red sm" onclick="tDel('${t.id}')">🗑</button>
+      <button class="btn ghost sm" onclick="tForm('${t.id}')">${ic('edit')}</button>
+      <button class="btn red sm" onclick="tDel('${t.id}')">${ic('trash')}</button>
     </div>`:''}
   </div>
   <div class="flabel">👇 দেখুন:</div>
@@ -1317,52 +1659,101 @@ function vTournamentDetail(){const t=store.tournaments.find(x=>x.id===currentT);
     ${t.type==='league'?`<button class="${currentTT==='point'?'on':''}" onclick="setTT('point')">📊 পয়েন্ট তালিকা</button>`:''}
     <button class="${currentTT==='team'?'on':''}" onclick="setTT('team')">👥 দল</button>
   </div>
-  <div style="margin-top:10px"><button class="btn dark blk" onclick="openTimer('${t.id}')">⏱️ লাইভ ম্যাচ টাইমার${(store.timerLive&&(store.timerLive.phase==='h1'||store.timerLive.phase==='rest'||store.timerLive.phase==='h2'))?' (চলছে…)':''}</button>
-  <div class="tsub" style="margin-top:4px">সবাই চালাতে পারবেন • স্ক্রিন অফ হলেও ঘড়ি চলতে থাকে • গোল দিলে নাম+মিনিট লিখে রাখা যায়</div></div>
-  ${currentTT==='match'&&t.matches.length?goalTicker(t):''}${body}`;}
-function goalChips(t,m,limit){const evs=(m.events||[]).slice(-(limit||6));if(!evs.length)return '';
-  return `<div class="gchips">${evs.map(function(e,i){
-    const tm=t.teams.find(x=>x.id===(e.team==='B'?m.teamB:m.teamA));
-    return `<span class="gchip" style="animation-delay:${(i*0.1).toFixed(2)}s">${e.team==='B'?'🔵':'🔴'} ⚽ ${esc(e.name)} <b>${bnNum(e.min)}&prime;</b></span>`;}).join('')}</div>`;}
-function lastGoalBanner(t,m){const evs=m.events||[];if(!evs.length||!m.done)return '';const e=evs[evs.length-1];
-  const tm=t.teams.find(x=>x.id===(e.team==='B'?m.teamB:m.teamA));
-  return `<div class="lastgoal"><span class="lge">⚽</span><div style="min-width:0"><div style="font-weight:800">সর্বশেষ গোল: ${esc(e.name)} — ${bnNum(e.min)} মিনিটে!</div><div class="lgm">${esc(tm?tm.name:'')} • ${esc(m.round)} • লিখেছেন ${esc(e.by||'—')}</div></div></div>`;}
+  <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn red blk" onclick="go('live')">🔴 লাইভ ম্যাচ পেজ</button><button class="btn dark blk" onclick="openTimer('${t.id}')">⏱️ টাইমার${((typeof liveInfo==='function')&&liveInfo())?' (চলছে…)':''}</button>
+  </div>
+  <div class="tsub" style="margin-top:4px">লাইভ পেজে সবাই দেখবে: দল, স্কোর, ঘড়ি, গোলের তালিকা • ঘড়ি চলা অবস্থায় খুললেই চলমান অবস্থা দেখা যায়</div></div>
+  ${currentTT==='match'&&(t.matches||[]).length?goalTicker(t):''}${body}`;}
+const TEAM_PAL=['#16a34a','#2563eb','#dc2626','#d97706','#7c3aed','#0891b2','#db2777','#65a30d'];
+function teamColor(t,id){try{const k=String(t.id||'')+'|'+String(id||'');let h=0;for(let i=0;i<k.length;i++)h=(h*31+k.charCodeAt(i))|0;return TEAM_PAL[Math.abs(h)%TEAM_PAL.length];}catch(e){return '#64748b';}}
+/* গোল-টাইমলাইন v5.1: মাঝ-বরাবর সময়-মেরু, টিম এ ডানে, টিম বি বামে, স্লাইড-অ্যানিমেশন; প্রতিটি গোল আলাদা রেকর্ড (মিনিট:সেকেন্ড) */
+function goalTimeline(t,evs,nameA,nameB,colA,colB,admin,mid){const E=(evs&&evs.slice?evs.slice():[]).sort(function(a,b){return a.min-b.min||(a.sec||0)-(b.sec||0)||(a.at||0)-(b.at||0);});
+  if(!E.length)return '';
+  return `<div class="gspine gspine6">${E.map(function(e,i){
+    /* v6.1: এক-কালাম গোল-কার্ড — নামের পেছনে টিম-রঙের ব্যাকগ্রাউন্ড + গ্লো-অ্যানিমেশন, ব্র্যাকেট/পাশ-কার্ড নেই */
+    const right=(e.team!=='B');const when=bnDigits(e.min||0)+':'+('০'+bnDigits(e.sec||0)).slice(-2);
+    const tint=right?colA:colB;
+    const who=`<div class="gcard6 ${right?'ga':'gb'}" style="--tint:${tint}"><span class="gnum6">${bnNum(i+1)}</span><div class="gwho6"><b>${esc(e.name)}</b><span class="gsub">${esc(right?nameA:nameB)}</span></div><span class="gtime6">${when}&prime;</span>${admin&&mid?`<span class="gedit"><button class="ibtn" title="সংশোধন" onclick="goalEdit('${t.id}','${mid}','${e.id}')">${ic('edit')}</button><button class="ibtn" title="মুছুন" onclick="goalDel('${t.id}','${mid}','${e.id}')">${ic('trash')}</button></span>`:''}</div>`;
+    return `<div class="grow6" style="animation-delay:${Math.min(i*0.08,0.5).toFixed(2)}s">${who}</div>`;}).join('')}</div>`;}
+function goalList(t,m,admin){const evs=(m&&m.events)?m.events:[];
+  if(!evs.length)return '';
+  const mA=(t&&m&&t.teams)?t.teams.find(x=>x.id===m.teamA):null;
+  const mB=(t&&m&&t.teams)?t.teams.find(x=>x.id===m.teamB):null;
+  const nameA=mA?mA.name:((t&&m)?tName(t,m.teamA):'টিম এ');
+  const nameB=mB?mB.name:((t&&m)?tName(t,m.teamB):'টিম বি');
+  const colA=mA?teamColor(t,mA.id):'#64748b',colB=mB?teamColor(t,mB.id):'#64748b';
+  return goalTimeline(t,evs,nameA,nameB,colA,colB,admin,m&&m.id);}
+function goalDel(tId,mId,eid){const t=store.tournaments.find(x=>x.id===tId);const m=t&&t.matches.find(x=>x.id===mId);
+  const ev=m&&m.events?m.events.find(x=>x.id===eid):null;if(!ev)return;
+  confirmBox(esc(ev.name)+'-এর '+bnNum(ev.min)+(ev.sec?':'+bnDigits(ev.sec):'')+' মিনিটের গোলটি মুছে ফেলবেন? (বাকি গোলগুলো অক্ষত থাকবে)',function(){
+    m.events=m.events.filter(x=>x.id!==eid);logAct('গোল মুছে ফেলা: '+ev.name+' ('+bnNum(ev.min)+' মিনিটে)');
+    save();render();timerRender();toast('গোল মুছে ফেলা হয়েছে');});}
+function goalEdit(tId,mId,eid){const t=store.tournaments.find(x=>x.id===tId);const m=t&&t.matches.find(x=>x.id===mId);
+  const ev=m&&m.events?m.events.find(x=>x.id===eid):null;if(!ev)return;
+  openModal(`<div class="mhandle"></div><h3 class="mttl">✏️ গোল সংশোধন</h3>
+  <div class="fgrp"><label>খেলোয়াড়ের নাম</label><input id="ge-name" value="${esc(ev.name)}"></div>
+  <div class="frow"><div class="fgrp"><label>মিনিট : সেকেন্ড</label><div style="display:flex;gap:6px"><input id="ge-min" type="number" min="0" max="300" value="${ev.min}" style="min-width:0"><input id="ge-sec" type="number" min="0" max="59" value="${ev.sec||0}" style="min-width:0"></div></div>
+  <div class="fgrp"><label>দল</label><select id="ge-team"><option value="A" ${ev.team!=='B'?'selected':''}>${esc(tName(t,m.teamA))}</option><option value="B" ${ev.team==='B'?'selected':''}>${esc(tName(t,m.teamB))}</option></select></div></div>
+  <div class="mbtns"><button class="btn ghost" onclick="closeModal()">বাতিল</button><button class="btn pri" onclick="goalEditSave('${tId}','${mId}','${eid}')">সংরক্ষণ</button></div>`);}
+function goalEditSave(tId,mId,eid){const t=store.tournaments.find(x=>x.id===tId);const m=t&&t.matches.find(x=>x.id===mId);
+  const ev=m&&m.events?m.events.find(x=>x.id===eid):null;if(!ev)return;
+  ev.name=$('#ge-name').value.trim()||ev.name;
+  ev.min=Math.max(1,Math.min(300,parseInt($('#ge-min').value,10)||ev.min));
+  ev.sec=Math.max(0,Math.min(59,parseInt($('#ge-sec').value,10)||0));
+  ev.team=$('#ge-team').value;
+  logAct('গোল সংশোধন: '+ev.name+' '+clockTxt({min:ev.min,sec:ev.sec}));save();closeModal();render();timerRender();toast('গোল সংশোধন হয়েছে ✅');}
+function lastGoalBanner(t,m){const evs=m.events||[];if(!evs.length||!m.done)return '';
+  /* v6.1: সর্বশেষ গোল নয় — যে খেলোয়াড় সবচেয়ে বেশি গোল দিয়েছে */
+  const cnt={};evs.forEach(function(e){cnt[e.name]=(cnt[e.name]||0)+1;});
+  let top=null;Object.keys(cnt).forEach(function(k){if(!top||cnt[k]>cnt[top])top=k;});
+  const e2=evs.find(function(e){return e.name===top;});
+  const tm=t.teams.find(x=>x.id===(e2.team==='B'?m.teamB:m.teamA));
+  return `<div class="lastgoal top"><span class="lge">${ic('crown')}</span><div style="min-width:0"><div style="font-weight:800">সর্বোচ্চ গোলদাতা: ${esc(top)} — ${bnNum(cnt[top])} গোল!</div><div class="lgm">${esc(tm?tm.name:'')} • ${esc(m.round)} • খেলা শেষ</div></div></div>`;}
 function goalTicker(t){const all=[];
-  [...t.matches].forEach(function(m){(m.events||[]).forEach(function(e){
+  [...(t.matches||[])].forEach(function(m){(m.events||[]).forEach(function(e){
     const tm=t.teams.find(x=>x.id===(e.team==='B'?m.teamB:m.teamA));
     all.push({min:e.min,name:e.name,team:tm?tm.name:'',round:m.round});});});
-  if(all.length<2)return '';
+  if(!all.length)return '';
   all.sort(function(a,b){return a.min-b.min;});
-  const item=function(e){return `<span class="gt-item">⚽ ${esc(e.name)} <b>${bnNum(e.min)}&prime;</b> <span style="opacity:.78">${esc(e.team)}</span></span><span style="opacity:.45">•</span>`;};
+  /* v6.1: নাম-সংখ্যা নয় — শুধু "⚽ গোল" একটার পর একটা চলবে */
+  const item=function(e){return `<span class="gt-item">⚽ <b>গোল</b></span><span style="opacity:.45">•</span>`;};
   const half=all.map(item).join('');
   return `<div class="gticker" title="টিকার থামাতে চেপে ধরুন"><div class="gt-track">${half}${half}</div></div>`;}
 function matchList(t){
-  if(!t.matches.length)return `<div class="card empty"><span class="e">📅</span>এখনো কোনো ম্যাচ নির্ধারণ হয়নি${canAdmin('tournaments')?'<br><button class="btn pri" style="margin-top:12px" onclick="matchForm(\''+t.id+'\')">প্রথম ম্যাচ যোগ করুন</button>':''}</div>`;
+  if(!(t.matches||[]).length)return `<div class="card empty"><span class="e">📅</span>এখনো কোনো ম্যাচ নির্ধারণ হয়নি${canAdmin('tournaments')?'<br><button class="btn pri" style="margin-top:12px" onclick="matchForm(\''+t.id+'\')">⚽ ম্যাচ নির্ধারণ করুন</button>':''}</div>`;
   const order={'গ্রুপ পর্ব':0,'প্রথম রাউন্ড':0,'কোয়ার্টার ফাইনাল':1,'সেমি-ফাইনাল':2,'তৃতীয় স্থান নির্ধারণী':3,'ফাইনাল':4};
-  return [...t.matches].sort((a,b)=>(order[a.round]!==undefined?order[a.round]:9)-(order[b.round]!==undefined?order[b.round]:9)||(a.date||'').localeCompare(b.date||'')).map(function(m,i){
-    const live=(TMR.phase!=='idle'&&TMR.matchId===m.id);
+  const lm=liveMatchId();const nm=nextMatch(t);
+  const sorted=[...(t.matches||[])].sort((a,b)=>(order[a.round]!==undefined?order[a.round]:9)-(order[b.round]!==undefined?order[b.round]:9)||(a.date||'').localeCompare(b.date||''));
+  let lastRound=null,out='';
+  sorted.forEach(function(m,i){
+    const live=(m.id===lm&&!m.done);const isNext=(nm&&m.id===nm.id&&!m.done);
+    const due=(!m.done&&!live&&m.date&&typeof matchTs==='function'&&matchTs(m)&&matchTs(m)<=Date.now());
     const aw=m.done&&m.winner===m.teamA,bw=m.done&&m.winner===m.teamB;
     const tmA=t.teams.find(x=>x.id===m.teamA),tmB=t.teams.find(x=>x.id===m.teamB);
-    const teamBox=function(tm,win,name){return `<div class="mtc-team ${win?'wt':''}"><span class="tav">${tm&&tm.logo?`<img src="${tm.logo}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(SPORTS[t.sport]?SPORTS[t.sport].e:'🏅')}</span><span style="overflow-wrap:anywhere">${esc(name)}</span>${win?'<span class="crown">👑 বিজয়ী</span>':''}</div>`;};
-    return `<div class="mtc ${live?'mtc-live':''}" style="animation-delay:${Math.min(i*0.05,0.4).toFixed(2)}s">
+    if(m.round!==lastRound){lastRound=m.round;out+=`<div class="rhead">⚔️ ${esc(m.round||'ম্যাচ')}</div>`;}
+    const teamBox=function(tm,win){const c=tm?teamColor(t,tm.id):'#64748b';
+      return `<div class="mtc-team ${win?'wt':''}"><span class="tav" style="border-color:${c}">${tm&&tm.logo?`<img src="${tm.logo}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(SPORTS[t.sport]?SPORTS[t.sport].e:'🏅')}</span>
+      <b style="color:${c}">${esc(tm?tm.name:'—')}</b>${win?'<span class="wmark">👑</span>':''}</div>`;};
+    out+=`<div class="mtc ${live?'mtc-live':''} ${due?'mtc-due':''}" style="animation-delay:${Math.min(i*0.05,0.4).toFixed(2)}s">
       <div class="mtc-top"><span class="rnd">${esc(m.round)}</span>
-        ${m.date?`<span class="tsub">🗓 ${fdate(m.date)}${m.time?' • ⏰ '+bnNum(m.time):''}</span>`:''}
+        ${m.date&&!live?`<span class="tsub">🗓 ${fdate(m.date)}${m.time?' • ⏰ '+bnNum(m.time):''}</span>`:''}
         ${m.ref?`<span class="tsub">🧑‍⚖️ ${esc(m.ref)}</span>`:''}
-        ${live?`<span class="livelabel"><span class="livedot"></span> লাইভ চলছে</span>`:(m.done?`<span class="donelabel">সম্পন্ন</span>`:'')}
+        ${live?`<span class="livelabel"><span class="livedot"></span> লাইভ${livePhaseTxt()?' — '+livePhaseTxt():''}</span>`:(due?`<span class="nextlabel" style="background:#fee2e2;color:#b91c1c">⏰ শুরুর সময় হয়েছে — এখনই লাইভ করুন</span>`:(isNext?`<span class="nextlabel">⏭ পরবর্তী ম্যাচ</span>`:(m.done?`<span class="donelabel">সম্পন্ন</span>`:'')))}
       </div>
       <div class="mtc-vs">
-        ${teamBox(tmA,aw,tName(t,m.teamA))}
-        ${m.done?`<div class="mtc-score">${bnNum(m.scoreA)}<span class="dash">–</span>${bnNum(m.scoreB)}</div>`:`<div class="mtc-score sv">VS</div>`}
-        ${teamBox(tmB,bw,tName(t,m.teamB))}
+        ${teamBox(tmA,aw)}
+        ${m.done?`<div class="mtc-score">${fmtScore(t,m,'A')}<span class="dash">–</span>${fmtScore(t,m,'B')}</div>`:`<div class="mtc-score sv">VS</div>`}
+        ${teamBox(tmB,bw)}
       </div>
-      <div class="mtc-res">${m.done?(m.winner?`✅ বিজয়ী: <b>${esc(tName(t,m.winner))}</b>${m.round==='ফাইনাল'&&t.champion===m.winner?' — 🏆 চ্যাম্পিয়ন! 🎉':''}`:'🤝 ড্র হয়েছে — দুই দল ১ পয়েন্ট করে পেয়েছে'):'⏳ খেলা হতে বাকি — শুরুর পর এখানেই স্কোর ও গোল দেখা যাবে'}</div>
-      ${goalChips(t,m,6)}
-      ${live?lastGoalBanner(t,m):''}
+      <div class="mtc-res">${m.done?(m.winner?`✅ বিজয়ী: <b>${esc(tName(t,m.winner))}</b>${m.round==='ফাইনাল'&&t.champion===m.winner?' — 🏆 চ্যাম্পিয়ন! 🎉':''}`:'🤝 ড্র হয়েছে — দুই দল ১ পয়েন্ট করে'):(isNext?'⏱️ খেলা হতে চলেছে':'খেলা হতে বাকি')}</div>
+      ${goalList(t,m,canAdmin('tournaments'))}
+      ${(live||m.done)?lastGoalBanner(t,m):''}
       ${canAdmin('tournaments')?`<div class="mtc-acts">
-        <button class="ibtn" onclick="resultForm('${t.id}','${m.id}')">${m.done?'✏️':'🎯 ফলাফল'}</button>
-        ${m.done?'':`<button class="ibtn" onclick="matchForm('${t.id}','${m.id}')">🗓</button>`}
-        <button class="ibtn" onclick="matchDel('${t.id}','${m.id}')">🗑️</button></div>`:''}
-    </div>`;}).join('');}
+        ${(!m.done&&!live)?`<button class="ibtn livebtn" onclick="quickLive('${t.id}','${m.id}')">${ic('play')} এখনই লাইভ</button>`:''}
+        <button class="ibtn" onclick="resultForm('${t.id}','${m.id}')">${m.done?ic('edit'):ic('star')+' ফলাফল'}</button>
+        ${m.done?'':`<button class="ibtn" onclick="matchForm('${t.id}','${m.id}')">${ic('calendar')}</button>`}
+        <button class="ibtn" onclick="matchDel('${t.id}','${m.id}')">${ic('trash')}</button></div>`:''}
+    </div>`;});
+  return out;}
 function firstRoundName(n){if(n<=2)return 'ফাইনাল';if(n<=4)return 'সেমি-ফাইনাল';if(n<=8)return 'কোয়ার্টার ফাইনাল';return 'প্রথম রাউন্ড';}
 function koRoundForNewMatch(t){const order=['প্রথম রাউন্ড','কোয়ার্টার ফাইনাল','সেমি-ফাইনাল','ফাইনাল'];
   if(!t.matches.length)return firstRoundName(t.teams.length);
@@ -1391,52 +1782,78 @@ function matchSave(tId,mId){const t=store.tournaments.find(x=>x.id===tId);if(!t)
   const a=$('#mf-a').value,b=$('#mf-b').value;
   if(!a||!b||a===b){toast('দুটি আলাদা দল বাছুন','err');return;}
   const data={round:mId?t.matches.find(x=>x.id===mId).round:(t.type==='knockout'?koRoundForNewMatch(t):'গ্রুপ পর্ব'),teamA:a,teamB:b,date:$('#mf-date').value||'',time:$('#mf-time').value||'',ref:$('#mf-ref')?$('#mf-ref').value.trim():''};
-  if(mId){Object.assign(t.matches.find(x=>x.id===mId),data);
-    logAct('ম্যাচ সম্পাদনা ['+t.name+']: '+tName(t,a)+' vs '+tName(t,b));
-    save();closeModal();render();toast('ম্যাচ সংরক্ষিত ✅');return;}
-  t.matches.push(Object.assign({id:uid()},data,{done:false,scoreA:0,scoreB:0,winner:''}));
-  logAct('নতুন ম্যাচ ['+t.name+']: '+tName(t,a)+' vs '+tName(t,b));
-  notify('⚽ নতুন ম্যাচ নির্ধারণ হয়েছে',tName(t,a)+' vs '+tName(t,b)+' — '+(data.date?fdate(data.date):'তারিখ ঘোষণা হয়নি')+' ('+data.round+')','match');
-  save();closeModal();render();toast('ম্যাচ যোগ হয়েছে ⚽');}
+  const proceed=function(){
+    if(mId){Object.assign(t.matches.find(x=>x.id===mId),data);
+      logAct('ম্যাচ সম্পাদনা ['+t.name+']: '+tName(t,a)+' vs '+tName(t,b));
+      save();closeModal();render();toast('ম্যাচ সংরক্ষিত ✅');return;}
+    t.matches.push(Object.assign({id:uid()},data,{done:false,scoreA:0,scoreB:0,winner:''}));
+    logAct('নতুন ম্যাচ ['+t.name+']: '+tName(t,a)+' vs '+tName(t,b));
+    notify('🗓 ম্যাচের সময়সূচি প্রকাশ',tName(t,a)+' vs '+tName(t,b)+' — '+(data.date?fdate(data.date):'তারিখ ঘোষণা হয়নি')+' ('+data.round+')','schedule');
+    save();closeModal();render();toast('ম্যাচ যোগ হয়েছে ⚽');};
+  /* নকআউটে বাদ-পড়া দল আর ম্যাচে আসবে না — অনুমোদিত সংশোধনে তবেই */
+  if(!mId&&t.type==='knockout'){
+    const lost=t.matches.filter(x=>x.done&&x.winner).map(x=>x.winner===x.teamA?x.teamB:x.teamA);
+    const out=lost.indexOf(a)>-1?a:(lost.indexOf(b)>-1?b:'');
+    if(out){confirmBox('"'+tName(t,out)+'" আগের পর্বে হেরে টুর্নামেন্ট থেকে বাদ পড়েছে। তবুও ম্যাচে যোগ করবেন? (করা হলে ধরে নেওয়া হবে — ফলাফল অনুমোদিতভাবে সংশোধন করা হয়েছে)',function(){proceed();});return;}}
+  proceed();}
+/* v6.2: ফুটবলে ড্র-নির্বাচন — ড্র চাপলে টিম-কার্ড দুটি নেমে যায় */
+function rfDrawPick(){const d=document.querySelector('.wdraw');if(!d)return;
+  if(window._rw==='draw'){window._rw=null;d.classList.remove('on');return;}
+  window._rw='draw';d.classList.add('on');
+  document.querySelectorAll('.wpick').forEach(function(x){x.classList.remove('on');const t=x.querySelector('.wtick');if(t)t.textContent='জিতলে এখানে চাপ দিন';});}
 function resultForm(tId,mId){const t=store.tournaments.find(x=>x.id===tId);if(!t)return;
   const m=t.matches.find(x=>x.id===mId);if(!m)return;
   const A=t.teams.find(x=>x.id===m.teamA),B=t.teams.find(x=>x.id===m.teamB);
+  const sp=t.sport||'football';
+  const unit=sp==='cricket'?'রান':sp==='badminton'?'সেট জয়':'গোল';
   window._rw=m.done?(m.winner||'draw'):'';
   const wp=(tm)=>`<div class="wpick ${window._rw===tm.id?'on':''}" data-w="${tm.id}" onclick="pickWin(this)">
     ${tm&&tm.logo?`<img src="${tm.logo}" alt="">`:`<span class="we">${SPORTS[t.sport]?SPORTS[t.sport].e:'🏅'}</span>`}
     <b>${esc(tm?tm.name:'—')}</b><span class="wtick">${window._rw===tm.id?'✅ এই দল জিতেছে':'জিতলে এখানে চাপ দিন'}</span></div>`;
   openModal(`<div class="mhandle"></div><h3 class="mttl">🎯 ফলাফল — কে জিতলো?</h3>
-  <div class="tsub" style="margin-bottom:8px">${esc(m.round)}${m.date?' • '+fdate(m.date):''}${m.ref?' • 🧑‍⚖️ '+esc(m.ref):''}</div>
+  <div class="tsub" style="margin-bottom:8px">${esc(m.round)}${m.date?' • '+fdate(m.date):''}${m.ref?' • 🧑‍⚖️ '+esc(m.ref):''} • ${SPORTS[sp]?SPORTS[sp].n:sp}</div>
   <div class="wgrid">${wp(A)}<div class="wvs">VS</div>${wp(B)}</div>
+  ${sp==='football'?`<div class="wdraw ${window._rw==='draw'?'on':''}" onclick="rfDrawPick()">${ic('hand')} ড্র — দুই দল সমান (স্কোর সমান রাখুন)</div>`:''}
   <div class="frow">
-    <div class="fgrp"><label>${SPORTS[t.sport]?SPORTS[t.sport].u:'স্কোর'} (ঐচ্ছিক) — ${esc(A?A.name:'এ')}</label><input id="rf-sa" type="number" min="0" inputmode="numeric" value="${m.done?m.scoreA:''}" placeholder="০"></div>
-    <div class="fgrp"><label>${SPORTS[t.sport]?SPORTS[t.sport].u:'স্কোর'} (ঐচ্ছিক) — ${esc(B?B.name:'বি')}</label><input id="rf-sb" type="number" min="0" inputmode="numeric" value="${m.done?m.scoreB:''}" placeholder="০"></div>
+    <div class="fgrp"><label>${unit} — ${esc(A?A.name:'এ')}${sp==='cricket'?' (রান)':''}</label><input id="rf-sa" type="number" min="0" inputmode="numeric" value="${m.done?m.scoreA:''}" placeholder="০"></div>
+    <div class="fgrp"><label>${unit} — ${esc(B?B.name:'বি')}${sp==='cricket'?' (রান)':''}</label><input id="rf-sb" type="number" min="0" inputmode="numeric" value="${m.done?m.scoreB:''}" placeholder="০"></div>
   </div>
-  ${t.type==='league'?`<button class="btn ghost blk" style="margin-bottom:6px" onclick="pickDraw()">🤝 ড্র হয়েছে (দুই দল ১ পয়েন্ট করে)</button>`:''}
-  <div class="mtxt">💡 বিজয়ীতে চাপ দিলেই হয়ে যাবে — ${t.type==='knockout'?'জয়ী দল পরের পর্বে নিজে থেকে উঠে যাবে':'পয়েন্ট টেবিলে নিজে থেকে যোগ হবে'}। স্কোর না জানলে খালি রাখুন (১-০ ধরা হবে)।</div>
+  ${sp==='cricket'?`<div class="frow">
+    <div class="fgrp"><label>উইকেট — ${esc(A?A.name:'এ')} (ঐচ্ছিক)</label><input id="rf-wa" type="number" min="0" max="10" inputmode="numeric" value="${m.done?(m.wktsA||''):''}" placeholder="০"></div>
+    <div class="fgrp"><label>উইকেট — ${esc(B?B.name:'বি')} (ঐচ্ছিক)</label><input id="rf-wb" type="number" min="0" max="10" inputmode="numeric" value="${m.done?(m.wktsB||''):''}" placeholder="০"></div>
+  </div>`:''}
+  ${sp==='badminton'?`<div class="mtxt">🏸 ব্যাডমিন্টন নিয়ম: প্রতি গেম ২১ পয়েন্ট — ৩ গেমের মধ্যে <b>২ সেট</b> জিতলেই জয়। ঘরে লিখুন কত সেট জিতলো।</div>`:''}
+  ${sp==='cricket'?`<div class="mtxt">🏏 ক্রিকেট নিয়ম: বেশি রান জেতে; রান-সমান হলে সালামী-রান দিয়ে বিজয়ী বাছুন। ড্র হয় না।</div>`:''}
+  ${t.type==='league'&&sp==='football'?`<button class="btn ghost blk" style="margin-bottom:6px" onclick="pickDraw()">🤝 ড্র হয়েছে (দুই দল ১ পয়েন্ট করে)</button>`:''}
+  <div class="mtxt">💡 বিজয়ীতে চাপ দিলেই হয়ে যাবে — ${t.type==='knockout'?'জয়ী দল পরের পর্বে নিজে থেকে উঠে যাবে, হেরে যাওয়া দল বাদ পড়বে':'পয়েন্ট টেবিলে জয় '+((t.ptsWin||3))+' পয়েন্ট যোগ হবে'}।</div>
   <div class="mbtns"><button class="btn ghost" onclick="closeModal()">বাতিল</button><button class="btn pri" onclick="resultSave('${tId}','${mId}')">✅ ফলাফল জমা দিন</button></div>`);}
 function pickWin(el){window._rw=el.dataset.w;
   document.querySelectorAll('#modal-root .wpick').forEach(x=>x.classList.toggle('on',x===el));}
 function pickDraw(){window._rw='draw';document.querySelectorAll('#modal-root .wpick').forEach(x=>x.classList.remove('on'));}
 function resultSave(tId,mId){const t=store.tournaments.find(x=>x.id===tId);if(!t)return;
   const m=t.matches.find(x=>x.id===mId);if(!m)return;
+  const sp=t.sport||'football';
   const w=window._rw;let sa=+$('#rf-sa').value,sb=+$('#rf-sb').value;
   if(!w){toast('বিজয়ী বাছুন — কোন দল জিতলো?','err');return;}
   if(w==='draw'){
+    if(sp!=='football'){toast(sp==='cricket'?'ক্রিকেটে ড্র হয় না — বিজয়ী বাছুন':'ব্যাডমিন্টনে ড্র হয় না — বিজয়ী বাছুন','err');return;}
     if(sa!==sb){toast('ড্র হলে দুই স্কোর সমান হবে — স্কোর ঠিক করুন','err');return;}
     m.done=true;m.scoreA=sa;m.scoreB=sb;m.winner='';
-    logAct('ফলাফল (ড্র) ['+t.name+']: '+tName(t,m.teamA)+' '+bnNum(sa)+'-'+bnNum(sb)+' '+tName(t,m.teamB));
-    notify('🤝 ম্যাচ ড্র হয়েছে',tName(t,m.teamA)+' '+bnNum(sa)+'–'+bnNum(sb)+' '+tName(t,m.teamB)+' ('+m.round+')','result');}
+    logAct('ফলাফল (ড্র) ['+t.name+']: '+tName(t,m.teamA)+' '+bnNum(sa)+'-'+bnNum(sb)+' '+tName(t,m.teamB));}
   else{
     if(!sa&&!sb){if(w===m.teamA){sa=1;sb=0;}else{sa=0;sb=1;}}
     if(sa===sb){if(w===m.teamA)sa=sb+1;else sb=sa+1;}
     m.done=true;m.scoreA=sa;m.scoreB=sb;m.winner=w;
-    logAct('ফলাফল ['+t.name+']: '+tName(t,m.teamA)+' '+bnNum(sa)+'-'+bnNum(sb)+' '+tName(t,m.teamB)+' ('+m.round+')');
-    notify('✅ ম্যাচের ফলাফল এসেছে',tName(t,m.teamA)+' '+bnNum(sa)+' – '+bnNum(sb)+' '+tName(t,m.teamB)+' ('+m.round+') — '+t.name,'result');}
+    if(sp==='cricket'){const wa=$('#rf-wa'),wb=$('#rf-wb');
+      m.wktsA=wa?Math.max(0,Math.min(10,parseInt(wa.value,10)||0)):0;
+      m.wktsB=wb?Math.max(0,Math.min(10,parseInt(wb.value,10)||0)):0;}
+    logAct('ফলাফল ['+t.name+']: '+tName(t,m.teamA)+' '+bnNum(sa)+'-'+bnNum(sb)+' '+tName(t,m.teamB)+' ('+m.round+')');}
   koAdvance(t);
-  save();closeModal();render();toast('ফলাফল জমা হয়েছে ✅');}
+  /* v5.3: ফলাফল জমা = ফুল-টাইম — এই ম্যাচের লাইভ-ব্যানার নিজে থেকেই বন্ধ */
+  if(typeof SHARE!=='undefined'&&SHARE&&SHARE.tourId===tId&&SHARE.matchId===mId&&typeof liveStop==='function'){try{liveStop();}catch(e){}}
+  save();closeModal();render();toast('ফলাফল জমা হয়েছে — খেলা সম্পন্ন ✅');}
 function koAdvance(t){if(t.type!=='knockout')return;
-  if(t.matches.some(x=>!x.done))return;
+  if((t.matches||[]).some(x=>!x.done))return;
   const order=['প্রথম রাউন্ড','কোয়ার্টার ফাইনাল','সেমি-ফাইনাল','ফাইনাল'];
   const byRound={};t.matches.forEach(x=>{(byRound[x.round]=byRound[x.round]||[]).push(x);});
   let li=-1;order.forEach((r,i)=>{if(byRound[r]&&byRound[r].length)li=i;});
@@ -1449,13 +1866,12 @@ function koAdvance(t){if(t.type!=='knockout')return;
   if(order[li]==='ফাইনাল'||adv.length===1||!order[li+1]){
     t.champion=adv[0];t.status='সম্পন্ন';
     logAct('চ্যাম্পিয়ন ঘোষণা (অটো) ['+t.name+']: '+tName(t,adv[0]));
-    notify('🏆 চ্যাম্পিয়ন ঘোষণা!',tName(t,adv[0])+' টুর্নামেন্ট "'+t.name+'" জিতে নিয়েছে — অভিনন্দন! 🎉','champion');
     return;}
   const nextR=order[li+1];
   for(let i=0;i+1<adv.length;i+=2){
     t.matches.push({id:uid(),round:nextR,teamA:adv[i],teamB:adv[i+1],date:'',time:'',ref:'',done:false,scoreA:0,scoreB:0,winner:''});}
   logAct('পরের পর্ব তৈরি (অটো) ['+t.name+']: '+nextR);
-  notify('⚔️ পরের পর্ব তৈরি হয়েছে','"'+t.name+'" — '+nextR+': কে জিতবে? সবাই মাঠে চোখ রাখুন!','match');}
+  notify('🗓 পরের পর্বের সময়সূচি তৈরি হয়েছে','"'+t.name+'" — '+nextR+': কোন দল কার সাথে খেলবে জেনে নিন!',"schedule");}
 function autoFixtures(tId){const t=store.tournaments.find(x=>x.id===tId);if(!t)return;
   if(t.teams.length<2){toast('আগে "+ দল যোগ" থেকে অন্তত ২টি দল যোগ করুন','err');return;}
   openModal(`<div class="mhandle"></div><h3 class="mttl">⚡ ম্যাচ কীভাবে সাজাব?</h3>
@@ -1474,21 +1890,33 @@ function doAutoDraw(tId,mode){const t=store.tournaments.find(x=>x.id===tId);if(!
     else{const r=firstRoundName(ids.length);for(let i=0;i+1<ids.length;i+=2)added.push([ids[i],ids[i+1],r]);}
     added.forEach(x=>t.matches.push({id:uid(),round:x[2],teamA:x[0],teamB:x[1],date:'',time:'',ref:'',done:false,scoreA:0,scoreB:0,winner:''}));
     logAct('অটো ফিক্সচার ['+t.name+'] ('+(mode==='rand'?'র‍্যান্ডম ড্র':'তালিকা অনুযায়ী')+'): '+bnNum(added.length)+'টি ম্যাচ');
-    notify('⚡ সব ম্যাচ সাজানো হয়েছে',t.name+' — মোট '+bnNum(t.matches.length)+'টি ম্যাচ। খেলা শেষে 🎯 ফলাফলে বিজয়ী দিন।','match');
-    save();closeModal();currentTT='match';render();toast(bnNum(added.length)+'টি ম্যাচ তৈরি হয়েছে ⚡');};
+    notify('🗓 সময়সূচি প্রকাশ হয়েছে',t.name+' — মোট '+bnNum(t.matches.length)+'টি ম্যাচ নির্ধারিত। কোন দল কার সাথে, দেখে নিন!','schedule');    save();closeModal();currentTT='match';render();toast(bnNum(added.length)+'টি ম্যাচ তৈরি হয়েছে ⚡');};
   if(t.matches.length){closeModal();confirmBox('আগে থেকে '+bnNum(t.matches.length)+'টি ম্যাচ আছে। নতুনগুলো তাদের সাথে যোগ হবে — চালিয়ে যাবেন?',goAuto);}
   else goAuto();}
 /* ================= ম্যাচ টাইমার — সবার জন্য, দেওয়াল-ঘড়ি ভিত্তিক (স্ক্রিন অফ/ব্যাকগ্রাউন্ডেও সময় চলে) ================= */
 let TMR={phase:'idle',endAt:0,pausedLeft:0,matchId:'',tourId:'',iv:null};
-function timerCfg(){if(!store.settings.timer)store.settings.timer={half:20,rest:10,l1:'১ম অংশ',l2:'২য় অংশ'};
-  if(!store.settings.timer.l1)store.settings.timer.l1='১ম অংশ';
-  if(!store.settings.timer.l2)store.settings.timer.l2='২য় অংশ';
-  return store.settings.timer;}
+function timerCfg(){const st=store.settings;
+  if(!st.timer)st.timer={total:50,breakAt:20,breakLen:10};
+  const T=st.timer;
+  if(T.half!==undefined){/* v4 → v5 মাইগ্রেশন */
+    T.total=Math.max(2,Math.min(180,((T.half||20)*2)));T.breakAt=Math.max(0,Math.min(180,T.half||20));T.breakLen=Math.max(0,Math.min(40,(T.rest!==undefined?T.rest:10)));
+    delete T.half;delete T.rest;delete T.l1;delete T.l2;}
+  T.total=Math.max(2,Math.min(180,parseInt(T.total,10)||50));
+  T.breakAt=Math.max(0,Math.min(180,parseInt(T.breakAt,10)||0));
+  T.breakLen=Math.max(0,Math.min(40,parseInt(T.breakLen,10)||0));
+  if(T.breakAt>=T.total)T.breakAt=Math.max(0,T.total-1);
+  return T;}
 function bnDigits(s){return String(s).replace(/[0-9]/g,d=>BN[+d]);}
 function bnTime(sec){const m=Math.floor(sec/60),s=sec%60;return bnDigits(m)+':'+bnDigits(s<10?'0'+s:s);}
-function timerLeftMs(){if(TMR.phase==='restw'||TMR.phase==='startw')return Math.max(1000,TMR.restPaused||timerCfg().half*60000);return Math.max(0,TMR.endAt-Date.now());}
-function timerRunning(){return TMR.phase==='h1'||TMR.phase==='rest'||TMR.phase==='h2';}
-function timerSaveLive(){store.timerLive={phase:TMR.phase,endAt:TMR.endAt,pausedLeft:TMR.pausedLeft,restPaused:TMR.restPaused||0,restBack:TMR.restBack||'h2',matchId:TMR.matchId,tourId:TMR.tourId};save();}
+function timerLeftMs(){
+  if(TMR.phase==='restw'||TMR.phase==='startw')return Math.max(1000,TMR.pausedLeft||timerCfg().total*60000);
+  if(TMR.phase==='pause')return Math.max(0,TMR.pausedLeft||0);
+  if(TMR.phase==='rest')return Math.max(0,Math.ceil((TMR.restEnd-Date.now())/1000));
+  return Math.max(0,TMR.endAt-Date.now());}
+function timerRunning(){return TMR.phase==='play'||TMR.phase==='rest';}
+function timerSaveLive(){store.timerLive={phase:TMR.phase,endAt:TMR.endAt,pausedLeft:TMR.pausedLeft||0,restEnd:TMR.restEnd||0,breakTaken:!!TMR.breakTaken,matchId:TMR.matchId||'',tourId:TMR.tourId||''};save();
+  /* ফেজ বদলালেই সবার ফোনে সঙ্গে সঙ্গে যাক */
+  if(typeof livePut==='function'&&SHARE&&typeof shareState==='function'){try{livePut(shareState());}catch(e){}}}
 function timerBeep(){try{const ac=new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=880;g.gain.value=.55;o.connect(g);g.connect(ac.destination);o.start();setTimeout(()=>{try{o.stop();ac.close();}catch(e){}},450);}catch(e){}}
 function timerSay(txt){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang='bn-BD';u.rate=.95;speechSynthesis.speak(u);}catch(e){}}
 function timerTeamsLine(){const t=store.tournaments.find(x=>x.id===TMR.tourId);const m=t&&t.matches.find(x=>x.id===TMR.matchId);
@@ -1517,22 +1945,30 @@ function timerAnnounce(msg,emoji,which,cb){const key=(which||'')+'|'+(msg||'');c
   _ANN_FINISH=finish;
   try{audioUnlock();}catch(e){}
   if(!clip){setTimeout(finish,2200);return;}
+  try{if(window._ANN_AUDIO){window._ANN_AUDIO.pause();try{window._ANN_AUDIO.currentTime=0;}catch(e){}}}catch(e){}
+  window._ANN_AUDIO=null;
   let au=null;try{au=new Audio(clip);au.volume=1;}catch(e){au=null;}
   if(!au){setTimeout(finish,2200);return;}
+  window._ANN_AUDIO=au;
   au.onended=finish;
   const pr=au.play();
-  if(pr&&pr.catch)pr.catch(function(){setTimeout(finish,2200);});
+  if(pr&&pr.catch)pr.catch(function(){
+    /* ফোনের ওয়েবভিউ কখনো প্রথম প্লে আটকায় — নিঃশব্দে ৪ বার পর্যন্ত আবার চেষ্টা */
+    let n=0;const rt=setInterval(function(){n++;
+      let p2=null;try{p2=au.play();}catch(e){}
+      if(p2&&p2.then)p2.then(finish).catch(function(){if(n>=4){clearInterval(rt);finish();}});
+      else{clearInterval(rt);finish();}
+      try{if(!au.paused)clearInterval(rt);}catch(e){}
+    },350);});
   /* সেকেন্ড × ১০০০ = মিলিসেকেন্ড (আগে ×১০০০ ছাড়া ছিল — ওভারলে ৭ms-এ মরত, কাউন্টডাউন অডিওর আগেই শুরু হতো) */
   setTimeout(finish,(((au.duration&&isFinite(au.duration)&&au.duration>0)?au.duration:annDur(which))+2.5)*1000);}
 function timerPhaseLabel(){const T=timerCfg();
-  return {idle:'শুরুর জন্য প্রস্তুত — প্রতি অংশ '+bnDigits(T.half)+' মিনিট',
-    h1:'🏅 '+T.l1+' চলছে',h1p:'⏸ '+T.l1+' থামানো আছে',
-    rest:'☕ বিরতি চলছে',restp:'⏸ বিরতি থামানো আছে',
-    restw:'🔊 ঘোষণা চলছে — বিরতি শুরু',startw:'🔊 ঘোষণা চলছে — খেলা শুরু হচ্ছে',
-    h2:'🏅 '+T.l2+' চলছে',h2p:'⏸ '+T.l2+' থামানো আছে',
+  return {idle:'শুরুর জন্য প্রস্তুত — মোট '+bnDigits(T.total)+' মিনিট খেলা',
+    play:'🔴 লাইভ — খেলা চলছে',pause:'⏸ থামানো আছে',restp:'⏸ বিরতি থামানো আছে',
+    rest:'☕ বিরতি চলছে',restw:'🔊 ঘোষণা চলছে — বিরতি শুরু',startw:'🔊 ঘোষণা চলছে — খেলা শুরু হচ্ছে',
     done:'✅ খেলা শেষ — ফলাফল লিখুন'}[TMR.phase]||'';}
 function timerEvChip(e){const tap=e.id?` onclick="evDel('${e.id}')"`:'';
-  return `<span class="evchip" ${tap}>${e.team==='B'?'🔵':'🔴'} ⚽ ${esc(e.name)} ${bnNum(e.min)}&prime;</span>`;}
+  return `<span class="evchip" ${tap}>${e.team==='B'?'🔵':'🔴'} ⚽ ${esc(e.name)} ${bnDigits(e.min||0)}:${('০'+bnDigits(e.sec||0)).slice(-2)}&prime;</span>`;}
 function evDel(id){const t=store.tournaments.find(x=>x.id===TMR.tourId);const m=t&&t.matches.find(x=>x.id===TMR.matchId);
   if(!m||!Array.isArray(m.events))return;
   const i=m.events.findIndex(function(x){return x.id===id;});if(i<0)return;
@@ -1547,6 +1983,7 @@ function timerRender(){const f=document.getElementById('tface')||document.getEle
   const m=TMR.matchId&&t?t.matches.find(x=>x.id===TMR.matchId):null;
   const evs=(m&&m.events)?m.events:[];
   const playMin=timerPlayMinute();
+  const pc=timerPlayClock();
   f.innerHTML=`
     ${t?`<div class="fgrp"><label>কোন ম্যাচ চলছে? (স্কোর লেখার জন্য — ম্যাচে চাপ দিলেই বসে যাবে)</label>
       <div class="tchips" style="max-height:150px;overflow-y:auto">
@@ -1554,108 +1991,136 @@ function timerRender(){const f=document.getElementById('tface')||document.getEle
         ${t.matches.filter(function(mm){return !mm.done;}).map(mm=>`<button class="tchip ${TMR.matchId===mm.id?'on':''}" onclick="timerMatch('${mm.id}')">${esc(tName(t,mm.teamA))} vs ${esc(tName(t,mm.teamB))}${mm.round?' • '+esc(mm.round):''}</button>`).join('')}
       </div></div>`:''}
     ${m&&evs.length?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 2px">${evs.slice(-8).map(timerEvChip).join('')}</div>`:''}
-    ${m&&running?`<div class="flabel" style="margin-top:8px">⚽ গোল দিলে খেলোয়াড়ের নামে চাপ দিন — মিনিট নিজে থেকেই ধরা পড়বে</div>
-      <div class="prow">${t.teams.map(function(tm,ti){const cls=ti===0?'pa':'pb';return tm.members.map(function(pid){
-        const pp=store.players.find(function(x){return x.id===pid;});return pp?`<button class="pchip ${cls}" onclick="instantGoal('${pp.id}')">${esc(pp.name)}</button>`:'';}).join('');}).join('')}</div>`:''}
+    ${m&&running?`<div class="flabel" style="margin-top:8px">⚽ নামে চাপ দিলেই গোল — সময় নিজে থেকেই ধরা পড়বে • − চাপলে সর্বশেষ গোল বাদ</div>
+      ${goalPRows(t,evs)}`:''}
     <div class="tface">
       <div class="tphase">${timerPhaseLabel()}</div>
-      <div class="tbig ${TMR.phase==='done'?'done':''}" id="tbig">${TMR.phase==='done'?'🏁':bnTime(TMR.phase==='idle'?T.half*60:Math.ceil(timerLeftMs()/1000))}</div>
+      <div class="tbig ${TMR.phase==='done'?'done':''}" id="tbig">${TMR.phase==='done'?'🏁':((TMR.phase==='restw'||TMR.phase==='startw')?'🔊':bnTime(TMR.phase==='idle'?0:Math.floor(Math.max(0,(T.total*60000-timerLeftMs()))/1000)))}</div>
       <div class="tbar"><i id="tbarfill" style="width:0%"></i></div>
+      <div class="tsub" id="telap"></div>
+      ${(TMR.phase==='idle')?`<div class="tcustom">
+        <div class="tcrow"><b>মোট খেলা:</b>${[90,50,40,30,20].map(v=>`<button class="tchip ${(T.total||50)===v?'on':''}" onclick="timerSet('total',${v})">${bnDigits(v)} মি</button>`).join('')}<input class="tcin" type="number" inputmode="numeric" min="2" max="180" value="${T.total||50}" onchange="timerSet('total',this.value)" aria-label="নিজের মোট সময়"><span class="tcu">মিনিট</span></div>
+        <div class="tcrow"><b>বিরতি:</b> ${bnDigits(Math.max(1,Math.floor((T.total||50)/2)))} মিনিটে নিজে থেকে শুরু • <b>দৈর্ঘ্য:</b>${[5,10,15].map(v=>`<button class="tchip ${(T.breakLen||10)===v?'on':''}" onclick="timerSet('breakLen',${v})">${bnDigits(v)} মি</button>`).join('')}<input class="tcin" type="number" inputmode="numeric" min="0" max="40" value="${T.breakLen||10}" onchange="timerSet('breakLen',this.value)" aria-label="নিজের বিরতি"><span class="tcu">মিনিট</span></div>
+        <div class="tsub">বিরতি-শেষে ঘড়ি নিজে থেকে চালু হয় আর ঘোষণা বাজে • মোট সময় পূর্ণ হলে খেলা-শেষ ঘোষণা</div></div>`:''}
       <div class="tbtns">
-        ${(TMR.phase==='restw'||TMR.phase==='startw')?`<button class="btn dark sm" onclick="annSkip()">⏭ এডিয়ে যান</button>`
-          :(TMR.phase==='rest'?`<button class="btn pri sm" onclick="timerResume()">▶ এখনই শুরু করুন</button>`
-          :running?`<button class="btn gold sm" onclick="timerPause()">⏸ থামান</button>`
-          :(TMR.phase==='done'?`<button class="btn pri sm" onclick="timerReset()">🔄 নতুন খেলা</button>`
-          :`<button class="btn pri sm btnpulse" onclick="timerGo()">▶ ${TMR.phase==='idle'?'শুরু করুন':'চালু করুন'}</button>`))}
-        ${(TMR.phase==='h1'||TMR.phase==='h2'||TMR.phase==='h1p'||TMR.phase==='h2p')?`<button class="btn pri sm" onclick="timerStartBreak(true,TMR.phase==='h2'||TMR.phase==='h2p'?'h2':'h1')">☕ বিরতি</button>`:''}
-        ${(TMR.phase!=='idle'&&TMR.phase!=='done')?`<button class="btn ghost sm" onclick="timerReset()">⏹ রিসেট</button>`:''}
-        ${m&&(TMR.phase==='h1'||TMR.phase==='h2')?`<button class="btn red sm" id="golbtn" onclick="goalForm()">⚽ গোল! (${bnDigits(playMin)}&prime;)</button>`:''}
-        ${m&&canAdmin('tournaments')?`<button class="btn ghost sm" onclick="eventForm()">➕ ইভেন্ট</button>`:''}
+        ${(TMR.phase==='restw'||TMR.phase==='startw')?`<button class="btn dark sm" onclick="annSkip()">${ic('skip')} এডিয়ে যান</button>`
+          :(TMR.phase==='rest'||TMR.phase==='restp'?`<button class="btn pri sm" onclick="timerResume()">${ic('play')} এখনই শুরু করুন</button>`
+          :(TMR.phase==='play'?`<button class="btn gold sm" onclick="timerPause()">${ic('pause')} থামান</button>`
+          :(TMR.phase==='pause'?`<button class="btn pri sm" onclick="timerGo()">${ic('play')} চালু করুন</button>`
+          :(TMR.phase==='done'?`<button class="btn pri sm" onclick="timerResetAsk()">${ic('reset')} নতুন খেলা</button>`
+          :`<button class="btn pri sm btnpulse" onclick="timerGo()">${ic('play')} শুরু করুন</button>`))))}
+        ${(TMR.phase==='play'||TMR.phase==='pause')?`<button class="btn pri sm" onclick="timerStartBreak(true)">${ic('coffee')} বিরতি</button>`:''}
+        ${(TMR.phase!=='idle'&&TMR.phase!=='done')?`<button class="btn ghost sm" onclick="timerResetAsk()">${ic('stop')} রিসেট</button>`:''}
+        ${m&&TMR.phase==='play'?`<button class="btn red sm" id="golbtn" onclick="goalForm()">${ic('ball')} গোল! ${bnDigits(pc.min)}:${('০'+bnDigits(pc.sec)).slice(-2)}&prime;</button>`:''}
+        ${m&&canAdmin('tournaments')?`<button class="btn ghost sm" onclick="eventForm()">${ic('plus')} ইভেন্ট</button>`:''}
+        ${isAdmin()&&(typeof SHARE!=='undefined'&&SHARE)?`<button class="btn red sm" onclick="liveStopAsk()">${ic('stop')} লাইভ অফ</button>`:''}
       </div>
-    </div>
-    ${canAdmin('tournaments')?`<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
-      ${(TMR.phase!=='idle')?`<button class="btn dark sm" onclick="liveShare()">📡 সবার ফোনে শেয়ার করুন</button>`:''}
-      ${(TMR.phase==='idle')&&SHARE?`<button class="btn red sm" onclick="liveStop()">⏹ শেয়ার বন্ধ করুন</button>`:''}
-    </div>${SHARE?`<div class="tsub" style="margin-top:4px">📡 এই মুহূর্তে সবার ফোনে লাইভ ঘড়ি দেখাচ্ছে — ${sharePhaseLabel()}</div>`:''}`:''}
-    <div class="flabel">⚙️ প্রতি অংশ কত মিনিট? (বাড়াতে/কমাতে পারবেন)</div>
-    <div class="tchips">${[10,15,20,25,30].map(v=>`<button class="tchip ${T.half===v?'on':''}" onclick="timerSet('half',${v})">${bnDigits(v)} মিনিট</button>`).join('')}<input type="number" min="1" max="120" value="${T.half}" style="width:76px;padding:6px 8px;border:1.5px solid var(--line);border-radius:10px" onchange="timerSet('half',this.value)" title="নিজের সময় লিখুন"></div>
-    <div class="flabel">☕ বিরতি কত মিনিট?</div>
-    <div class="tchips">${[5,10,15,20,30].map(v=>`<button class="tchip ${T.rest===v?'on':''}" onclick="timerSet('rest',${v})">${bnDigits(v)} মিনিট</button>`).join('')}<input type="number" min="1" max="120" value="${T.rest}" style="width:76px;padding:6px 8px;border:1.5px solid var(--line);border-radius:10px" onchange="timerSet('rest',this.value)" title="নিজের সময় লিখুন"></div>
-    <div class="flabel">🤝 সাধারণ সদস্যরাও কি গোল দিতে পারবে?</div>
-    <div class="tchips"><button class="tchip ${store.settings.allowMemberGoals?'on':''}" onclick="togMemberGoals()">${store.settings.allowMemberGoals?'✅ হ্যাঁ, দিতে পারবে':'❌ না, শুধু কর্তৃপক্ষ'}</button></div>
-    <div class="flabel">✏️ অংশের নাম — নিজের খেলার মতো সাজান (ফুটবল/ক্রিকেট/ব্যাডমিন্টন যা খুশি)</div>
-    <div class="tchips"><input id="tl1" value="${esc(T.l1)}" maxlength="24" style="width:120px;padding:6px 8px;border:1.5px solid var(--line);border-radius:10px" onchange="timerSetLabel('l1',this.value)" title="প্রথম অংশের নাম"><input id="tl2" value="${esc(T.l2)}" maxlength="24" style="width:120px;padding:6px 8px;border:1.5px solid var(--line);border-radius:10px" onchange="timerSetLabel('l2',this.value)" title="দ্বিতীয় অংশের নাম"></div>
-    <div class="mtxt" style="margin-top:10px">🔔 অংশ শেষ, বিরতি শেষ আর খেলা শেষে <b>নির্ধারিত কণ্ঠ-ঘোষণা নিজে থেকেই একবার</b> বাজবে — কাউন্টডাউন ও খেলা পুনরায় চালু হওয়াও নিজে থেকেই হবে।</div>`;
+      ${m&&isAdmin()&&TMR.phase!=='idle'?`<div style="margin-top:8px"><button class="btn livebig blk" onclick="liveShare()">${ic('broadcast')} এখনই লাইভ করুন — সবার ফোনে</button></div>`:''}
+      ${isAdmin()&&(typeof SHARE!=='undefined'&&SHARE)?`<div class="tsub" style="margin-top:4px;text-align:center">📡 এই মুহূর্তে সবার ফোনে লাইভ দেখাচ্ছে — ${sharePhaseLabel()}</div>`:''}
+      <div class="mtxt" style="margin-top:10px">🔔 অংশ শেষ, বিরতি শেষ আর খেলা শেষে <b>নির্ধারিত কণ্ঠ-ঘোষণা নিজে থেকেই একবার</b> বাজবে — কাউন্টডাউন ও খেলা পুনরায় চালু হওয়াও নিজে থেকেই হবে।</div>`;
   timerUI();}
 function timerUI(){const T=timerCfg();
-  const big=document.getElementById('tbig');const bar=document.getElementById('tbarfill');const gb=document.getElementById('golbtn');
+  const big=document.getElementById('tbig');const bar=document.getElementById('tbarfill');const gb=document.getElementById('golbtn');const el=document.getElementById('telap');
   if(!big&&!bar)return;
-  if(big)big.textContent=(TMR.phase==='done')?'🏁':((TMR.phase==='restw'||TMR.phase==='startw')?'🔊':bnTime(TMR.phase==='idle'?T.half*60:Math.ceil(timerLeftMs()/1000)));
-  const isW=(TMR.phase==='restw'||TMR.phase==='startw');
-  const totalMs=isW?0:((TMR.phase==='rest'||TMR.phase==='restp')?T.rest:T.half)*60000;
-  const leftMs=TMR.phase==='idle'?totalMs:(TMR.phase==='done'?0:timerLeftMs());
-  const pct=Math.max(0,Math.min(100,totalMs?Math.round((totalMs-leftMs)/totalMs*100):0));
-  if(bar)bar.style.width=pct+'%';
-  if(gb&&TMR.phase!=='done')gb.innerHTML='⚽ গোল! ('+bnDigits(timerPlayMinute())+'&prime;)';}
+  const tot=T.total*60000;
+  const played=Math.max(0,tot-(TMR.phase==='idle'?tot:timerLeftMs()));
+  let bigTxt,bgPct=0;
+  if(TMR.phase==='done')bigTxt='🏁';
+  else if(TMR.phase==='restw'||TMR.phase==='startw')bigTxt='🔊';
+  else if(TMR.phase==='rest'||TMR.phase==='restp'){const l=TMR.phase==='restp'?TMR.restLeftPaused:Math.max(0,TMR.restEnd-Date.now());
+    bigTxt=bnTime(Math.ceil(l/1000));const bl=Math.max(1,(T.breakLen||1)*60);bgPct=Math.max(0,Math.min(100,Math.round((1-l/1000/bl)*100)));}
+  else{bigTxt=bnTime(Math.floor(played/1000));bgPct=Math.max(0,Math.min(100,Math.round(played/tot*100)));}
+  if(big)big.textContent=bigTxt;
+  if(bar)bar.style.width=bgPct+'%';
+  if(el)el.textContent=(TMR.phase==='idle')?'ঘড়ি ০:০০ থেকে বাড়বে • খেলা শেষ হবে মোট '+bnDigits(T.total)+' মিনিটে (বিরতি গণনার বাইরে)'
+    :((TMR.phase==='rest'||TMR.phase==='restp')?'বিরতির কাউন্টডাউন — খেলার ঘড়ি বন্ধ, শেষ হলে এখান থেকেই বাড়তে থাকবে'
+    :(TMR.phase==='done'?('খেলা শেষ — মোট '+bnDigits(T.total)+' মিনিট খেলা হয়েছে')
+    :('খেলা শেষ হবে '+bnDigits(T.total)+' মিনিটে • বিরতির সময় এর ভেতরে গণনা হয় না')));
+  if(gb&&TMR.phase==='play')gb.innerHTML='⚽ গোল! ('+bnDigits(timerPlayMinute())+'&prime;)';}
 function timerMatch(v){TMR.matchId=v||'';timerSaveLive();timerRender();}
-function timerSet(k,v){const T=timerCfg();T[k]=Math.max(1,Math.min(120,parseInt(v,10)||T[k]));save();timerRender();}
-function timerSetLabel(k,v){const T=timerCfg();T[k]=String(v||'').trim().slice(0,24)||(k==='l1'?'১ম অংশ':'২য় অংশ');save();timerRender();}
+function timerSet(k,v){const T=timerCfg();const lim={total:[2,180],breakAt:[0,180],breakLen:[0,40]};
+  const L=lim[k]||[1,180];T[k]=Math.max(L[0],Math.min(L[1],parseInt(v,10)||T[k]));
+  if(T.breakAt>=T.total)T.breakAt=Math.max(0,T.total-1);
+  save();timerRender();}
 function togMemberGoals(){store.settings.allowMemberGoals=!store.settings.allowMemberGoals;
   logAct('সদস্যদের গোল দেওয়া '+(store.settings.allowMemberGoals?'চালু':'বন্ধ'));save();timerRender();
   toast(store.settings.allowMemberGoals?'সদস্যরা এখন গোল দিতে পারবে ✅':'গোল দেওয়া শুধু কর্তৃপক্ষের জন্য');}
-function timerPlayMinute(){const T=timerCfg();const halfMs=T.half*60000;
-  if(TMR.phase==='h1'||TMR.phase==='h1p')return Math.max(1,Math.ceil((halfMs-timerLeftMs())/60000));
-  if(TMR.phase==='rest'||TMR.phase==='restp')return T.half;
-  if(TMR.phase==='h2'||TMR.phase==='h2p')return T.half+Math.max(1,Math.ceil((halfMs-timerLeftMs())/60000));
-  if(TMR.phase==='done')return T.half*2;
+/* সঠিক খেলা-ঘড়ি: মিনিট+সেকেন্ড (গোলের সময় "৫:১০" আকারে) */
+function timerPlayClock(){const T=timerCfg();const tot=T.total*60000;let ms;
+  if(TMR.phase==='play'||TMR.phase==='pause')ms=tot-timerLeftMs();
+  else if(TMR.phase==='rest'||TMR.phase==='restw'||TMR.phase==='startw')ms=tot-Math.max(1000,TMR.pausedLeft||tot);
+  else if(TMR.phase==='done')ms=tot;
+  else ms=0;
+  ms=Math.max(0,ms);
+  return {min:Math.floor(ms/60000),sec:Math.floor((ms%60000)/1000)};}
+function clockTxt(c){return bnDigits(c.min)+':'+('০'+bnDigits(c.sec||0)).slice(-2);}
+function liveElapsedSec(L){const tot=(L.total||50)*60000;
+  if(L.phase==='rest'||L.phase==='restw'||L.phase==='startw')return Math.floor(Math.max(0,tot-(L.playLeftMs||tot))/1000);
+  if(L.phase==='pause')return Math.floor(Math.max(0,tot-(L.playLeftMs||0))/1000);
+  /* মোট(ms) থেকে সেকেন্ড-মোট বিয়োগ করা হয়েছিল — ইউনিট-বাগ; এখন সেকেন্ডেই */
+  return Math.floor(Math.max(0,(tot/1000)-Math.max(0,Math.ceil((((L.endAt||Date.now()))-Date.now())/1000))));}
+function timerPlayMinute(){const T=timerCfg();
+  if(TMR.phase==='play'||TMR.phase==='pause')return Math.max(1,Math.ceil(((T.total*60000)-timerLeftMs())/60000));
+  if(TMR.phase==='rest'||TMR.phase==='restw'||TMR.phase==='startw')return Math.max(1,Math.ceil(((T.total*60000)-(TMR.pausedLeft||T.total*60000))/60000));
+  if(TMR.phase==='done')return T.total;
   return 0;}
 function timerGo(){const T=timerCfg();
-  if(TMR.phase==='idle'){TMR.phase='h1';TMR.endAt=Date.now()+T.half*60000;
-    /* নিয়ম: খেলা শুরুতেই নির্ধারিত কণ্ঠ একবার */
-    timerAnnounce('খেলা শুরু — সবাই মাঠে!','🏅','start');}
-  else if(TMR.phase==='h1p'||TMR.phase==='restp'||TMR.phase==='h2p'){TMR.phase=TMR.phase.slice(0,-1);TMR.endAt=Date.now()+(TMR.pausedLeft||60000);}
+  if(TMR.phase==='idle'){TMR.phase='play';TMR.endAt=Date.now()+T.total*60000;TMR.breakTaken=false;
+    const t0=store.tournaments.find(x=>x.id===TMR.tourId);const m0=t0&&t0.matches?t0.matches.find(x=>x.id===TMR.matchId):null;
+    if(m0)notify('🔴 ম্যাচ শুরু হয়েছে',tName(t0,m0.teamA)+' বনাম '+tName(t0,m0.teamB)+' • '+(m0.round||'ম্যাচ')+' • '+(t0.name||'')+' — লাইভ পেজে স্কোর, ঘড়ি আর গোল দেখুন!','live');}
+  else if(TMR.phase==='pause'){TMR.phase='play';TMR.endAt=Date.now()+Math.max(1000,TMR.pausedLeft||60000);}
   else return;
-  clearInterval(TMR.iv);TMR.iv=setInterval(timerTick,500);timerSaveLive();timerRender();}
-function timerPause(){clearInterval(TMR.iv);TMR.iv=null;TMR.pausedLeft=timerLeftMs();
-  if(TMR.phase==='h1')TMR.phase='h1p';else if(TMR.phase==='rest')TMR.phase='restp';else if(TMR.phase==='h2')TMR.phase='h2p';
+  clearInterval(TMR.iv);TMR.iv=setInterval(timerTick,500);timerSaveLive();timerRender();
+  /* v5.2: শুরু মানেই লাইভ — সবার ফোনে সঙ্গে সঙ্গে */
+  if(TMR.tourId&&TMR.matchId&&typeof liveShare==='function'){try{liveShare();}catch(e){}}}
+function timerPause(){clearInterval(TMR.iv);TMR.iv=null;
+  if(TMR.phase==='play'){TMR.pausedLeft=timerLeftMs();TMR.phase='pause';}
+  else if(TMR.phase==='rest'){TMR.restLeftPaused=Math.max(1000,TMR.restEnd-Date.now());TMR.phase='restp';}
   timerSaveLive();timerRender();}
-function timerReset(){clearInterval(TMR.iv);TMR.iv=null;try{annCancel();}catch(e){}TMR.phase='idle';TMR.endAt=0;TMR.pausedLeft=0;TMR.restPaused=0;TMR.restBack='h2';timerSaveLive();timerRender();}
-function timerTick(){if(!timerRunning()){return;}
-  if(Date.now()>=TMR.endAt){clearInterval(TMR.iv);TMR.iv=null;timerNext();return;}timerUI();}
-/* ===== বিরতি-প্রবাহ v4: টাইমার ফ্রিজ → নির্ধারিত কণ্ঠ → কণ্ঠ শেষে অটো কাউন্টডাউন → শেষ হলে অটো রিজিউম ===== */
-function timerStartBreak(manual,back){const T=timerCfg();clearInterval(TMR.iv);TMR.iv=null;
-  if(manual)TMR.restPaused=(TMR.phase==='h1p'||TMR.phase==='h2p')?(TMR.pausedLeft||T.half*60000):timerLeftMs();
-  TMR.restBack=back||'h2';TMR.phase='restw';timerSaveLive();timerRender();
-  timerAnnounce('বিরতির সময় হয়েছে, সবাই রেস্ট নিন!','☕','rest',function(){
-    TMR.phase='rest';TMR.endAt=Date.now()+T.rest*60000;
-    clearInterval(TMR.iv);TMR.iv=setInterval(timerTick,500);
-    timerSaveLive();timerRender();});}
-function timerResume(){clearInterval(TMR.iv);TMR.iv=null;
-  TMR.phase='startw';timerSaveLive();timerRender();
-  timerAnnounce('বিরতি শেষ — সবাই মাঠে ফিরে খেলা শুরু করুন!','🏅','start',function(){
-    TMR.phase=TMR.restBack==='h1'?'h1':'h2';
-    TMR.endAt=Date.now()+(TMR.restBack==='h1'?Math.max(1000,TMR.restPaused||timerCfg().half*60000):timerCfg().half*60000);
-    clearInterval(TMR.iv);TMR.iv=setInterval(timerTick,500);
-    timerSaveLive();timerRender();});}
-function timerNext(){const T=timerCfg();const over=Date.now()-TMR.endAt;const fresh=over<90000;
-  if(TMR.phase==='h1'){
-    if(fresh)timerStartBreak(false,'h2');
-    else{TMR.phase='rest';TMR.endAt=Date.now()+T.rest*60000;clearInterval(TMR.iv);TMR.iv=setInterval(timerTick,500);
-      toast('বিরতি চলছে (অ্যাপ বন্ধ থাকার সময়ে শুরু হয়েছে) ☕');}}
+function timerReset(){clearInterval(TMR.iv);TMR.iv=null;try{annCancel();}catch(e){}
+  TMR.phase='idle';TMR.endAt=0;TMR.pausedLeft=0;TMR.restEnd=0;TMR.restLeftPaused=0;TMR.breakTaken=false;timerSaveLive();timerRender();
+  /* চালু শেয়ার থাকলে রিসেটেই বন্ধ — কারো ফোনে ভুতুড়ে লাইভ থাকবে না */
+  if(typeof liveStop==='function'&&typeof SHARE!=='undefined'&&SHARE){try{liveStop();}catch(e){}}}
+function liveStopAsk(){confirmBox('লাইভ-ব্যানার বন্ধ করলে সবার ফোন থেকে লাইভ ঘড়ি-স্কোর সরে যাবে (খেলা চলতেই থাকতে পারে)। বন্ধ করবেন?',function(){liveStop();});}
+function timerResetAsk(){const busy=(TMR.phase!=='idle'&&TMR.phase!=='done');
+  if(!busy){timerReset();return;}
+  confirmBox('ঘড়ি চলছে/থামানো আছে — রিসেট করলে এই খেলার চলমান অবস্থা মুছে যাবে (গোল-রেকর্ড অক্ষত থাকবে)। রিসেট করবেন?',function(){timerReset();toast('ঘড়ি রিসেট হয়েছে');});}
+function timerTick(){
+  if(TMR.phase==='play'){
+    const T=timerCfg();
+    /* অটো-বিরতি: breakAt মিনিট খেলা হয়ে গেলে (একবারই) */
+    if(!TMR.breakTaken&&T.breakAt>0&&T.breakLen>0&&((T.total*60000)-timerLeftMs())>=T.breakAt*60000){clearInterval(TMR.iv);TMR.iv=null;timerStartBreak(false);return;}
+    if(Date.now()>=TMR.endAt){clearInterval(TMR.iv);TMR.iv=null;timerNext();return;}}
   else if(TMR.phase==='rest'){
-    if(fresh)timerResume();
-    else{TMR.phase=TMR.restBack==='h1'?'h1':'h2';TMR.endAt=Date.now()+(TMR.restBack==='h1'?Math.max(1000,TMR.restPaused||T.half*60000):T.half*60000);
-      clearInterval(TMR.iv);TMR.iv=setInterval(timerTick,500);toast('খেলা আবার চলছে 🏅');}}
-  else if(TMR.phase==='h2'){TMR.phase='done';TMR.endAt=0;clearInterval(TMR.iv);TMR.iv=null;
-    if(fresh)timerAnnounce('খেলা শেষ! এখন ফলাফল লিখুন।','🏁','end');
-    else toast('খেলা শেষ হয়ে গেছে 🏁');}
-  else return;
+    if(TMR.restEnd&&Date.now()>=TMR.restEnd){clearInterval(TMR.iv);TMR.iv=null;timerResume();return;}}
+  timerUI();}
+/* ===== বিরতি-প্রবাহ v5: ঘড়ি ফ্রিজ → নির্ধারিত কণ্ঠ → কণ্ঠ শেষে অটো কাউন্টডাউন → শেষ হলে অটো রিজিউম (বিরতির সময় মোট খেলার সময়ে গণনা হয় না) ===== */
+function timerStartBreak(manual){const T=timerCfg();clearInterval(TMR.iv);TMR.iv=null;
+  TMR.pausedLeft=(TMR.phase==='pause')?Math.max(1000,TMR.pausedLeft||60000):Math.max(1000,timerLeftMs());
+  TMR.phase='restw';timerSaveLive();timerRender();
+  timerAnnounce('বিরতির সময় হয়েছে, সবাই রেস্ট নিন!','☕','rest',function(){
+    if(T.breakLen>0){TMR.phase='rest';TMR.restEnd=Date.now()+T.breakLen*60000;
+      clearInterval(TMR.iv);TMR.iv=setInterval(timerTick,500);}
+    else{TMR.phase='pause';}
+    timerSaveLive();timerRender();});}
+function timerResume(){clearInterval(TMR.iv);TMR.iv=null;const T=timerCfg();
+  TMR.phase='startw';TMR.breakTaken=true;timerSaveLive();timerRender();
+  timerAnnounce('বিরতি শেষ — সবাই মাঠে ফিরে খেলা শুরু করুন!','🏅','start',function(){
+    TMR.phase='play';TMR.endAt=Date.now()+Math.max(1000,TMR.pausedLeft||T.total*60000);
+    clearInterval(TMR.iv);TMR.iv=setInterval(timerTick,500);
+    timerSaveLive();timerRender();});}
+function timerNext(){const over=Date.now()-TMR.endAt;const fresh=over<90000;
+  TMR.phase='done';TMR.endAt=0;clearInterval(TMR.iv);TMR.iv=null;
+  if(fresh)timerAnnounce('খেলা শেষ! এখন ফলাফল লিখুন।','🏁','end');
+  else toast('খেলা শেষ হয়ে গেছে 🏁');
   timerSaveLive();timerRender();}
 function vTimer(){const ts=store.tournaments;
-  const live=store.timerLive&&(store.timerLive.phase==='h1'||store.timerLive.phase==='rest'||store.timerLive.phase==='h2');
+  const L=(typeof liveInfo==='function')?liveInfo():null;
   return `<div class="card">
-    ${live?`<div class="mtxt" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:8px 10px">🕐 আগের ঘড়ি এখনো চলছে — ফিরে এসেছেন, তাই সময় ঠিক দেখাচ্ছে। নতুন খেলা চাইলে ⏹ রিসেট চাপুন।</div>`:''}
-    <div class="tsub">⏱️ লাইভ ম্যাচ ঘড়ি — যে কেউ চালাতে পারবেন। ঘড়ি দেওয়াল-ঘড়ি অনুযায়ী চলে, তাই স্ক্রিন অফ বা অ্যাপ বন্ধ হলেও সময় ঠিক থাকে।</div>
+    ${L?`<div style="background:#fee2e2;border:1px solid #fecaca;border-radius:12px;padding:10px 12px;margin-bottom:8px;display:flex;gap:10px;align-items:center;cursor:pointer" onclick="go('live')">
+      <span style="font-size:1.5rem">🔴</span><div style="flex:1"><b>লাইভ ম্যাচ চলছে!</b><div class="tsub">${esc((L.m&&L.t)?(tName(L.t,L.m.teamA)+' বনাম '+tName(L.t,L.m.teamB)):(L.matchName||'ঘড়ি চালু আছে'))} — লাইভ পেজে স্কোর, ঘড়ি, গোল সব দেখুন</div></div><span>›</span></div>`
+      :(store.timerLive&&store.timerLive.phase!=='idle'?`<div class="mtxt" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:8px 10px">🕐 আগের ঘড়ি থেমে আছে — নিচের ঘড়ি থেকে ▶ চালু করুন বা ⏹ রিসেট দিন।</div>`:'')}
+    <div class="tsub">⏱️ ম্যাচ ঘড়ি — যে কেউ চালাতে পারবেন। ঘড়ি দেওয়াল-ঘড়ি অনুযায়ী চলে, তাই স্ক্রিন অফ বা অ্যাপ বন্ধ হলেও সময় ঠিক থাকে; সব ফোনে একই সময় দেখায়।</div>
     ${ts.length?`<div class="fgrp"><label>কোন টুর্নামেন্টের ম্যাচ? (গোল লেখার জন্য — ঐচ্ছিক)</label><select onchange="TMR.tourId=this.value;TMR.matchId='';timerSaveLive();timerRender()">
       <option value="">— শুধু ঘড়ি (ম্যাচ ছাড়া) —</option>
       ${ts.map(t=>`<option value="${t.id}" ${TMR.tourId===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}
@@ -1663,84 +2128,167 @@ function vTimer(){const ts=store.tournaments;
     <div id="tfacepage"></div>
   </div>`;}
 function openTimer(tourId){if(tourId)TMR.tourId=tourId;else if(!TMR.tourId&&currentT)TMR.tourId=currentT;
-  if(!isAdmin()){openModal(`<div class="mhandle"></div><div id="tface"></div>`);timerRender();return;}
+  if(!isAdmin()){go('live');return;}
   openModal(`<div class="mhandle"></div><h3 class="mttl">${ic('timer','i18')} লাইভ ম্যাচ টাইমার</h3><div id="tface"></div>`);
   timerRender();}
-/* সাধারণ সদস্যদের লাইভ ওয়াচ — দল, স্কোর, ঘড়ি, গোলের ইতিহাস; কোনো নিয়ন্ত্রণ নেই */
-function timerViewerFace(f){const T=timerCfg();const t=TMR.tourId?store.tournaments.find(x=>x.id===TMR.tourId):null;
-  const m=TMR.matchId&&t?t.matches.find(x=>x.id===TMR.matchId):null;
-  const sc=matchScore(m);
-  const evs=(m&&m.events)?m.events.slice().sort(function(a,b){return a.min-b.min;}):[];
-  const live=(TMR.phase!=='idle'&&TMR.phase!=='done');
-  f.innerHTML=`
+/* দর্শকের লাইভ-ওয়াচ: ক্লাউড-শেয়ার(SHARE) থাকলে সেটাই সত্য — লাইভ থাকতে কখনো 'শুরু হয়নি' দেখাবে না */
+function timerViewerFace(f){const L=(typeof liveInfo==='function')?liveInfo():null;
+  if(L){const t=L.t,m=L.m;
+    const tA=t&&m?t.teams.find(x=>x.id===m.teamA):null,tB=t&&m?t.teams.find(x=>x.id===m.teamB):null;
+    f.innerHTML=`
     <div style="text-align:center;padding:6px 0 2px">
-      <div class="vphase ${live?'on':''}">${live?'<span class="livedot"></span> লাইভ — '+timerPhaseLabel():(TMR.phase==='done'?'খেলা শেষ হয়েছে':'খেলা এখনো শুরু হয়নি')}</div>
-      ${m?`<div class="vteams"><b>${esc(tName(t,m.teamA))}</b><span class="vscore">${bnNum(sc[0])} : ${bnNum(sc[1])}</span><b>${esc(tName(t,m.teamB))}</b></div>`:'<div class="tsub">ম্যাচ বাছাই করা হয়নি</div>'}
-      <div class="tbig" id="tbig">${TMR.phase==='done'?'🏁':((TMR.phase==='restw'||TMR.phase==='startw')?'🔊':bnTime(TMR.phase==='idle'?T.half*60:Math.ceil(timerLeftMs()/1000)))}</div>
+      <div class="vphase on"><span class="livedot"></span> ${livePhaseLabel(L.phase)}${L.by?' — 📡 '+esc(L.by)+' চালু করেছেন':''}</div>
+      ${m?`<div class="vteams"><b>${esc(tA?tA.name:'—')}</b><span class="vscore">${bnNum(L.sa)} : ${bnNum(L.sb)}</span><b>${esc(tB?tB.name:'—')}</b></div>`:`<div class="tsub">${esc(L.matchName||'ঘড়ি চালু আছে')}</div>`}
+      <div class="tbig" id="tbig">${(L.phase==='restw'||L.phase==='startw')?'🔊':((L.phase==='rest')?bnTime(Math.max(0,Math.ceil(((L.restEnd||Date.now())-Date.now())/1000))):bnTime(liveElapsedSec(L)))}</div>
+      <div class="tsub">${L.phase==='rest'?'বিরতির কাউন্টডাউন — খেলার ঘড়ি বন্ধ':'খেলা শেষ হবে '+bnDigits(L.total)+' মিনিটে • বিরতির সময় এর ভেতরে গণনা হয় না'}</div>
       <div class="tbar"><i id="tbarfill" style="width:0%"></i></div>
     </div>
-    ${canGoal()&&m&&live?`<div class="flabel">⚽ গোল দিলে খেলোয়াড়ের নামে চাপ দিন (মিনিট নিজে থেকেই ধরা পড়বে)</div>
-      <div class="prow">
-        ${t.teams.map(function(tm,ti){const cls=ti===0?'pa':'pb';return tm.members.map(function(pid){
-          const pp=store.players.find(function(x){return x.id===pid;});return pp?`<button class="pchip ${cls}" onclick="instantGoal('${pp.id}')">${esc(pp.name)}</button>`:'';}).join('');}).join('')}
-      </div>`:''}
-    ${m&&evs.length?`<div class="flabel">📜 গোলের ইতিহাস</div>
-      ${evs.map(function(e){return `<div class="row"><div class="ric ${e.team==='B'?'out':'in'}">${e.team==='B'?'🔵':'🔴'}</div>
-        <div class="rmain"><div class="t">${esc(e.name)}</div><div class="s">${bnNum(e.min)} মিনিটে${e.by?' • যোগ: '+esc(e.by):''}</div></div>
-        <div class="ramt in">গোল</div></div>`;}).join('')}`
-      :(m?'<div class="tsub" style="text-align:center">এখনো কোনো গোল হয়নি</div>':'')}
-    ${m&&m.date?`<div class="tsub" style="text-align:center;margin-top:6px">🗓 ম্যাচের তারিখ: ${fdate(m.date)}${m.time?' • 🕒 '+bnDigits(m.time):''}</div>`:''}
+    ${t&&m&&L.phase==='play'&&canGoal()?`<div class="flabel">⚽ গোল দিলে খেলোয়াড়ের নামে চাপ দিন (মিনিট নিজে থেকেই ধরা পড়বে)</div>
+      <div class="prow">${t.teams.map(function(tm,ti){const cls=ti===0?'pa':'pb';return ((tm.members)||[]).map(function(pid){
+        const pp=store.players.find(function(x){return x.id===pid;});return pp?`<button class="pchip ${cls}" onclick="instantGoal('${pp.id}')">${esc(pp.name)}</button>`:'';}).join('');}).join('')}</div>`:''}
+    ${m&&(m.events||[]).length?`<div class="shead" style="margin-top:8px"><h3>⚽ গোলের তালিকা</h3></div>${goalList(t,m,false)}`:''}
+    <div class="tsub" style="text-align:center;margin-top:4px">📡 লাইভ অবস্থা সবার ফোনে একই — গোল/বিরতি হলে নিজে থেকেই বদলাবে</div>`;
+    return;}
+  const T=timerCfg();const t=TMR.tourId?store.tournaments.find(x=>x.id===TMR.tourId):null;
+  const m=TMR.matchId&&t?t.matches.find(x=>x.id===TMR.matchId):null;
+  const playing=(TMR.phase!=='idle'&&TMR.phase!=='done');
+  f.innerHTML=`
+    <div style="text-align:center;padding:6px 0 2px">
+      <div class="vphase ${playing?'on':''}">${playing?'<span class="livedot"></span> '+timerPhaseLabel():(TMR.phase==='done'?'খেলা শেষ হয়েছে':'ঘড়ি এখনো চালু হয়নি')}</div>
+      ${m?`<div class="vteams"><b>${esc(tName(t,m.teamA))}</b><span class="vscore">${bnNum(matchScore(m)[0])} : ${bnNum(matchScore(m)[1])}</span><b>${esc(tName(t,m.teamB))}</b></div>`:'<div class="tsub">ম্যাচ বাছাই করা হয়নি</div>'}
+      <div class="tbig" id="tbig">${TMR.phase==='done'?'🏁':((TMR.phase==='restw'||TMR.phase==='startw')?'🔊':bnTime(TMR.phase==='idle'?0:Math.floor(Math.max(0,(T.total*60000-timerLeftMs()))/1000)))}</div>
+      <div class="tbar"><i id="tbarfill" style="width:0%"></i></div>
+    </div>
+    ${m&&(m.events||[]).length?`<div class="shead" style="margin-top:8px"><h3>⚽ গোলের তালিকা</h3></div>${goalList(t,m,false)}`:''}
     <div class="tsub" style="text-align:center;margin-top:4px">খেলা শেষ হলে বা বন্ধ করলে এখানে নিজে থেকেই আপডেট হবে</div>`;}
 /* সদস্যরা গোল দিতে পারবে কি না (কর্তৃপক্ষ চালু/বন্ধ করেন) */
 function canGoal(){if(isAdmin())return true;return !!store.settings.allowMemberGoals;}
-function instantGoal(pid){const t=store.tournaments.find(x=>x.id===TMR.tourId);const m=t&&t.matches.find(x=>x.id===TMR.matchId);
-  if(!m||!timerRunning()||!canGoal()){if(!canGoal())toast('গোল দেওয়ার অনুমতি কর্তৃপক্ষ বন্ধ রেখেছেন','err');return;}
+function goalPRows(t,evs){if(!t||!Array.isArray(t.teams))return '';
+  /* v6.2-ফিক্স: শুধু সিলেক্ট-করা ম্যাচের দুই দলই দেখায় — আগে টুর্নামেন্টের সব দল চলে আসত */
+  const tm_=TMR.matchId&&t.matches?t.matches.find(function(x){return x.id===TMR.matchId;}):null;
+  let tlist=t.teams;
+  if(tm_)tlist=t.teams.filter(function(tm){return tm&&(tm.id===tm_.teamA||tm.id===tm_.teamB);});
+  if(!tlist.length)tlist=t.teams.slice(0,2);
+  const cnt=function(nm,tm){return (evs||[]).filter(function(e){return e.name===nm&&(e.team||'A')===tm;}).length;};
+  return tlist.map(function(tm,ti){const side=tm_?((tm.id===tm_.teamA)?'A':'B'):(ti===0?'A':'B');const cls=side==='A'?'pa':'pb';
+    const chips=((tm&&tm.members)||[]).map(function(pid){const pp=store.players.find(function(x){return x.id===pid;});if(!pp)return '';
+      const c=cnt(pp.name,side);
+      return `<span class="pwrap"><button class="pchip ${cls}" onclick="instantGoal('${pp.id}')">${esc(pp.name)}${c?`<span class="gcount">${bnNum(c)}</span>`:''}</button><button class="pminus" onclick="goalMinus('${pp.id}')" title="সর্বশেষ গোল বাদ দিন">−</button></span>`;}).join('');
+    return `<div class="gtrow"><div class="gtlab ${cls}">${esc((tm&&tm.name)||'টিম')}</div><div class="prow">${chips||'<span class="tsub">এই দলে সদস্য নেই</span>'}</div></div>`;}).join('');}
+function goalMinus(pid){const t=store.tournaments.find(x=>x.id===TMR.tourId);const m=t&&TMR.matchId?t.matches.find(x=>x.id===TMR.matchId):null;
+  if(!m||!Array.isArray(m.events)||!m.events.length){toast('বাদ দেওয়ার মতো গোল নেই','err');return;}
   const pp=store.players.find(function(x){return x.id===pid;});if(!pp)return;
-  /* দল শনাক্ত */
-  let team='A';if(t.teams[1]&&t.teams[1].members.indexOf(pid)>-1&&t.teams[0].members.indexOf(pid)<0)team='B';
-  const min=timerPlayMinute();
-  /* একই গোল দুবার (দ্রুত দু-ট্যাপ) ঢুকবে না */
-  const last=m.events&&m.events.length?m.events[m.events.length-1]:null;
+  let idx=-1;for(let i=m.events.length-1;i>=0;i--){if(m.events[i].name===pp.name){idx=i;break;}}
+  if(idx<0){toast(pp.name+'-এর কোনো গোল নেই','err');return;}
+  const e=m.events[idx];const lbl=bnDigits(e.min||0)+':'+('০'+bnDigits(e.sec||0)).slice(-2);
+  confirmBox(pp.name+'-এর সর্বশেষ গোল ('+lbl+') বাদ দেবেন?',function(){
+    m.events.splice(idx,1);
+    if(typeof SHARE!=='undefined'&&SHARE&&SHARE.matchId===m.id){try{SHARE=shareState();if(typeof livePut==='function')livePut(SHARE);}catch(err){}}
+    logAct('গোল বাদ (লাইভ চিপ): '+pp.name+' '+lbl);save();timerRender();render();toast('গোল বাদ দেওয়া হয়েছে −');});}
+function instantGoal(pid){const L=(typeof liveInfo==='function')?liveInfo():null;
+  const t=(L&&L.t)||(TMR.tourId?store.tournaments.find(x=>x.id===TMR.tourId):null);
+  const m=(L&&L.m)||(t&&TMR.matchId?t.matches.find(x=>x.id===TMR.matchId):null);
+  if(!t||!m){toast('আগে ম্যাচ বাছাই করুন','err');return;}
+  if(!canGoal()){toast('গোল দেওয়ার অনুমতি কর্তৃপক্ষ বন্ধ রেখেছেন','err');return;}
+  const playing=(L?(L.phase==='play'):(timerRunning()));
+  if(!playing){toast('গোল শুধু খেলা চলাকালীন যোগ হয়','err');return;}
+  const pp=store.players.find(function(x){return x.id===pid;});if(!pp)return;
+  let team='A';const mb1=((t.teams[1]&&t.teams[1].members)||[]),mb0=((t.teams[0]&&t.teams[0].members)||[]);
+  if(mb1.indexOf(pid)>-1&&mb0.indexOf(pid)<0)team='B';
+  /* মিনিট: SHARE-লাইভে দূরের ফোনেও সঠিক খেলা-মিনিট */
+  let cl=timerPlayClock();
+  if(L&&L.phase==='play'){const left=Math.max(0,(L.endAt||Date.now())-Date.now());
+    const ms=Math.max(0,((L.total||50)*60000)-left);
+    cl={min:Math.floor(ms/60000),sec:Math.floor((ms%60000)/1000)};}
+  const min=cl.min||0,sec=cl.sec||0;  /* v6.0: প্রথম মিনিটের গোলও সঠিক — ০:৩০ থাকবে, ১' নয় */
+  /* দ্রুত দু-ট্যাপে ডাবল নয় */
+  const last=(m.events&&m.events.length)?m.events[m.events.length-1]:null;
   if(last&&last.name===pp.name&&last.min===min&&last.team===team&&Date.now()-(last.at||0)<2500)return;
+  if(!isAdmin()){/* সদস্য: ক্লাউডে জমা — কর্তৃপক্ষের ফোনে মুহূর্তেই মিশবে */
+    const nid='g'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+    if(typeof dbPut!=='function'){toast('এই মুহূর্তে জমা যাচ্ছে না','err');return;}
+    dbPut('goals/'+m.id+'/'+nid,{tourId:t.id,matchId:m.id,name:pp.name,team:team,min:min,sec:sec,by:'সদস্য',at:Date.now()}).then(function(ok){
+      if(ok){if(!m.events)m.events=[];m.events.push({id:uid(),cid:nid,min:min,sec:sec,name:pp.name,team:team,by:'সদস্য',at:Date.now()});save();
+        goalAnnounce(pp.name,min,team,sec);timerRender();render();toast('⚽ গোল জমা হয়েছে — সবার ফোনে যাচ্ছে');}
+      else toast('গোল জমা যায়নি — ইন্টারনেট দেখুন','err');});
+    return;}
   if(!m.events)m.events=[];
-  m.events.push({id:uid(),min:min,name:pp.name,team:team,by:isAdmin()?'এডমিন':'সদস্য',at:Date.now()});
-  logAct('গোল (লাইভ চিপ): '+pp.name+' '+bnNum(min)+'′');save();
-  goalAnnounce(pp.name,min,team);timerRender();render();}
+  m.events.push({id:uid(),min:min,sec:sec,name:pp.name,team:team,by:'এডমিন',at:Date.now()});
+  if(typeof SHARE!=='undefined'&&SHARE&&SHARE.matchId===m.id){try{SHARE=shareState();if(typeof livePut==='function')livePut(SHARE);}catch(err){}}
+  logAct('গোল (লাইভ চিপ): '+pp.name+' '+clockTxt({min:min,sec:sec}));save();
+  goalAnnounce(pp.name,min,team,sec);timerRender();render();}
 function shareState(){const T=timerCfg();const t=store.tournaments.find(x=>x.id===TMR.tourId);
   const m=t&&t.matches.find(x=>x.id===TMR.matchId);
   let sa=0,sb=0,goals=[];
   if(m&&Array.isArray(m.events)){m.events.forEach(function(e){
     if(e.team==='B'){sb++;}else{sa++;}
-    goals.push({name:e.name,team:e.team||'A',min:e.min});});}
-  goals.sort(function(a,b){return a.min-b.min;});
-  /* ঘোষণা-চলাকালীন ফেজ দর্শকের জন্য লক্ষ্য-সময়সহ ম্যাপ — সব ফোনে একই কাউন্টডাউন */
-  let ph=TMR.phase,en=TMR.endAt;
-  if(TMR.phase==='restw'){ph='rest';en=Date.now()+(annDur('rest')+0.6)*1000+T.rest*60000;}
-  else if(TMR.phase==='startw'){ph=TMR.restBack==='h1'?'h1':'h2';
-    en=Date.now()+(annDur('start')+0.6)*1000+(TMR.restBack==='h1'?Math.max(1000,TMR.restPaused||T.half*60000):T.half*60000);}
-  return {phase:ph,endAt:en,pausedLeft:TMR.pausedLeft,restPaused:TMR.restPaused||0,restBack:TMR.restBack||'h2',half:T.half,rest:T.rest,tourId:TMR.tourId,
-    matchName:m?(tName(t,m.teamA)+' বনাম '+tName(t,m.teamB)):'',
+    goals.push({name:e.name,team:e.team||'A',min:e.min,sec:e.sec||0});});}
+  goals.sort(function(a,b){return a.min-b.min||(a.sec||0)-(b.sec||0);});
+  let ph=TMR.phase,en=TMR.endAt,restEnd=TMR.restEnd||0,playLeftMs=0;
+  if(TMR.phase==='play'||TMR.phase==='pause')playLeftMs=Math.max(0,timerLeftMs());
+  if(TMR.phase==='pause')en=0;
+  if(TMR.phase==='restw'){ph='rest';restEnd=Date.now()+(annDur('rest')+0.6)*1000+T.breakLen*60000;}
+  else if(TMR.phase==='rest'){ph='rest';}
+  else if(TMR.phase==='startw'){ph='play';playLeftMs=Math.max(1000,TMR.pausedLeft||T.total*60000);
+    en=Date.now()+(annDur('start')+0.6)*1000+playLeftMs;}
+  return {phase:ph,endAt:en,restEnd:restEnd,playLeftMs:playLeftMs,total:T.total,breakLen:T.breakLen,tourId:TMR.tourId,
+    matchId:m?m.id:'',matchName:m?(tName(t,m.teamA)+' বনাম '+tName(t,m.teamB)):'',
     teamA:m?tName(t,m.teamA):'',teamB:m?tName(t,m.teamB):'',
-    sa:sa,sb:sb,goals:goals.slice(-10),by:'কর্তৃপক্ষ',at:Date.now()};}
-function matchScore(m){let sa=0,sb=0;
+    sa:sa,sb:sb,goals:goals.slice(-10),by:adminName(),at:Date.now()};}
+function matchScore(m,t){/* ফুটবল: ঘটনা-গণনা; ক্রিকেট/ব্যাডমিন্টন: ফলাফল-ভিত্তিক */
+  if(t&&t.sport==='cricket')return [m?m.scoreA||0:0,m?m.scoreB||0:0];
+  if(t&&t.sport==='badminton')return [m?m.scoreA||0:0,m?m.scoreB||0:0];
+  let sa=0,sb=0;
   if(m&&Array.isArray(m.events))m.events.forEach(function(e){if(e.team==='B')sb++;else sa++;});
   return [sa,sb];}
+function fmtScore(t,m,side){const s=side==='B'?m.scoreB:m.scoreA;
+  if(t&&t.sport==='cricket')return bnNum(s)+(side==='B'?'/'+bnNum(m.wktsB||0):'/'+bnNum(m.wktsA||0));
+  return bnNum(s);}
+function liveMatchId(){try{
+  if(SHARE&&SHARE.matchId&&SHARE.phase&&SHARE.phase!=='idle'&&SHARE.phase!=='done')return SHARE.matchId;
+  if(TMR&&TMR.matchId&&TMR.phase!=='idle'&&TMR.phase!=='done')return TMR.matchId;}catch(e){}
+  return '';}
+function livePhaseLabel(ph){return {play:'🔴 লাইভ — খেলা চলছে',pause:'⏸ থামানো আছে',rest:'☕ বিরতি চলছে',restw:'☕ বিরতি শুরু হচ্ছে',startw:'🔊 খেলা শুরু হচ্ছে',h1:'🔴 লাইভ — খেলা চলছে',h2:'🔴 লাইভ — খেলা চলছে'}[ph]||'';}
+function livePhaseTxt(){try{const ph=SHARE&&SHARE.phase?SHARE.phase:((TMR.phase!=='idle')?TMR.phase:'');
+  return {play:'খেলা চলছে',rest:'বিরতি',pause:'খেলা চলছে',h1:'খেলা চলছে',h2:'খেলা চলছে'}[ph]||'';}catch(e){return '';}}
+function liveBigLeft(L){if(L.phase==='rest')return Math.max(0,Math.ceil(((L.restEnd||Date.now())-Date.now())/1000));
+  if(L.phase==='pause')return Math.ceil((L.playLeftMs||0)/1000);
+  if(L.phase==='restw'||L.phase==='startw')return '🔊';
+  if(L.phase==='play')return Math.max(0,Math.ceil(((L.endAt||Date.now())-Date.now())/1000));
+  return 0;}
+function liveInfo(){try{
+  if(SHARE&&SHARE.phase&&SHARE.phase!=='idle'&&SHARE.phase!=='done'){
+    const t=store.tournaments.find(x=>x.id===SHARE.tourId);
+    const m=t&&t.matches?t.matches.find(x=>x.id===SHARE.matchId):null;
+    /* কর্তৃপক্ষের শেয়ার-স্কোরই শেষকথা (তার ফোনে ঘটনা-গণনা হয়ে গেছে) */
+    const sc=[(SHARE.sa!==undefined?SHARE.sa:0),(SHARE.sb!==undefined?SHARE.sb:0)];
+    const tA=t&&m&&t.teams?t.teams.find(x=>x.id===m.teamA):null;
+    const tB=t&&m&&t.teams?t.teams.find(x=>x.id===m.teamB):null;
+    return {src:'share',phase:SHARE.phase,endAt:SHARE.endAt||0,restEnd:SHARE.restEnd||0,playLeftMs:SHARE.playLeftMs||0,
+      total:SHARE.total||timerCfg().total,tourId:SHARE.tourId||'',matchId:SHARE.matchId||'',matchName:SHARE.matchName||'',by:SHARE.by||'',t:t,m:m,sa:sc[0],sb:sc[1],
+      nA:(tA&&tA.name)||(SHARE.teamA||''),nB:(tB&&tB.name)||(SHARE.teamB||'')};}
+  if(TMR.phase!=='idle'&&TMR.phase!=='done'){
+    const t=store.tournaments.find(x=>x.id===TMR.tourId);
+    const m=t&&t.matches?t.matches.find(x=>x.id===TMR.matchId):null;
+    const sc=m?matchScore(m,t):[0,0];
+    return {src:'local',phase:TMR.phase,endAt:TMR.endAt,restEnd:TMR.restEnd||0,playLeftMs:TMR.pausedLeft||0,
+      total:timerCfg().total,tourId:TMR.tourId,matchId:TMR.matchId,matchName:m?(tName(t,m.teamA)+' বনাম '+tName(t,m.teamB)):'',by:isAdmin()?adminName():'',
+      t:t,m:m,sa:sc[0],sb:sc[1],nA:m?tName(t,m.teamA):'',nB:m?tName(t,m.teamB):''};}}catch(e){}
+  return null;}
 async function liveShare(){const st=shareState();
   const ok=await livePut(st);
   if(ok){SHARE=st;SHARE_ANN={};renderShareBar();timerRender();
-    notify('📡 লাইভ খেলা চলছে',st.matchName||'ঘড়ি চালু হয়েছে — অ্যাপে চাপ দিয়ে দেখুন','live');
-    toast('📡 শেয়ার চালু — সবার ফোনে লাইভ ঘড়ি দেখা যাবে (ইন্টারনেট থাকলে)');}
+        toast('📡 শেয়ার চালু — সবার ফোনে লাইভ ঘড়ি দেখা যাবে (ইন্টারনেট থাকলে)');}
   else toast('শেয়ার হয়নি — Firebase-এ Realtime Database তৈরি করুন (সহায়িকা → লাইভ ঘড়ি)','err');}
 async function liveStop(){const ok=await livePut({phase:'idle',by:adminName(),at:Date.now()});
   if(ok){SHARE=null;renderShareBar();timerRender();toast('শেয়ার বন্ধ হয়েছে — কারো ফোনে ব্যানার আর দেখাবে না');
-  notify('📡 লাইভ খেলা বন্ধ হয়েছে','খেলা শেষ — ফলাফল জানতে অ্যাপে দেখুন','live');
-}
+  }
   else toast('বন্ধ করা গেল না — ইন্টারনেট চেক করুন','err');}
-function goalAnnounce(name,min,teamName){const ov=document.createElement('div');ov.className='tann';ov.style.cursor='pointer';
+function goalAnnounce(name,min,teamName,sec){const ov=document.createElement('div');ov.className='tann';ov.style.cursor='pointer';
   ov.innerHTML=`<div class="te" style="animation:gpop .6s cubic-bezier(.2,1.6,.4,1)">⚽</div>
   <div class="tt" style="color:#fde047">গোল!!!</div>
   <div style="font-size:1.9rem;font-weight:900;line-height:1.3;padding:0 12px;overflow-wrap:anywhere">${esc(name)}</div>
-  <div style="font-size:.95rem;font-weight:700;color:#bbf7d0;background:rgba(255,255,255,.14);border-radius:999px;padding:6px 16px">${esc(teamName)} • ${bnNum(min)} মিনিটে</div>
+  <div style="font-size:.95rem;font-weight:700;color:#bbf7d0;background:rgba(255,255,255,.14);border-radius:999px;padding:6px 16px">${esc(teamName)} • ${bnDigits(min||0)}:${('০'+bnDigits(sec||0)).slice(-2)}-এ</div>
   <div style="font-size:.72rem;opacity:.7">ট্যাপ করলে বন্ধ • ভুল হলে চিপে চেপে বাদ দিন</div>`;
   const close=function(){if(ov.parentNode)ov.parentNode.removeChild(ov);};
   ov.onclick=close;document.body.appendChild(ov);setTimeout(close,6000);
@@ -1754,7 +2302,7 @@ function goalForm(){const t=store.tournaments.find(x=>x.id===TMR.tourId);const m
     return ps.map(function(p){const gi=window._gflist.push(p)-1;
       return `<button type="button" class="gfchip ${side==='B'?'b':''}" onclick="gfPick(${gi},'${side}')">${p.photo?`<img src="${p.photo}" alt="">`:'👤'} ${esc(p.name)}</button>`;}).join('');};
   const names=store.players.map(x=>x.name);
-  openModal(`<div class="mhandle"></div><h3 class="mttl">⚽ গোল লিখুন — ${bnDigits(timerPlayMinute())}&prime;</h3>
+  openModal(`<div class="mhandle"></div><h3 class="mttl">⚽ গোল লিখুন — ${clockTxt(timerPlayClock())}</h3>
   <div class="mtxt">${esc(tName(t,m.teamA))} vs ${esc(tName(t,m.teamB))}</div>
   <div class="fgrp"><label>👇 খেলোয়াড়ের নামে ট্যাপ করলেই নাম ও দল বসে যাবে</label>
     <div class="gfchips" style="max-height:200px;overflow-y:auto;padding:2px">
@@ -1763,7 +2311,7 @@ function goalForm(){const t=store.tournaments.find(x=>x.id===TMR.tourId);const m
     </div></div>
   <div class="frow">
     <div class="fgrp" style="flex:2"><label>নাম (ট্যাপ না করে লিখেও দিতে পারেন)</label><input id="gf-name" list="gf-list" placeholder="যেমন: সুজন"><datalist id="gf-list">${names.map(n=>`<option value="${esc(n)}">`).join('')}</datalist></div>
-    <div class="fgrp" style="flex:1"><label>মিনিট</label><input id="gf-min" type="number" min="1" max="300" value="${timerPlayMinute()}"></div>
+    <div class="fgrp" style="flex:1"><label>মিনিট : সেকেন্ড</label><div style="display:flex;gap:6px"><input id="gf-min" type="number" min="0" max="300" value="${timerPlayClock().min}" style="min-width:0"><input id="gf-sec" type="number" min="0" max="59" value="${timerPlayClock().sec}" style="min-width:0"></div></div>
   </div>
   <div class="fgrp"><label>কোন দলের গোল?</label><select id="gf-team"><option value="A">${esc(tName(t,m.teamA))}</option><option value="B">${esc(tName(t,m.teamB))}</option></select></div>
   <div class="mbtns"><button class="btn ghost" onclick="closeModal()">বাতিল</button><button class="btn pri" onclick="goalSave()">⚽ জমা দিন</button></div>`);}
@@ -1771,16 +2319,18 @@ function gfPick(i,side){const p=(window._gflist||[])[i];if(!p)return;
   const n=document.getElementById('gf-name');if(n)n.value=p.name;
   const st=document.getElementById('gf-team');if(st)st.value=side;}
 function goalSave(){const t=store.tournaments.find(x=>x.id===TMR.tourId);const m=t&&t.matches.find(x=>x.id===TMR.matchId);
-  if(!t||!m)return;
-  const name=$('#gf-name').value.trim();if(!name){toast('খেলোয়াড়ের নাম লিখুন','err');return;}
-  const min=Math.max(1,Math.min(300,parseInt($('#gf-min').value,10)||timerPlayMinute()));
-  if(!Array.isArray(m.events))m.events=[];
-  m.events.push({id:uid(),min:min,name:name,team:$('#gf-team').value,by:adminName(),at:Date.now()});
-  const _sc=matchScore(m);
-  notify('⚽ গোল! '+name,tName(t,m.teamA)+' '+bnNum(_sc[0])+'–'+bnNum(_sc[1])+' '+tName(t,m.teamB)+' — '+bnNum(min)+' মিনিটে','goal');
-  const gteam=$('#gf-team').value;const gteamName=tName(t,gteam==='B'?m.teamB:m.teamA);
-  logAct('গোল: '+name+' '+bnNum(min)+' মিনিটে ('+gteamName+')');
-  save();openTimer(TMR.tourId);goalAnnounce(name,min,gteamName);toast('⚽ গোল লেখা হয়েছে: '+name+' — '+bnNum(min)+' মিনিটে');}
+  if(!t||!m){toast('আগে ম্যাচ বাছাই করুন','err');return;}
+  const name=$('#gf-name').value.trim();const gi=window._gfpick;
+  const pp=(gi!==undefined&&gi!==null&&window._gflist&&window._gflist[gi])?window._gflist[gi]:null;
+  const nm=name||(pp?pp.name:'');
+  if(!nm){toast('খেলোয়াড়ের নাম দিন — চিপে ট্যাপ করুন বা লিখুন','err');return;}
+  const team=$('#gf-team').value;
+  const min=Math.max(1,Math.min(300,parseInt($('#gf-min').value,10)||timerPlayClock().min));
+  const sec=Math.max(0,Math.min(59,parseInt($('#gf-sec').value,10)||0));
+  if(!m.events)m.events=[];
+  m.events.push({id:uid(),min:min,sec:sec,name:nm,team:team,by:'এডমিন',at:Date.now()});
+  logAct('গোল: '+nm+' '+clockTxt({min:min,sec:sec}));save();closeModal();render();timerRender();
+  goalAnnounce(nm,min,team);toast('⚽ গোল যোগ হয়েছে — সবার ফোনে যাচ্ছে');}
 function eventForm(){const t=store.tournaments.find(x=>x.id===TMR.tourId);const m=t&&t.matches.find(x=>x.id===TMR.matchId);
   if(!t||!m){toast('আগে ম্যাচ বাছাই করুন','err');return;}
   goalForm();}
@@ -1789,7 +2339,7 @@ function matchDel(tId,mId){const t=store.tournaments.find(x=>x.id===tId);if(!t)r
     t.matches=t.matches.filter(x=>x.id!==mId);save();closeModal();render();toast('মুছে ফেলা হয়েছে');});}
 function standingsHTML(t){if(!t.teams.length)return `<div class="card empty"><span class="e">📊</span>দল যোগ করলে পয়েন্ট তালিকা দেখা যাবে</div>`;
   const rows={};t.teams.forEach(tm=>{rows[tm.id]={name:tm.name,p:0,w:0,d:0,l:0,pts:0,gf:0,ga:0};});
-  t.matches.filter(m=>m.done).forEach(function(m){
+  (t.matches||[]).filter(m=>m.done).forEach(function(m){
     const A=rows[m.teamA],B=rows[m.teamB];if(!A||!B)return;
     A.p++;B.p++;A.gf+=m.scoreA;A.ga+=m.scoreB;B.gf+=m.scoreB;B.ga+=m.scoreA;
     if(m.scoreA>m.scoreB){A.w++;A.pts+=(t.ptsWin||3);B.l++;}
@@ -1810,7 +2360,7 @@ function teamsHTML(t){
         <div style="flex:1;min-width:0"><b style="font-size:.9rem">${esc(tm.name)}</b>
         <div class="tsub">${cnt?bnNum(cnt)+' জন সদস্য'+(cap?' • 👑 ক্যাপ্টেন: '+esc(cap.name):''):'দলে সদস্য যোগ করা হয়নি'}</div></div>
         ${teamAvs(t,tm.id,'tm-avs')}
-        ${canAdmin('tournaments')?`<button class="ibtn" onclick="teamForm('${t.id}','${tm.id}')">✏️</button><button class="ibtn" onclick="teamDel('${t.id}','${tm.id}')">🗑️</button>`:''}
+        ${canAdmin('tournaments')?`<button class="ibtn" onclick="teamForm('${t.id}','${tm.id}')">${ic('edit')}</button><button class="ibtn" onclick="teamDel('${t.id}','${tm.id}')">${ic('trash')}</button>`:''}
       </div>
       ${cnt?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:7px">${(tm.members||[]).map(id=>{const p=store.players.find(x=>x.id===id);return p?`<span class="spbadge">${tm.captain===id?'👑 ':''}${esc(p.name)}</span>`:'';}).join('')}</div>`:''}
     </div>`;}).join('')}
@@ -1822,9 +2372,9 @@ function teamForm(tId,tmId){const t=store.tournaments.find(x=>x.id===tId);if(!t)
   const tm=tmId?t.teams.find(x=>x.id===tmId):null;
   const sel=(tm&&tm.members)||[];
   window._tlogo=(tm&&tm.logo)||'';
-  const pl=store.players.map(p=>`<label class="ckbox ${sel.includes(p.id)?'on':''}" style="justify-content:flex-start;gap:7px;text-align:left" onclick="togChk(this)">
+  const pl=store.players.map(p=>`<div class="ckbox ${sel.includes(p.id)?'on':''}" style="justify-content:flex-start;gap:7px;text-align:left" onclick="togChk(this)">
     ${p.photo?`<img src="${p.photo}" style="width:26px;height:26px;border-radius:50%;object-fit:cover">`:`<span style="width:26px;height:26px;border-radius:50%;background:#dcfce7;display:inline-flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;color:var(--green-d)">${esc(initials(p.name))}</span>`}
-    <input type="checkbox" data-pid="${p.id}" ${sel.includes(p.id)?'checked':''} style="display:none">${esc(p.name)}</label>`).join('');
+    <input type="checkbox" data-pid="${p.id}" ${sel.includes(p.id)?'checked':''} style="display:none">${esc(p.name)}</div>`).join('');
   const capOpts='<option value="">— ক্যাপ্টেন বাছুন —</option>'+store.players.map(p=>`<option value="${p.id}" ${tm&&tm.captain===p.id?'selected':''}>${esc(p.name)}</option>`).join('');
   openModal(`<div class="mhandle"></div><h3 class="mttl">${tm?'দল সম্পাদনা — '+esc(tm.name):'🛡️ নতুন দল যোগ করুন'}</h3>
   <div class="fgrp" style="text-align:center">
@@ -1867,8 +2417,7 @@ function championForm(tId){const t=store.tournaments.find(x=>x.id===tId);if(!t)r
 function championSave(tId){const t=store.tournaments.find(x=>x.id===tId);if(!t)return;
   const id=$('#cp-team').value;if(!id){toast('দল বাছুন','err');return;}
   t.champion=id;t.status='সম্পন্ন';logAct('চ্যাম্পিয়ন ঘোষণা ['+t.name+']: '+tName(t,id));
-  notify('🏆 চ্যাম্পিয়ন ঘোষণা!',tName(t,id)+' টুর্নামেন্ট "'+t.name+'" জিতে নিয়েছে — অভিনন্দন! 🎉','champion');
-  save();closeModal();render();toast('🎉 চ্যাম্পিয়ন ঘোষণা সম্পন্ন!');}
+    save();closeModal();render();toast('🎉 চ্যাম্পিয়ন ঘোষণা সম্পন্ন!');}
 
 /* ================= নোটিশ ================= */
 function vNotices(){const list=[...store.notices].sort((a,b)=>(b.date+(b.createdAt||'')).localeCompare(a.date+(a.createdAt||'')));
@@ -1897,6 +2446,149 @@ function noticeDel(id){const n=store.notices.find(x=>x.id===id);if(!n)return;
   confirmBox('"'+n.title+'" নোটিশটি মুছবেন?',function(){
     store.notices=store.notices.filter(x=>x.id!==id);
     logAct('নোটিশ মুছে ফেলা: '+n.title);save();closeModal();render();toast('মুছে ফেলা হয়েছে');});}
+</script>
+
+<script>
+/* ================= লাইভ ম্যাচ পেজ (v5) — দল, স্কোর, ঘড়ি, গোল, অবস্থা ================= */
+function vLive(){const L=(typeof liveInfo==='function')?liveInfo():null;
+  if(!L){let nm=null;
+    for(const tn of store.tournaments){if(tn.status==='চলছে'){const m=nextMatch(tn);if(m){nm={tn:tn,m:m};break;}}}
+    return `<div class="shead"><h3><span class="livedot"></span> লাইভ ম্যাচ</h3></div>
+    <div class="card empty"><span class="e">📺</span>এখন কোনো খেলা লাইভ নেই — খেলা শুরু হলেই এখানে স্কোর, ঘড়ি, গোল দেখা যাবে।</div>
+    ${nm?`<div class="shead"><h3>${ic('play')} পরবর্তী ম্যাচ</h3></div>${faceoffCard(nm.tn,nm.m)}`:''}
+    ${schedStripHtml()}`;}
+  const t=L.t,m=L.m;
+  /* v5.2: সময়সূচি — আসন্ন খেলাসমূহ (লাইভ-কার্ড থেকে আলাদা অংশ) */
+  const sched=[];
+  for(const tt of store.tournaments){if(tt.status!=='চলছে')continue;
+    for(const mm of (tt.matches||[])){if(mm.done)continue;
+      if(t&&m&&tt.id===t.id&&mm.id===m.id)continue;
+      const ts=(typeof matchTs==='function')?matchTs(mm):0;
+      sched.push({tt:tt,mm:mm,ts:ts||0});}}
+  sched.sort(function(a,b){return (a.ts||9e15)-(b.ts||9e15);});
+  const schedHtml=sched.length?`<div class="shead"><h3>${ic('calendar')} সময়সূচি — আসন্ন খেলাসমূহ</h3></div>
+  <div class="card schedlist">${sched.slice(0,6).map(function(r,i){
+    const nmA=(r.tt&&r.tt.teams&&r.tt.teams.find(x=>x.id===r.mm.teamA))?r.tt.teams.find(x=>x.id===r.mm.teamA).name:tName(r.tt,r.mm.teamA);
+    const nmB=(r.tt&&r.tt.teams&&r.tt.teams.find(x=>x.id===r.mm.teamB))?r.tt.teams.find(x=>x.id===r.mm.teamB).name:tName(r.tt,r.mm.teamB);
+    return `<div class="srow" style="animation-delay:${Math.min(i*0.06,0.3).toFixed(2)}s">
+      <div class="s-team">${esc(nmA)} <span class="s-vs">বনাম</span> ${esc(nmB)}</div>
+      <div class="s-meta">${esc(r.tt?r.tt.name:'')}${r.mm.round?' • '+esc(r.mm.round):''}${r.mm.date?' • '+fdate(r.mm.date):''}${r.mm.time?' • '+bnDigits(r.mm.time)+' টা':(r.ts?' • '+fdt(r.ts):'')}</div></div>`;}).join('')}</div>`:'';
+  const nameA=L.nA||'টিম এ',nameB=L.nB||'টিম বি';
+  const tA=t&&m&&t.teams?t.teams.find(x=>x.id===m.teamA):null,tB=t&&m&&t.teams?t.teams.find(x=>x.id===m.teamB):null;
+  const colA=tA?teamColor(t,tA.id):'#16a34a',colB=tB?teamColor(t,tB.id):'#2563eb';
+  return `<div class="shead"><h3><span class="livedot"></span> লাইভ ম্যাচ</h3>${t?`<button class="lnk" onclick="go('tournamentDetail','${t.id}')">${esc(t.name)} ›</button>`:''}</div>
+  <div class="card lvcard" style="background:linear-gradient(120deg,${colA}f2,${colB}f2);color:#fff;border:none">
+    <div style="text-align:center"><span class="lvphase">${livePhaseLabel(L.phase)}</span>
+      <div style="opacity:.92;font-size:.8rem;margin-top:3px">${m?esc(m.round||'')+(m.date?' • '+fdate(m.date):''):(L.matchName?'• '+esc(L.matchName):'')}${L.by?' • 📡 '+esc(L.by)+' চালু করেছেন':''}</div></div>
+    <div class="lvteams">
+      <div class="lvteam"><div class="lav">${tA&&tA.logo?`<img src="${tA.logo}" alt="">`:'⚽'}</div><b>${esc(nameA)}</b></div>
+      <div class="lvscore">${bnNum(L.sa)}<span>:</span>${bnNum(L.sb)}</div>
+      <div class="lvteam"><div class="lav">${tB&&tB.logo?`<img src="${tB.logo}" alt="">`:'⚽'}</div><b>${esc(nameB)}</b></div>
+    </div>
+    ${profRow(tA,'A',nameA)}${profRow(tB,'B',nameB)}
+    ${mvpChip(m)}
+    <div style="text-align:center;margin-top:8px"><div class="lvbig" id="lvbig">…</div><div class="lvsub" id="lvsub"></div></div>
+  </div>
+  <div id="lvwrap">${liveBody(t,m,L)}</div>
+  ${schedHtml}`;}
+/* খালি-অবস্থায়ও সময়সূচি */
+function schedStripHtml(){const sched=[];
+  for(const tt of store.tournaments){if(tt.status!=='চলছে')continue;
+    for(const mm of (tt.matches||[])){if(mm.done)continue;
+      const ts=(typeof matchTs==='function')?matchTs(mm):0;
+      sched.push({tt:tt,mm:mm,ts:ts||0});}}
+  sched.sort(function(a,b){return (a.ts||9e15)-(b.ts||9e15);});
+  if(!sched.length)return '';
+  return `<div class="shead"><h3>${ic('calendar')} সময়সূচি — আসন্ন খেলাসমূহ</h3></div>
+  <div class="card schedlist">${sched.slice(0,6).map(function(r,i){
+    const nmA=(r.tt&&r.tt.teams&&r.tt.teams.find(x=>x.id===r.mm.teamA))?r.tt.teams.find(x=>x.id===r.mm.teamA).name:tName(r.tt,r.mm.teamA);
+    const nmB=(r.tt&&r.tt.teams&&r.tt.teams.find(x=>x.id===r.mm.teamB))?r.tt.teams.find(x=>x.id===r.mm.teamB).name:tName(r.tt,r.mm.teamB);
+    return `<div class="srow" style="animation-delay:${Math.min(i*0.06,0.3).toFixed(2)}s">
+      <div class="s-team">${esc(nmA)} <span class="s-vs">বনাম</span> ${esc(nmB)}</div>
+      <div class="s-meta">${esc(r.tt?r.tt.name:'')}${r.mm.round?' • '+esc(r.mm.round):''}${r.mm.date?' • '+fdate(r.mm.date):''}${r.mm.time?' • '+bnDigits(r.mm.time)+' টা':(r.ts?' • '+fdt(r.ts):'')}</div></div>`;}).join('')}</div>`;}
+/* v6.2: লাইড-কার্ডে প্রতিটি দলের খেলোয়াড়-প্রোফাইল ও MVP */
+function profRow(tm,side,label){if(!tm)return '';
+  const m0=(TMR.tourId?store.tournaments.find(x=>x.id===TMR.tourId):null);void m0;
+  const mem=(tm.members||[]);
+  if(!mem.length)return `<div class="lvpros"><span class="lvpl">${esc(label)} — সদস্য নেই</span></div>`;
+  return `<div class="lvpros"><span class="lvpl">${esc(label)}</span>${mem.map(function(pid){
+    const pp=store.players.find(function(x){return x.id===pid;});if(!pp)return '';
+    return `<span class="lvpro" onclick="go('members')">${pp.photo?`<img src="${pp.photo}" alt="">`:`<span class="lvpr">${pp.num?bnNum(pp.num):'👤'}</span>`}<b>${esc(pp.name)}</b></span>`;}).join('')}</div>`;}
+function mvpChip(m){if(!m||!Array.isArray(m.events)||!m.events.length)return '';
+  const cnt={};m.events.forEach(function(e){cnt[e.name]=(cnt[e.name]||0)+1;});
+  let top=null;Object.keys(cnt).forEach(function(k){if(!top||cnt[k]>cnt[top])top=k;});
+  const ev=m.events.find(function(e){return e.name===top;});
+  const tm=(TMR.tourId?store.tournaments.find(x=>x.id===TMR.tourId):null);
+  const tn=tm&&tm.teams?tm.teams.find(x=>x.id===(ev.team==='B'?m.teamB:m.teamA)):null;
+  return `<div class="lvmvp">${ic('crown')} MVP: <b>${esc(top)}</b> — ${bnNum(cnt[top])} ${ev.min!==undefined?'গোল':''} ${tn?`<span style="opacity:.8">(${esc(tn.name)})</span>`:''}</div>`;}
+function liveBody(t,m,L){const nmL=(L&&L.nA)?L:(null);
+  const nameA=(m&&t&&t.teams&&t.teams.find(x=>x.id===m.teamA))?t.teams.find(x=>x.id===m.teamA).name:(nmL?nmL.nA:'টিম এ');
+  const nameB=(m&&t&&t.teams&&t.teams.find(x=>x.id===m.teamB))?t.teams.find(x=>x.id===m.teamB).name:(nmL?nmL.nB:'টিম বি');
+  const tA=(t&&m&&t.teams)?t.teams.find(x=>x.id===m.teamA):null,tB=(t&&m&&t.teams)?t.teams.find(x=>x.id===m.teamB):null;
+  const colA=tA?teamColor(t,tA.id):'#64748b',colB=tB?teamColor(t,tB.id):'#64748b';
+  /* গোলের উৎস: কর্তৃপক্ষের প্রকাশ করা তালিকা (SHARE.goals) সবচেয়ে তাজা — নইলে লোকাল রেকর্ড */
+  const shareGoals=(typeof SHARE!=='undefined'&&SHARE&&Array.isArray(SHARE.goals)&&SHARE.goals.length&&(m?(SHARE.matchId===m.id):true))?SHARE.goals:null;
+  const localEvs=(m&&m.events)||[];
+  let evs;
+  if(shareGoals){/* কর্তৃপক্ষের প্রকাশ + এ-ফোনে এসে পড়া নতুন গোল — দুটোর ইউনিয়ন (ডিডাপ: নাম|মিনিট|সেকেন্ড) */
+    /* v6.1-ফিক্স: দুই-তালিকাই ডিডাপ — আগে shareGoals বাদ পড়ায় প্রতিটা গোল দ্বিগুণ দেখাচ্ছিল */
+    const seen={};evs=[];
+    shareGoals.forEach(function(g){const k=(g.name||'')+'|'+(g.min||0)+'|'+(g.sec||0);if(!seen[k]){seen[k]=1;evs.push(g);}});
+    localEvs.forEach(function(e){const k=(e.name||'')+'|'+(e.min||0)+'|'+(e.sec||0);if(!seen[k]){seen[k]=1;evs.push(e);}});}
+  else evs=localEvs.slice();
+  const mid=shareGoals?null:(m&&m.id);
+  const t2=(t||{teams:[],id:L?L.tourId:''});
+  const m2=shareGoals?{events:evs}:m;
+  return `${evs.length?`<div class="shead"><h3>${ic('ball')} গোলের সম্পূর্ণ তালিকা</h3></div><div class="card">${goalTimeline(t2,evs,nameA,nameB,colA,colB,canAdmin('tournaments')&&!shareGoals,mid)}</div>`
+    :((m||shareGoals)?`<div class="card empty"><span class="e">⚽</span>এখনো কোনো গোল হয়নি — খেলা চলছে!</div>`:'')}
+  ${m&&m.date?`<div class="tsub" style="text-align:center">🗓 ${fdate(m.date)}${m.time?' • 🕒 '+bnDigits(m.time):''} • ${esc(m.round||'')}</div>`:''}
+  ${t&&m&&canGoal()&&L.phase==='play'?`<div class="flabel">⚽ নামে চাপ দিলেই গোল — সময় নিজে থেকেই ধরা পড়বে • − চাপলে সর্বশেষ গোল বাদ</div>
+   ${goalPRows(t,(m&&m.events)||[])}`:''}
+  ${isAdmin()?`<div style="margin-top:10px"><button class="btn dark sm" onclick="openTimer('${t?t.id:''}')">${ic('timer')} টাইমার নিয়ন্ত্রণ (থামান/বিরতি/রিসেট)</button></div>`:''}
+  <div class="tsub" style="text-align:center;margin-top:6px">📡 সব ফোনে একই অবস্থা — গোল, বিরতি বা ফলাফল হলে সঙ্গে সঙ্গে আপডেট হয়</div>`;}
+function renderLive(){if(view!=='live')return;
+  const L=(typeof liveInfo==='function')?liveInfo():null;
+  if(!L){render();return;}
+  /* শেয়ার-ম্যাচ/অবস্থা বদলালে পুরো লাইভ-পেজ একবার নতুন করে আঁকা (নাম-স্কোর-রাউন্ড সব হালনাগাদ) */
+  const sk=(typeof SHARE!=='undefined'&&SHARE)?((SHARE.tourId||'')+'|'+(SHARE.matchId||'')+'|'+(SHARE.phase||'')):'';
+  if(window.__lvKey!==sk){window.__lvKey=sk;render();return;}
+  const phEl=document.querySelector('#view .lvphase');
+  if(phEl&&phEl.textContent!==livePhaseLabel(L.phase))phEl.textContent=livePhaseLabel(L.phase);
+  const big=document.getElementById('lvbig');const sub=document.getElementById('lvsub');
+  if(big)big.textContent=(L.phase==='restw'||L.phase==='startw')?'🔊':((L.phase==='rest')?bnTime(Math.max(0,Math.ceil(((L.restEnd||Date.now())-Date.now())/1000))):bnTime(liveElapsedSec(L)));
+  if(sub)sub.textContent=(L.phase==='rest')?'বিরতির কাউন্টডাউন — খেলার ঘড়ি বন্ধ'
+    :('খেলা শেষ হবে '+bnDigits(L.total)+' মিনিটে • বিরতির সময় এর ভেতরে গণনা হয় না');
+  const w=document.getElementById('lvwrap');
+  if(w&&L.t&&L.m){const evs=(L.m.events||[]);
+    const evKey=evs.map(function(e){return e.min+':'+(e.sec||0)+':'+e.name;}).join('|');
+    const sig=evs.length+':'+L.sa+':'+L.sb+':'+L.phase+':'+evKey;
+    if(w.dataset.sig!==sig){w.dataset.sig=sig;w.innerHTML=liveBody(L.t,L.m,L);}}}
+
+</script>
+
+<script>
+/* ================= v5.1: ম্যাচ-কার্ড থেকে সরাসরি লাইভ + শিডিউল-সময়ে অটো-শুরু ================= */
+function quickLive(tId,mId){const t=store.tournaments.find(x=>x.id===tId);const m=t&&t.matches?t.matches.find(x=>x.id===mId):null;
+  if(!t||!m){toast('ম্যাচ পাওয়া যায়নি','err');return;}
+  if(!isAdmin()){toast('কর্তৃপক্ষ প্রবেশ করুন — ডান-উপরের 🔐','err');return;}
+  if(TMR.phase!=='idle'&&TMR.phase!=='done'){toast('আগের ঘড়ি শেষ/রিসেট করুন তবেই নতুন ম্যাচ','err');return;}
+  TMR.tourId=tId;TMR.matchId=mId;TMR.breakTaken=false;
+  timerGo();
+  if(typeof liveShare==='function')liveShare();
+  go('live');
+  toast('🔴 ম্যাচ লাইভ শুরু — সবার ফোনে চলে যাচ্ছে');}
+/* শিডিউল-করা সময় পেরোলে (এডমিনের ফোন চালু থাকলে) ম্যাচ নিজে থেকেই লাইভ শুরু */
+setInterval(function(){try{
+  if(!isAdmin()||!navigator.onLine)return;
+  if(TMR.phase!=='idle'&&TMR.phase!=='done')return;
+  if(typeof SHARE!=='undefined'&&SHARE)return;
+  const now=Date.now();
+  for(const t of store.tournaments){if(t.status!=='চলছে')continue;
+    for(const m of (t.matches||[])){if(m.done)continue;const ts=matchTs(m);
+      if(ts&&ts<=now&&(now-ts)<3600000){TMR.tourId=t.id;TMR.matchId=m.id;TMR.breakTaken=false;
+        timerGo();if(typeof liveShare==='function')liveShare();
+        toast('⏰ শিডিউল-সময় হয়েছে — "'+tName(t,m.teamA)+' বনাম '+tName(t,m.teamB)+'" লাইভ শুরু হলো');
+        return;}}}}catch(e){}},30000);
 </script>
 <script>
 /* ================= কর্তৃপক্ষের প্রবেশ — গোপন পিন (রিকভারি সার্ভারে হ্যাশ হিসেবে যাচাই হয়) ================= */
@@ -1962,18 +2654,18 @@ async function notifyAllBtn(){openModal(`<div class="mhandle"></div><h3 class="m
   <div class="mbtns"><button class="btn ghost" onclick="closeModal()">বাতিল</button><button class="btn pri" onclick="notifyAllGo()">📤 পাঠান</button></div>`);}
 async function notifyAllGo(){const ti=$('#na-title').value.trim()||'ক্লাবের খবর',bd=$('#na-body').value.trim()||'নতুন আপডেট এসেছে';
   const nid='n'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-  const ok=await dbPut('notify/'+nid,{cid:nid,title:ti,body:bd,type:'info',at:Date.now()});
+  const ok=await dbPut('notify/'+nid,{cid:nid,title:ti,body:bd,type:'notice',at:Date.now()});
   notify(ti,bd,'info');closeModal();
   if(ok)toast('✅ পাঠানো হয়েছে — সবার ফোনে পৌঁছাবে');
   else toast('❗ ইন্টারনেট ছাড়া পাঠানো গেল না — পরে আবার চেষ্টা করুন','err');}
 function adminLogout(){setSession(null);go('home');renderHeader();toast('প্রবেশ বন্ধ হয়েছে');}
-function shareApp(){const lnk=(store.settings.appLink||'').trim();
+function shareApp(){
   const txt='শোভারামপুর স্পোর্টস ফ্যামিলি অ্যাপ — ক্লাবের হিসাব, সদস্য, টুর্নামেন্ট ও লাইভ খেলা এক জায়গায়!'
-    +(lnk?'\nডাউনলোড: '+lnk:'\nঅ্যাপটি কর্তৃপক্ষের কাছ থেকে পাওয়া যাবে (ফোনে ইনস্টল করে নিন)।');
+    +'\nঅ্যাপটি কর্তৃপক্ষের কাছ থেকে পাওয়া যাবে (ফোনে ইনস্টল করে নিন)।';
   if(navigator.share){navigator.share({title:'শোভারামপুর স্পোর্টস ফ্যামিলি',text:txt}).catch(function(){});}
   else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){toast('শেয়ারের লেখা কপি হয়েছে — WhatsApp-এ পেস্ট করুন 📋');},function(){toast('শেয়ার করা গেল না','err');});}
   else toast('এই ফোনে শেয়ার সমর্থিত নয়','err');}
-function setAnn(slot,key){if(!store.settings.annMap)store.settings.annMap={start:'start',rest:'rest',resume:'start',end:'end'};
+function setAnn(slot,key){if(!store.settings.annMap)store.settings.annMap={rest:'rest',resume:'start',end:'end'};
   store.settings.annMap[slot]=key;logAct('ঘোষণার কণ্ঠ বদল: '+slot+' → ক্লিপ ('+key+')');save();
   if(view==='admin')go('admin');
   toast('ঘোষণার কণ্ঠ সেট হয়েছে ✅');}
@@ -1997,20 +2689,20 @@ function vAdmin(){const ses=curSession();
   <div class="card" style="background:#fffbeb;border-color:#fde68a">
     <div class="mtxt"><b>🎁 শুরু করছেন?</b> মাত্র ৩ ধাপ: ১) 👥 সদস্য যোগ করুন → ২) 💰 হিসাব লিখুন (মাঠ ভাড়া, বিল, চাঁদা) → ৩) 🏆 টুর্নামেন্ট বানান। নিচের বড় বাটনেই সব কাজ এক চাপে!</div>
   </div>
-  <div class="shead"><h3>⚡ এক চাপে কাজ</h3></div>
+  <div class="shead"><h3>${ic('zap')} এক চাপে কাজ</h3></div>
   <div class="qgrid">
-    <div class="qtile" onclick="incomeForm()"><span class="qe">💰</span><b>আয় যোগ</b><span class="qs">মাঠ ফি / চাঁদা / দান</span></div>
-    <div class="qtile" onclick="expenseForm()"><span class="qe">🛒</span><b>ব্যয় যোগ</b><span class="qs">মাঠ ভাড়া / বিল / সরঞ্জাম</span></div>
-    <div class="qtile" onclick="playerForm()"><span class="qe">👥</span><b>সদস্য যোগ</b><span class="qs">ছবি + মোবাইল নম্বর</span></div>
-    <div class="qtile" onclick="noticeForm()"><span class="qe">📢</span><b>নোটিশ দিন</b><span class="qs">সবার ফোনে পৌঁছাবে</span></div>
-    <div class="qtile" onclick="tForm()"><span class="qe">🏆</span><b>টুর্নামেন্ট</b><span class="qs">নতুন ঘোষণা করুন</span></div>
-    <div class="qtile" onclick="openGuide()"><span class="qe">❓</span><b>সহায়িকা</b><span class="qs">সব প্রশ্নের উত্তর</span></div>
+    <div class="qtile" style="animation-delay:0ms" onclick="incomeForm()"><span class="qe">${ic('wallet')}</span><b>আয় যোগ</b><span class="qs">মাঠ ফি / চাঁদা / দান</span></div>
+    <div class="qtile" style="animation-delay:70ms" onclick="expenseForm()"><span class="qe">${ic('zap')}</span><b>ব্যয় যোগ</b><span class="qs">মাঠ ভাড়া / বিল / সরঞ্জাম</span></div>
+    <div class="qtile" style="animation-delay:140ms" onclick="playerForm()"><span class="qe">${ic('users')}</span><b>সদস্য যোগ</b><span class="qs">ছবি + মোবাইল নম্বর</span></div>
+    <div class="qtile" style="animation-delay:210ms" onclick="noticeForm()"><span class="qe">${ic('megaphone')}</span><b>নোটিশ দিন</b><span class="qs">সবার ফোনে পৌঁছাবে</span></div>
+    <div class="qtile" style="animation-delay:280ms" onclick="tForm()"><span class="qe">${ic('trophy')}</span><b>টুর্নামেন্ট</b><span class="qs">নতুন ঘোষণা করুন</span></div>
+    <div class="qtile" style="animation-delay:350ms" onclick="openGuide()"><span class="qe">${ic('help')}</span><b>সহায়িকা</b><span class="qs">সব প্রশ্নের উত্তর</span></div>
   </div>
-  <div class="shead"><h3>🔊 ঘোষণার কণ্ঠ (ক্লাবের নিজস্ব ৩টি ভয়েস)</h3></div>
+  <div class="shead"><h3>${ic('broadcast')} ঘোষণার কণ্ঠ (ক্লাবের নিজস্ব ৩টি ভয়েস)</h3></div>
   <div class="card">
-    <div class="tsub" style="margin-bottom:8px">কোন ঘটনায় কোন কণ্ঠ বাজবে বেছে নিন — ▶ চেপে শুনে নিন। প্রতি ঘটনায় ঘোষণা ঠিক একবারই বাজে, আর কোনো বিট/বাড়তি সাউন্ড নেই।</div>
-    ${[['start','খেলা শুরু'],['rest','বিরতি শুরু'],['resume','বিরতি শেষ — আবার শুরু'],['end','খেলা শেষ']].map(function(sl){
-      const def={start:'start',rest:'rest',resume:'start',end:'end'};
+    <div class="tsub" style="margin-bottom:8px">বিরতি শুরু, বিরতি শেষ (আবার খেলা শুরু) আর খেলা শেষ — এই তিন ঘটনায় নির্ধারিত কণ্ঠ <b>একবার করে</b> বাজে। <b>ম্যাচ শুরুতে কোনো ঘোষণা বাজে না</b> — শুরু হয়েছে পর্দায়ই দেখা যায়। ▶ চেপে শুনে নিন, চাইলে কোন ঘটনায় কোন ক্লিপ বদলান।</div>
+    ${[['rest','বিরতি শুরু'],['resume','বিরতি শেষ — আবার শুরু'],['end','খেলা শেষ']].map(function(sl){
+      const def={rest:'rest',resume:'start',end:'end'};
       const cur=(store.settings.annMap&&store.settings.annMap[sl[0]])||def[sl[0]];
       return `<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px">
         <b style="flex:0 0 100%;font-size:.85rem">${sl[1]}</b>
@@ -2019,12 +2711,11 @@ function vAdmin(){const ses=curSession();
         <button class="btn ghost sm" onclick="testAnnKey('${cur}')">▶ শুনুন</button>
       </div>`;}).join('')}
   </div>
-  <div class="shead"><h3>⚙️ ক্লাব সেটিংস</h3></div>
+  <div class="shead"><h3>${ic('gear')} ক্লাব সেটিংস</h3></div>
   <div class="card">
     <div class="fgrp"><label>ক্লাব / দলের নাম</label><input id="st-name" value="${esc(store.settings.clubName)}"></div>
     <div class="fgrp"><label>গ্রামের নাম</label><input id="st-vil" value="${esc(store.settings.village)}"></div>
     <div class="fgrp"><label>ট্যাগলাইন</label><input id="st-tag" value="${esc(store.settings.tagline)}"></div>
-    <div class="fgrp"><label>অ্যাপের লিংক (ঐচ্ছিক — শেয়ার করার সময় যাবে)</label><input id="st-applink" value="${esc(store.settings.appLink||'')}" placeholder="যেমন: https://..."></div>
     <div class="fgrp"><label>লোগো (ঐচ্ছিক)</label>
       <div style="display:flex;align-items:center;gap:10px">
         <div class="ava" id="lgprev" style="width:56px;height:56px;overflow:hidden;margin:0">${store.settings.logo?`<img src="${store.settings.logo}" style="width:100%;height:100%;object-fit:cover">`:'⚽'}</div>
@@ -2033,7 +2724,7 @@ function vAdmin(){const ses=curSession();
       </div></div>
     <button class="btn pri blk" onclick="settingsSave()">সেটিংস সংরক্ষণ</button>
   </div>
-  <div class="shead"><h3>🔑 গোপন পিন ও নোটিফিকেশন</h3></div>
+  <div class="shead"><h3>${ic('lock')} গোপন পিন ও নোটিফিকেশন</h3></div>
   <div class="card">
     <div style="display:flex;align-items:center;gap:10px;padding:2px 0 10px">
       <div style="flex:1;min-width:0"><b style="font-size:.88rem">গোপন পিন</b>
@@ -2042,7 +2733,7 @@ function vAdmin(){const ses=curSession();
     </div>
     <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px dashed var(--line)">
       <div style="flex:1;min-width:0"><b style="font-size:.88rem">নোটিফিকেশন সাউন্ড</b>
-      <div class="tsub">নোটিশ, নতুন ম্যাচ, ফলাফল বা চ্যাম্পিয়ন ঘোষণায় ঘণ্টার শব্দ বাজবে</div></div>
+      <div class="tsub">নোটিশ বা ম্যাচ-শুরুর খবরে ঘণ্টার শব্দ বাজবে</div></div>
       <button class="btn ${store.settings.soundOn===false?'ghost':'pri'} sm" onclick="toggleSound()">${store.settings.soundOn===false?'🔕 বন্ধ':'🔔 চালু'}</button>
     </div>
     <div style="display:flex;align-items:center;gap:10px;padding:10px 0 2px;border-top:1px dashed var(--line)">
@@ -2059,7 +2750,7 @@ function vAdmin(){const ses=curSession();
     </div>
     ${usage?`<div class="tsub" style="margin-top:10px;border-top:1px dashed var(--line);padding-top:8px">📲 এই ফোনে প্রথম খোলা: <b>${ftime(usage.first)}</b> • এ পর্যন্ত <b>${bnNum(usage.opens)}</b> বার</div>`:''}
   </div>
-  <div class="shead"><h3>💾 ব্যাকআপ ও শেয়ার</h3></div>
+  <div class="shead"><h3>${ic('cloud')} ব্যাকআপ ও শেয়ার</h3></div>
   <div class="card">
     <div class="mtxt">☁️ ইন্টারনেট থাকলে এখন লেখা হিসাব-টুর্নামেন্ট <b>নিজে থেকেই সবার ফোনে চলে যায়</b> (Realtime Database চালু থাকলে)। তবু নিরাপত্তার জন্য মাঝে মাঝে ব্যাকআপ ফাইল নিয়ে WhatsApp-এ পাঠিয়ে রাখুন — ফোন হারালেও হিসাব বাঁচবে।</div>
     <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
@@ -2078,7 +2769,6 @@ function vAdmin(){const ses=curSession();
 function settingsSave(){store.settings.clubName=$('#st-name').value.trim()||store.settings.clubName;
   store.settings.village=$('#st-vil').value.trim()||store.settings.village;
   store.settings.tagline=$('#st-tag').value.trim();
-  store.settings.appLink=$('#st-applink').value.trim();
   if(window._logo){store.settings.logo=window._logo;window._logo='';}
   logAct('ক্লাব সেটিংস পরিবর্তন');save();renderHeader();toast('সেটিংস সংরক্ষিত ✅');}
 function toggleSound(){store.settings.soundOn=store.settings.soundOn===false?true:false;
